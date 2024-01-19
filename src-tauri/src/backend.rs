@@ -1,6 +1,6 @@
 use tauri::Manager;
 
-use crate::enums::BackendEvent;
+use crate::{enums::BackendEvent, windows::enum_functions};
 
 pub struct Backend<'a> {
     app: &'a tauri::AppHandle,
@@ -23,7 +23,10 @@ impl<'a> Backend<'a> {
             win.hide().unwrap();
         } else {
             self.app
-                .emit_all(&BackendEvent::ShowWindowSwitcher.to_string(), "")
+                .emit_all(
+                    &BackendEvent::ShowWindowSwitcher.to_string(),
+                    &enum_functions::get_process_and_monitor_info()
+                )
                 .unwrap();
 
             win.show().unwrap();

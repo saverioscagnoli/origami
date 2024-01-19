@@ -4,8 +4,10 @@ import { BackendEvent } from "@lib";
 function App() {
   let input: HTMLInputElement;
 
-  useEvent<string>(BackendEvent.ShowWindowSwitcher, () => {
+  useEvent<string>(BackendEvent.ShowWindowSwitcher, c => {
     input.focus();
+
+    console.log(c);
   });
 
   useEvent<string>(BackendEvent.HideWindowSwitcher, () => {
