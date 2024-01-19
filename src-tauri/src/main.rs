@@ -1,5 +1,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod listener;
+mod backend;
+mod enums;
+
+use std::thread;
+
+use listener::HotkeyListener;
 use tauri::Manager;
 use window_shadows::set_shadow;
 
@@ -11,6 +18,11 @@ fn main() {
             let win = handle.get_window("main").unwrap();
 
             set_shadow(win, true).unwrap();
+
+            thread::spawn(move || {
+                let listener = HotkeyListener::new(&handle);
+                listener.start_listening();
+            });
 
             Ok(())
         })

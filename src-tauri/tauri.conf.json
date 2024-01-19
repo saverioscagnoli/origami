@@ -35,12 +35,14 @@
     "windows": [
       {
         "fullscreen": false,
-        "resizable": true,
+        "resizable": false,
         "title": "origami",
         "width": 700,
         "height": 400,
         "decorations": false,
-        "center": true
+        "center": true,
+        "alwaysOnTop": true,
+        "visible": false
       }
     ]
   }
