@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod backend;
+mod commands;
 mod enums;
 mod listener;
 mod utils;
@@ -19,7 +20,7 @@ fn main() {
     let system_tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![])
+        .invoke_handler(tauri::generate_handler![commands::kill_process])
         .system_tray(system_tray)
         .on_system_tray_event(|app, event| {
             if let SystemTrayEvent::MenuItemClick { id, .. } = event {
@@ -31,6 +32,11 @@ fn main() {
         .setup(|app| {
             let handle = app.handle();
             let win = handle.get_window("main").unwrap();
+
+            #[cfg(debug_assertions)]
+            {
+                win.open_devtools();
+            }
 
             utils::disable_window_transitions(&win);
 

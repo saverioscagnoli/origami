@@ -3,4 +3,8 @@ enum BackendEvent {
   HideWindowSwitcher = "hide-window-switcher"
 }
 
-export { BackendEvent };
+enum Command {
+  KillProcess = "kill_process"
+}
+
+export { BackendEvent, Command };

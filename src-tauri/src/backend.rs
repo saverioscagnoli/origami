@@ -25,12 +25,12 @@ impl<'a> Backend<'a> {
             self.app
                 .emit_all(
                     &BackendEvent::ShowWindowSwitcher.to_string(),
-                    &enum_functions::get_process_and_monitor_info()
+                    &enum_functions::get_process_and_monitor_info(),
                 )
                 .unwrap();
 
             win.show().unwrap();
-            win.set_always_on_top(true).unwrap();
+            win.set_focus().unwrap();
         }
     }
 }

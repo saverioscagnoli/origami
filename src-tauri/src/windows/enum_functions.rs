@@ -6,6 +6,9 @@ use std::ptr::null_mut;
 use serde::{Deserialize, Serialize};
 use winapi::shared::minwindef::{BOOL, LPARAM};
 use winapi::shared::windef::{HDC, HMONITOR, HWND, RECT};
+use winapi::um::processthreadsapi::OpenProcess;
+use winapi::um::psapi::GetModuleFileNameExW;
+use winapi::um::winnt::{PROCESS_QUERY_INFORMATION, PROCESS_VM_READ};
 use winapi::um::winuser::{EnumDisplayMonitors, GetWindowThreadProcessId, MONITORINFO};
 use winapi::um::winuser::{EnumWindows, GetMonitorInfoW, GetWindowTextW, IsWindowVisible};
 
@@ -56,10 +59,10 @@ pub fn get_monitor_info() -> HashMap<i32, MonitorInfo> {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProcessInfo {
-    pub pid: u32,
-    pub window_title: Vec<String>,
+    pub id: u32,
+    pub window_titles: Vec<String>,
+    pub exe_path: String,
 }
-
 extern "system" fn list_process_ids_callback(hwnd: HWND, lparam: LPARAM) -> BOOL {
     unsafe {
         if IsWindowVisible(hwnd) == 0 {
@@ -74,11 +77,20 @@ extern "system" fn list_process_ids_callback(hwnd: HWND, lparam: LPARAM) -> BOOL
 
         let title = String::from_utf16_lossy(&title);
 
+        let process_handle =
+            OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, 0, process_id);
+
+        let mut exe_path: [u16; 256] = [0; 256];
+        GetModuleFileNameExW(process_handle, null_mut(), exe_path.as_mut_ptr(), 256);
+
+        let exe_path = String::from_utf16_lossy(&exe_path);
+
         let processes_info = &mut *(lparam as *mut Vec<ProcessInfo>);
 
         processes_info.push(ProcessInfo {
-            pid: process_id,
-            window_title: vec![title.trim_end_matches('\0').to_string()],
+            id: process_id,
+            window_titles: vec![title.trim_end_matches('\0').to_string()],
+            exe_path: exe_path.trim_end_matches('\0').to_string(),
         });
 
         1
@@ -95,19 +107,24 @@ pub fn get_open_windows() -> Vec<ProcessInfo> {
         );
     }
 
-    let mut pid_to_titles: HashMap<u32, Vec<String>> = HashMap::new();
+    let mut pid_to_info: HashMap<u32, ProcessInfo> = HashMap::new();
 
     for info in processes_info {
-        pid_to_titles
-            .entry(info.pid)
-            .or_default()
-            .extend(info.window_title);
+        pid_to_info
+            .entry(info.id)
+            .or_insert_with(|| ProcessInfo {
+                id: info.id,
+                window_titles: Vec::new(),
+                exe_path: info.exe_path.clone(),
+            })
+            .window_titles
+            .extend(info.window_titles);
     }
 
-    let filtered_infos = pid_to_titles
+    let filtered_infos = pid_to_info
         .into_iter()
-        .map(|(pid, window_title)| ProcessInfo { pid, window_title })
-        .filter(|i| !i.window_title.contains(&"".to_string()))
+        .map(|(_, info)| info)
+        .filter(|i| !i.window_titles.contains(&"".to_string()))
         .collect();
 
     filtered_infos
