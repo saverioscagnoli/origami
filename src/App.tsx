@@ -7,6 +7,7 @@ interface ProcessInfo {
   id: number;
   window_titles: string[];
   exe_path: string;
+  icon: string;
 }
 
 export interface MonitorInfo {
@@ -124,10 +125,11 @@ function App() {
           {(p, i) => (
             <div
               class={[
-                "w-full flex gap-2 p-2",
+                "w-full flex items-center gap-2 p-2",
                 index() === i() ? "bg-yellow-400 text-[#18181b]" : ""
               ].join(" ")}
             >
+              <img src={`data:image/png;base64,${p.icon}`} />
               <p
                 class={[
                   index() === i() ? "text-[#18181b]" : "text-green-500"
