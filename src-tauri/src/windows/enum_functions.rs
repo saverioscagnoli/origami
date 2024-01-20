@@ -5,16 +5,30 @@ use std::ptr::null_mut;
 
 use serde::{Deserialize, Serialize};
 use winapi::shared::minwindef::{BOOL, LPARAM};
-use winapi::shared::windef::{HDC, HMONITOR, HWND, RECT};
+use winapi::shared::windef::{HDC, HMONITOR, HWND, POINT, RECT};
 use winapi::um::processthreadsapi::OpenProcess;
 use winapi::um::psapi::GetModuleFileNameExW;
 use winapi::um::winnt::{PROCESS_QUERY_INFORMATION, PROCESS_VM_READ};
-use winapi::um::winuser::{EnumDisplayMonitors, GetWindowThreadProcessId, MONITORINFO};
+use winapi::um::winuser::{
+    EnumDisplayMonitors, GetWindowLongW, GetWindowRect, GetWindowThreadProcessId, MonitorFromPoint,
+    MonitorFromWindow, SetForegroundWindow, SetWindowPos, ShowWindow, GWL_STYLE, HWND_TOP,
+    MONITORINFO, MONITOR_DEFAULTTONEAREST, SWP_SHOWWINDOW, SW_MAXIMIZE, SW_RESTORE, WS_MAXIMIZE,
+};
 use winapi::um::winuser::{EnumWindows, GetMonitorInfoW, GetWindowTextW, IsWindowVisible};
+
+use crate::commands::EnumInfoAsLParam;
 
 #[derive(Serialize, Deserialize)]
 pub struct MonitorInfo {
     pub position: (i32, i32),
+}
+
+impl Clone for MonitorInfo {
+    fn clone(&self) -> Self {
+        MonitorInfo {
+            position: self.position,
+        }
+    }
 }
 
 unsafe extern "system" fn enum_monitor_callback(
@@ -23,38 +37,33 @@ unsafe extern "system" fn enum_monitor_callback(
     _: *mut RECT,
     data: LPARAM,
 ) -> i32 {
-    let monitor_map = &mut *(data as *mut HashMap<i32, MonitorInfo>);
+    let monitors: &mut Vec<MonitorInfo> = &mut *(data as *mut Vec<MonitorInfo>);
 
     let mut monitor_info: MONITORINFO = std::mem::zeroed();
     monitor_info.cbSize = std::mem::size_of::<MONITORINFO>() as u32;
 
     if GetMonitorInfoW(hmonitor, &mut monitor_info as *mut _ as *mut _) != 0 {
-        let monitor_number = monitor_map.len() as i32 + 1;
+        let position = (monitor_info.rcMonitor.left, monitor_info.rcMonitor.top);
 
-        monitor_map.insert(
-            monitor_number,
-            MonitorInfo {
-                position: (monitor_info.rcMonitor.left, monitor_info.rcMonitor.top),
-            },
-        );
+        monitors.push(MonitorInfo { position });
     }
 
     1
 }
 
-pub fn get_monitor_info() -> HashMap<i32, MonitorInfo> {
-    let mut monitor_map: HashMap<i32, MonitorInfo> = HashMap::new();
+pub fn get_monitor_info() -> Vec<MonitorInfo> {
+    let mut monitors: Vec<MonitorInfo> = Vec::new();
 
     unsafe {
         EnumDisplayMonitors(
             null_mut(),
             null_mut(),
             Some(enum_monitor_callback),
-            &mut monitor_map as *mut _ as LPARAM,
+            &mut monitors as *mut _ as LPARAM,
         );
     }
 
-    monitor_map
+    monitors
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -110,6 +119,17 @@ pub fn get_open_windows() -> Vec<ProcessInfo> {
     let mut pid_to_info: HashMap<u32, ProcessInfo> = HashMap::new();
 
     for info in processes_info {
+        if vec![
+            "ApplicationFrameHost.exe",
+            "TextInputHost.exe",
+            "ApplicationFrameHost.exe",
+            "SystemSettings.exe",
+        ]
+        .contains(&info.exe_path.as_str().split("\\").last().unwrap())
+        {
+            continue;
+        }
+
         pid_to_info
             .entry(info.id)
             .or_insert_with(|| ProcessInfo {
@@ -133,7 +153,7 @@ pub fn get_open_windows() -> Vec<ProcessInfo> {
 #[derive(Serialize, Deserialize)]
 pub struct Info {
     pub process_info: Vec<ProcessInfo>,
-    pub monitor_info: HashMap<i32, MonitorInfo>,
+    pub monitor_info: Vec<MonitorInfo>,
 }
 
 pub fn get_process_and_monitor_info() -> Info {
@@ -146,4 +166,87 @@ pub fn get_process_and_monitor_info() -> Info {
     };
 
     info
+}
+
+pub unsafe extern "system" fn focus_window_callback(hwnd: HWND, lparam: LPARAM) -> i32 {
+    if IsWindowVisible(hwnd) == 0 {
+        return 1;
+    }
+
+    let params = &mut *(lparam as *mut EnumInfoAsLParam);
+
+    let target_process_id = params.pid;
+    let target_monitor_number = params.monitor_number;
+
+    let mut process_id = 0;
+
+    GetWindowThreadProcessId(hwnd, &mut process_id);
+
+    if process_id == target_process_id as u32 {
+        let window_style = GetWindowLongW(hwnd, GWL_STYLE) as u32;
+        let window_monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+
+        let monitor_info = get_monitor_info();
+        let monitor = monitor_info[target_monitor_number as usize].clone();
+
+        let (x, y) = monitor.position;
+
+        let target_monitor = MonitorFromPoint(POINT { x, y }, MONITOR_DEFAULTTONEAREST);
+
+        let mut rect = std::mem::zeroed();
+        GetWindowRect(hwnd, &mut rect);
+
+        let window_width = rect.right - rect.left;
+        let window_height = rect.bottom - rect.top;
+
+        if window_monitor != target_monitor {
+            if window_style & WS_MAXIMIZE != 0 {
+                ShowWindow(hwnd, SW_RESTORE);
+                SetWindowPos(
+                    hwnd,
+                    HWND_TOP,
+                    x,
+                    y,
+                    window_width,
+                    window_height,
+                    SWP_SHOWWINDOW,
+                );
+                SetForegroundWindow(hwnd);
+                ShowWindow(hwnd, SW_MAXIMIZE);
+            } else {
+                SetWindowPos(
+                    hwnd,
+                    HWND_TOP,
+                    x,
+                    y,
+                    window_width,
+                    window_height,
+                    SWP_SHOWWINDOW,
+                );
+                ShowWindow(hwnd, SW_RESTORE);
+                SetForegroundWindow(hwnd);
+            }
+        } else {
+            SetWindowPos(
+                hwnd,
+                HWND_TOP,
+                rect.left,
+                rect.top,
+                window_width,
+                window_height,
+                SWP_SHOWWINDOW,
+            );
+
+            if window_style & WS_MAXIMIZE != 0 {
+                ShowWindow(hwnd, SW_RESTORE);
+                SetForegroundWindow(hwnd);
+                ShowWindow(hwnd, SW_MAXIMIZE);
+            } else {
+                ShowWindow(hwnd, SW_RESTORE);
+                SetForegroundWindow(hwnd);
+            }
+        }
+    }
+
+    1
 }

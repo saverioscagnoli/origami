@@ -46,7 +46,20 @@
         "decorations": false,
         "center": true,
         "alwaysOnTop": true,
-        "visible": false
+        "visible": false,
+        "url": "html/index.html"
+      },
+      {
+        "fullscreen": false,
+        "resizable": false,
+        "title": "Select monior",
+        "label": "select-monitor",
+        "width": 300,
+        "height": 300,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "visible": false,
+        "url": "html/monitor-selector.html"
       }
     ]
   }

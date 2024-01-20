@@ -9,7 +9,9 @@ interface ProcessInfo {
   exe_path: string;
 }
 
-type MonitorInfo = { [key: number]: { position: [number, number] } };
+export interface MonitorInfo {
+  position: [number, number];
+}
 
 interface Info {
   process_info: ProcessInfo[];
@@ -47,8 +49,25 @@ function App() {
     if (evt.key === "ArrowDown") goDown();
 
     if (evt.key === "Delete") {
-      let pid = info().process_info[index()].id;
+      let pid = filteredInfo().process_info[index()].id;
       onKill(pid)();
+    }
+
+    if (evt.key === "Enter") {
+      if (evt.shiftKey) {
+        let pid = filteredInfo().process_info[index()].id;
+
+        invoke(Command.ToggleMonitorSelector, {
+          count: filteredInfo().monitor_info.length,
+          pid,
+          i: index()
+        });
+      } else {
+        let pid = filteredInfo().process_info[index()].id;
+
+        invoke(Command.FocusWindow, { pid, monitorNumber: 0 });
+        setSearchParam("");
+      }
     }
   });
 
@@ -105,10 +124,9 @@ function App() {
           {(p, i) => (
             <div
               class={[
-                "w-full flex gap-2 p-2 cursor-pointer hover:bg-yellow-400 hover:text-[#18181b]",
+                "w-full flex gap-2 p-2",
                 index() === i() ? "bg-yellow-400 text-[#18181b]" : ""
               ].join(" ")}
-              onClick={onKill(p.id)}
             >
               <p
                 class={[

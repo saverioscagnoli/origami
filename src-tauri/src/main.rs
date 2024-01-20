@@ -20,7 +20,11 @@ fn main() {
     let system_tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![commands::kill_process])
+        .invoke_handler(tauri::generate_handler![
+            commands::kill_process,
+            commands::toggle_monitor_selector,
+            commands::focus_window
+        ])
         .system_tray(system_tray)
         .on_system_tray_event(|app, event| {
             if let SystemTrayEvent::MenuItemClick { id, .. } = event {
@@ -32,15 +36,19 @@ fn main() {
         .setup(|app| {
             let handle = app.handle();
             let win = handle.get_window("main").unwrap();
+            let select_monitor_win = handle.get_window("select-monitor").unwrap();
 
             #[cfg(debug_assertions)]
             {
                 win.open_devtools();
+                select_monitor_win.open_devtools();
             }
 
             utils::disable_window_transitions(&win);
+            utils::disable_window_transitions(&select_monitor_win);
 
             set_shadow(win, true).unwrap();
+            set_shadow(select_monitor_win, true).unwrap();
 
             thread::spawn(move || {
                 let listener = HotkeyListener::new(&handle);

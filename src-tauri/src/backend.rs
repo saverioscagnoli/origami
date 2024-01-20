@@ -16,11 +16,14 @@ impl<'a> Backend<'a> {
         let is_visible = win.is_visible().unwrap();
 
         if is_visible {
+            let select_monitor_window = self.app.get_window("select-monitor").unwrap();
+
             self.app
                 .emit_all(&BackendEvent::HideWindowSwitcher.to_string(), "")
                 .unwrap();
 
             win.hide().unwrap();
+            select_monitor_window.hide().unwrap();
         } else {
             self.app
                 .emit_all(
