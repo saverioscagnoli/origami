@@ -1,6 +1,7 @@
 import { useEvent } from "@hooks";
 import { BackendEvent, Command, trimPath } from "@lib";
 import { invoke } from "@tauri-apps/api";
+import { emit } from "@tauri-apps/api/event";
 import { For, createEffect, createSignal } from "solid-js";
 
 interface ProcessInfo {
@@ -98,6 +99,8 @@ function App() {
         .includes(searchParam().toLowerCase())
     );
 
+    emit("seach");
+
     setIndex(0);
     setFilteredInfo({ ...info(), process_info: filtered });
   };
@@ -139,7 +142,7 @@ function App() {
                 {trimPath(p.exe_path)}
                 {"]"}
               </p>
-              <p>
+              <p class="whitespace-nowrap overflow-hidden overflow-ellipsis">
                 -{" "}
                 {p.window_titles.length > 1
                   ? `${p.window_titles.length} Windows`

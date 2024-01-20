@@ -50,6 +50,8 @@ impl<'a> HotkeyListener<'a> {
     }
 
     pub fn start_listening(self) {
+        self.backend.listen();
+
         self.event_loop
             .run(move |_, target| {
                 target.set_control_flow(ControlFlow::Wait);

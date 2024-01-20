@@ -2,16 +2,14 @@
 
 mod backend;
 mod commands;
-mod enums;
+mod libs;
 mod listener;
-mod utils;
 mod windows;
 
-use std::thread;
-
+use libs::utils;
 use listener::HotkeyListener;
+use std::thread;
 use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
-use window_shadows::set_shadow;
 
 fn main() {
     let quit_tray = CustomMenuItem::new("quit", "Quit");
@@ -23,7 +21,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             commands::kill_process,
             commands::toggle_monitor_selector,
-            commands::focus_window
+            commands::focus_window,
+            commands::toggle_window_selector
         ])
         .system_tray(system_tray)
         .on_system_tray_event(|app, event| {
@@ -35,20 +34,26 @@ fn main() {
         })
         .setup(|app| {
             let handle = app.handle();
-            let win = handle.get_window("main").unwrap();
-            let select_monitor_win = handle.get_window("select-monitor").unwrap();
 
-            #[cfg(debug_assertions)]
+            /* #[cfg(debug_assertions)]
             {
+                let win = handle.get_window("main").unwrap();
+                let select_monitor_win = handle.get_window("select-monitor").unwrap();
+
                 win.open_devtools();
                 select_monitor_win.open_devtools();
-            }
+            } */
 
-            utils::disable_window_transitions(&win);
-            utils::disable_window_transitions(&select_monitor_win);
+            let cloned_handle = handle.clone();
 
-            set_shadow(win, true).unwrap();
-            set_shadow(select_monitor_win, true).unwrap();
+            handle.emit_all("sas", "").unwrap();
+
+            thread::spawn(move || {
+                cloned_handle.listen_global("sas", |_| println!("porcodio!!!!"));
+            });
+
+            utils::disable_window_transitions_all(&handle);
+            utils::enable_window_shadows_all(&handle);
 
             thread::spawn(move || {
                 let listener = HotkeyListener::new(&handle);

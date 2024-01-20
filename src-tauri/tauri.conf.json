@@ -40,7 +40,8 @@
       {
         "fullscreen": false,
         "resizable": false,
-        "title": "origami",
+        "title": "Switch window",
+        "label": "window-switcher",
         "width": 700,
         "height": 400,
         "decorations": false,
@@ -53,13 +54,25 @@
         "fullscreen": false,
         "resizable": false,
         "title": "Select monior",
-        "label": "select-monitor",
+        "label": "monitor-selector",
         "width": 300,
         "height": 300,
         "decorations": false,
         "alwaysOnTop": true,
         "visible": false,
         "url": "html/monitor-selector.html"
+      },
+      {
+        "fullscreen": false,
+        "resizable": false,
+        "title": "Select monior",
+        "label": "window-selector",
+        "width": 300,
+        "height": 300,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "visible": false,
+        "url": "html/window-selector.html"
       }
     ]
   }

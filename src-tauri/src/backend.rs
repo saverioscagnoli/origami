@@ -1,6 +1,8 @@
 use tauri::Manager;
 
-use crate::{enums::BackendEvent, windows::enum_functions};
+use crate::libs::enums::{BackendEvent, WindowLabel};
+use crate::libs::utils;
+use crate::windows::enum_functions;
 
 pub struct Backend<'a> {
     app: &'a tauri::AppHandle,
@@ -11,19 +13,22 @@ impl<'a> Backend<'a> {
         Self { app }
     }
 
+    pub fn listen(&self) {
+        self.app.listen_global("seach", |_| println!("asdfasdfasd"));
+    }
+
     pub fn switcher_callback(&self) {
-        let win = self.app.get_window("main").unwrap();
-        let is_visible = win.is_visible().unwrap();
+        let window_switcher_win = utils::get_window(self.app, WindowLabel::WindowSwitcher);
+
+        let is_visible = window_switcher_win.is_visible().unwrap();
 
         if is_visible {
-            let select_monitor_window = self.app.get_window("select-monitor").unwrap();
-
             self.app
                 .emit_all(&BackendEvent::HideWindowSwitcher.to_string(), "")
                 .unwrap();
 
-            win.hide().unwrap();
-            select_monitor_window.hide().unwrap();
+            utils::hide_window(self.app, WindowLabel::WindowSwitcher);
+            utils::hide_window(self.app, WindowLabel::MonitorSelector);
         } else {
             self.app
                 .emit_all(
@@ -32,8 +37,7 @@ impl<'a> Backend<'a> {
                 )
                 .unwrap();
 
-            win.show().unwrap();
-            win.set_focus().unwrap();
+            utils::show_window(self.app, WindowLabel::WindowSwitcher);
         }
     }
 }

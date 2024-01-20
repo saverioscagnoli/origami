@@ -18,5 +18,14 @@ export default defineConfig(async () => ({
       // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"]
     }
+  },
+
+  build: {
+    rollupOptions: {
+      input: {
+        index: "./html/index.html",
+        "monitor-selector": "./html/monitor-selector.html"
+      }
+    }
   }
 }));
