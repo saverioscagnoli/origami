@@ -82,12 +82,23 @@ extern "system" fn get_process_info(hwnd: HWND, _lparam: LPARAM) -> BOOL {
 
         let processes = unsafe { &mut *(_lparam as *mut Vec<Process>) };
 
-        processes.push(Process {
-            id: process_id,
-            title,
-            exe_path,
-            icon: unsafe { icon_handle_to_base64(icon_handle) },
-        });
+        if processes.iter().any(|p| p.exe_path == exe_path) {
+            let process = processes
+                .iter_mut()
+                .find(|p| p.exe_path == exe_path)
+                .unwrap();
+            process
+                .titles
+                .push(title.trim_end_matches('\0').to_string());
+            return 1;
+        } else {
+            processes.push(Process {
+                id: process_id,
+                titles: vec![title.trim_end_matches('\0').to_string()],
+                exe_path,
+                icon: unsafe { icon_handle_to_base64(icon_handle) },
+            });
+        }
     }
     1
 }
@@ -95,7 +106,7 @@ extern "system" fn get_process_info(hwnd: HWND, _lparam: LPARAM) -> BOOL {
 #[derive(Serialize)]
 pub struct Process {
     id: u32,
-    title: String,
+    titles: Vec<String>,
     exe_path: String,
     icon: String,
 }

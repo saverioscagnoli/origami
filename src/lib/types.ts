@@ -1,6 +1,6 @@
 interface Process {
   id: number;
-  title: string;
+  titles: string[];
   exe_path: string;
   icon: string;
 }

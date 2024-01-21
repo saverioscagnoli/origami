@@ -8,7 +8,9 @@ enum BackendEvent {
 }
 
 enum Command {
-  KillProcess = "kill_process"
+  KillProcess = "kill_process",
+  ShowWindowSelector = "show_window_selector",
+  HideWindowSelector = "hide_window_selector"
 }
 
 export { BackendEvent, Command };

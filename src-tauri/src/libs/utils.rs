@@ -1,13 +1,17 @@
 use std::mem;
 
+use serde::Serialize;
 use tauri::Manager;
 use winapi::{
     ctypes::c_void,
-    um::dwmapi::{DwmSetWindowAttribute, DWMWA_TRANSITIONS_FORCEDISABLED},
+    um::{
+        dwmapi::{DwmSetWindowAttribute, DWMWA_TRANSITIONS_FORCEDISABLED},
+        winuser::{GetSystemMetrics, SM_CXSCREEN, SM_CYSCREEN},
+    },
 };
 use window_shadows::set_shadow;
 
-use super::enums::WindowLabel;
+use super::enums::{BackendEvent, WindowLabel};
 
 pub fn get_window(app: &tauri::AppHandle, label: WindowLabel) -> tauri::Window {
     let win = app.get_window(label.as_str());
@@ -87,4 +91,16 @@ pub fn enable_window_shadows_all(app: &tauri::AppHandle) {
     for win in windows {
         set_shadow(win, true).unwrap();
     }
+}
+
+pub fn get_screen_width() -> i32 {
+    unsafe { GetSystemMetrics(SM_CXSCREEN) }
+}
+
+pub fn get_screen_height() -> i32 {
+    unsafe { GetSystemMetrics(SM_CYSCREEN) }
+}
+
+pub fn emit_to_frontend<F: Serialize>(app: &tauri::AppHandle, event: BackendEvent, data: F) {
+    app.emit_all(event.as_str(), &data).unwrap();
 }

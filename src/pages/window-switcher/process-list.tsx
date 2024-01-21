@@ -1,3 +1,4 @@
+//import { useSelection } from "@hooks";
 import { Command, Process, goDown, goUp } from "@lib";
 import { invoke } from "@tauri-apps/api";
 import { Accessor, Component, For, Setter, createSignal } from "solid-js";
@@ -19,7 +20,7 @@ const ProcessList: Component<ProcessListProps> = ({
     let s = search().toLowerCase();
     return processes().filter(
       p =>
-        p.title.toLowerCase().includes(s) ||
+        p.titles.some(t => t.toLowerCase().includes(s)) ||
         p.exe_path.toLowerCase().includes(s)
     );
   };
@@ -28,12 +29,12 @@ const ProcessList: Component<ProcessListProps> = ({
     if (e.key === "Tab") {
       e.preventDefault();
 
-      if (e.shiftKey) goUp(setSelected, filteredProcesses);
-      else goDown(setSelected, filteredProcesses);
+      if (e.shiftKey) goUp(setSelected, filteredProcesses());
+      else goDown(setSelected, filteredProcesses());
     }
 
-    if (e.key === "ArrowUp") goUp(setSelected, filteredProcesses);
-    if (e.key === "ArrowDown") goDown(setSelected, filteredProcesses);
+    if (e.key === "ArrowUp") goUp(setSelected, filteredProcesses());
+    if (e.key === "ArrowDown") goDown(setSelected, filteredProcesses());
 
     if (e.key === "Delete") {
       let p = filteredProcesses()[selected()];
@@ -43,6 +44,17 @@ const ProcessList: Component<ProcessListProps> = ({
       });
 
       if (res) setProcesses(res);
+    }
+
+    if (e.key === "Enter") {
+      let p = filteredProcesses()[selected()];
+
+      if (p.titles.length > 1) {
+        invoke(Command.ShowWindowSelector, {
+          titles: p.titles,
+          index: selected()
+        });
+      }
     }
   });
 
@@ -64,7 +76,10 @@ const ProcessList: Component<ProcessListProps> = ({
                 {"]"}
               </p>
               <p class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis">
-                - {p.title}
+                -{" "}
+                {p.titles.length === 1
+                  ? p.titles[0]
+                  : `${p.titles.length} Windows`}
               </p>
             </div>
           </div>
