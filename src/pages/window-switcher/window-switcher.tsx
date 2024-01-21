@@ -10,11 +10,20 @@ import { Process } from "@lib";
 
 const WindowSwitcher = () => {
   const [processes, setProcesses] = createSignal<Process[]>([]);
+  const [search, setSearch] = createSignal<string>("");
 
   return (
     <div class="w-screen h-screen flex flex-col bg-[#1D1919] text-white">
-      <SearchBar setProcesses={setProcesses} />
-      <ProcessList processes={processes} setProcesses={setProcesses} />
+      <SearchBar
+        search={search}
+        setSearch={setSearch}
+        setProcesses={setProcesses}
+      />
+      <ProcessList
+        search={search}
+        processes={processes}
+        setProcesses={setProcesses}
+      />
     </div>
   );
 };

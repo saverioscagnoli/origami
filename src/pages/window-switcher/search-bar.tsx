@@ -1,18 +1,29 @@
 import { useEvent } from "@hooks";
-import { BackendEvent, Process } from "@lib";
-import { Component, Setter } from "solid-js";
+import { BackendEvent, KeyEvent, Process } from "@lib";
+import { Accessor, Component, Setter } from "solid-js";
 
 interface SearchBarProps {
+  search: Accessor<string>;
+  setSearch: Setter<string>;
   setProcesses: Setter<Process[]>;
 }
 
-const SearchBar: Component<SearchBarProps> = ({ setProcesses }) => {
+const SearchBar: Component<SearchBarProps> = ({
+  search,
+  setSearch,
+  setProcesses
+}) => {
   let inputRef: HTMLInputElement;
 
   useEvent<Process[]>(BackendEvent.ShowWindowSwitcher, p => {
     inputRef.focus();
     setProcesses(p);
   });
+
+  const onSearch = (e: KeyEvent) => {
+    let val = e.target.value;
+    setSearch(val);
+  };
 
   return (
     <div class="w-full h-16 flex p-2">
@@ -21,6 +32,8 @@ const SearchBar: Component<SearchBarProps> = ({ setProcesses }) => {
         class="!w-full !p-2"
         spellcheck={false}
         style={{ all: "unset" }}
+        value={search()}
+        onInput={onSearch}
       />
     </div>
   );

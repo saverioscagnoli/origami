@@ -5,4 +5,6 @@ interface Process {
   icon: string;
 }
 
-export type { Process };
+type KeyEvent = InputEvent & { target: HTMLInputElement };
+
+export type { Process, KeyEvent };

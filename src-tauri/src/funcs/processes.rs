@@ -183,8 +183,10 @@ pub unsafe fn icon_handle_to_base64(icon: HICON) -> String {
     DeleteObject(info.hbmColor as *mut c_void);
 
     for chunk in buf.chunks_exact_mut(4) {
-        let [b, _, r, _] = chunk else { unreachable!() };
+        let [b, g, r, a] = chunk else { unreachable!() };
         mem::swap(b, r);
+        *g = *g;
+        *a = *a;
     }
 
     let img = RgbaImage::from_vec(width, height, buf).unwrap();

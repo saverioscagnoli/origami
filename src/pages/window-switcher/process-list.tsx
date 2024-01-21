@@ -3,29 +3,40 @@ import { invoke } from "@tauri-apps/api";
 import { Accessor, Component, For, Setter, createSignal } from "solid-js";
 
 interface ProcessListProps {
+  search: Accessor<string>;
   processes: Accessor<Process[]>;
   setProcesses: Setter<Process[]>;
 }
 
 const ProcessList: Component<ProcessListProps> = ({
+  search,
   processes,
   setProcesses
 }) => {
   const [selected, setSelected] = createSignal<number>(0);
 
+  const filteredProcesses = () => {
+    let s = search().toLowerCase();
+    return processes().filter(
+      p =>
+        p.title.toLowerCase().includes(s) ||
+        p.exe_path.toLowerCase().includes(s)
+    );
+  };
+
   window.addEventListener("keydown", async e => {
     if (e.key === "Tab") {
       e.preventDefault();
 
-      if (e.shiftKey) goUp(setSelected, processes);
-      else goDown(setSelected, processes);
+      if (e.shiftKey) goUp(setSelected, filteredProcesses);
+      else goDown(setSelected, filteredProcesses);
     }
 
-    if (e.key === "ArrowUp") goUp(setSelected, processes);
-    if (e.key === "ArrowDown") goDown(setSelected, processes);
+    if (e.key === "ArrowUp") goUp(setSelected, filteredProcesses);
+    if (e.key === "ArrowDown") goDown(setSelected, filteredProcesses);
 
     if (e.key === "Delete") {
-      let p = processes()[selected()];
+      let p = filteredProcesses()[selected()];
 
       let res = await invoke<Process[] | null>(Command.KillProcess, {
         pid: p.id
@@ -37,22 +48,25 @@ const ProcessList: Component<ProcessListProps> = ({
 
   return (
     <div class="w-full flex flex-col overflow-auto select-none">
-      <For each={processes()}>
+      <For each={filteredProcesses()}>
         {(p, i) => (
           <div
             class={[
               "w-full flex items-center gap-4 p-2",
-              selected() === i()
-                ? "bg-[#FFDC34] text-black"
-                : "" /* "text-[#7952B3]" */
+              selected() === i() ? "bg-[#FFDC34] text-black" : ""
             ].join(" ")}
           >
             <img class="ml-1" src={`data:image/png;base64,${p.icon}`} />
-            <p class="overflow-hidden whitespace-nowrap text-ellipsis">
-              {"["}
-              {p.exe_path.split("\\").pop()!}
-              {"]"} - {p.title}
-            </p>
+            <div class="min-w-0 flex gap-2">
+              <p class={selected() === i() ? "text-black" : "text-purple-500"}>
+                {"["}
+                {p.exe_path.split("\\").pop()!}
+                {"]"}
+              </p>
+              <p class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis">
+                - {p.title}
+              </p>
+            </div>
           </div>
         )}
       </For>
