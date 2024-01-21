@@ -1,16 +1,21 @@
 pub enum BackendEvent {
     ShowWindowSwitcher,
     HideWindowSwitcher,
+    ShowWindowSelector,
+    HideWindowSelector,
     ShowMonitorSelector,
+    HideMonitorSelector,
 }
 
-impl ToString for BackendEvent {
-    fn to_string(&self) -> String {
+impl BackendEvent {
+    pub fn as_str(&self) -> &'static str {
         match self {
-            BackendEvent::ShowWindowSwitcher => "show-window-switcher".to_string(),
-            BackendEvent::HideWindowSwitcher => "hide-window-switcher".to_string(),
-            BackendEvent::ShowMonitorSelector => "show-monitor-selector".to_string(),
-            // Other
+            BackendEvent::ShowWindowSwitcher => "show-window-switcher",
+            BackendEvent::HideWindowSwitcher => "hide-window-switcher",
+            BackendEvent::ShowWindowSelector => "show-window-selector",
+            BackendEvent::HideWindowSelector => "hide-window-selector",
+            BackendEvent::ShowMonitorSelector => "show-monitor-selector",
+            BackendEvent::HideMonitorSelector => "hide-monitor-selector",
         }
     }
 }
@@ -21,13 +26,28 @@ pub enum WindowLabel {
     MonitorSelector,
 }
 
-impl ToString for WindowLabel {
-    fn to_string(&self) -> String {
+impl WindowLabel {
+    pub fn as_str(&self) -> &'static str {
         match self {
-            WindowLabel::WindowSwitcher => "window-switcher".to_string(),
-            WindowLabel::WindowSelector => "window-selector".to_string(),
-            WindowLabel::MonitorSelector => "monitor-selector".to_string(),
-            // Other
+            WindowLabel::WindowSwitcher => "window-switcher",
+            WindowLabel::WindowSelector => "window-selector",
+            WindowLabel::MonitorSelector => "monitor-selector",
         }
     }
+
+    pub fn iter() -> impl Iterator<Item = WindowLabel> {
+        vec![
+            WindowLabel::WindowSwitcher,
+            WindowLabel::WindowSelector,
+            WindowLabel::MonitorSelector,
+        ]
+        .into_iter()
+    }
 }
+
+#[derive(Clone)]
+pub enum HotKeyName {
+    WindowSwitcher,
+}
+
+impl Copy for HotKeyName {}

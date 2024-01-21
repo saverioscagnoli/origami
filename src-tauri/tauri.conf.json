@@ -48,7 +48,7 @@
         "center": true,
         "alwaysOnTop": true,
         "visible": false,
-        "url": "html/index.html"
+        "url": "html/window-switcher.html"
       },
       {
         "fullscreen": false,
