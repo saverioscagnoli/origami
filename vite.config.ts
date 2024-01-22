@@ -23,7 +23,8 @@ export default defineConfig(async () => ({
   build: {
     rollupOptions: {
       input: {
-        index: "./html/index.html",
+        "window-switcher": "./html/window-switcher.html",
+        "window-selector": "./html/window-selector.html",
         "monitor-selector": "./html/monitor-selector.html"
       }
     }

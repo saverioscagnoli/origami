@@ -1,7 +1,8 @@
 //import { useSelection } from "@hooks";
-import { Command, Process, goDown, goUp } from "@lib";
+import { useSelection } from "@hooks";
+import { Command, Process, cn, getExeName } from "@lib";
 import { invoke } from "@tauri-apps/api";
-import { Accessor, Component, For, Setter, createSignal } from "solid-js";
+import { Accessor, Component, For, Setter } from "solid-js";
 
 interface ProcessListProps {
   search: Accessor<string>;
@@ -14,8 +15,6 @@ const ProcessList: Component<ProcessListProps> = ({
   processes,
   setProcesses
 }) => {
-  const [selected, setSelected] = createSignal<number>(0);
-
   const filteredProcesses = () => {
     let s = search().toLowerCase();
     return processes().filter(
@@ -25,36 +24,35 @@ const ProcessList: Component<ProcessListProps> = ({
     );
   };
 
-  window.addEventListener("keydown", async e => {
-    if (e.key === "Tab") {
-      e.preventDefault();
+  const index = useSelection(filteredProcesses, async (e, p) => {
+    if (e.key === "Enter") {
+      if (p.titles.length > 1) {
+        await invoke(Command.ShowWindowSelector, {
+          titles: p.titles,
+          index: index()
+        });
 
-      if (e.shiftKey) goUp(setSelected, filteredProcesses());
-      else goDown(setSelected, filteredProcesses());
+        return;
+      }
+
+      if (e.ctrlKey) {
+        await invoke(Command.ShowMonitorSelector, {
+          pid: p.id,
+          index: index()
+        });
+
+        return;
+      }
+
+      await invoke(Command.FocusWindow, { pid: p.id, monitorNumber: 0 });
     }
 
-    if (e.key === "ArrowUp") goUp(setSelected, filteredProcesses());
-    if (e.key === "ArrowDown") goDown(setSelected, filteredProcesses());
-
     if (e.key === "Delete") {
-      let p = filteredProcesses()[selected()];
-
       let res = await invoke<Process[] | null>(Command.KillProcess, {
         pid: p.id
       });
 
       if (res) setProcesses(res);
-    }
-
-    if (e.key === "Enter") {
-      let p = filteredProcesses()[selected()];
-
-      if (p.titles.length > 1) {
-        invoke(Command.ShowWindowSelector, {
-          titles: p.titles,
-          index: selected()
-        });
-      }
     }
   });
 
@@ -63,16 +61,16 @@ const ProcessList: Component<ProcessListProps> = ({
       <For each={filteredProcesses()}>
         {(p, i) => (
           <div
-            class={[
+            class={cn(
               "w-full flex items-center gap-4 p-2",
-              selected() === i() ? "bg-[#FFDC34] text-black" : ""
-            ].join(" ")}
+              index() === i() && "bg-[#FFDC34] text-black"
+            )}
           >
             <img class="ml-1" src={`data:image/png;base64,${p.icon}`} />
             <div class="min-w-0 flex gap-2">
-              <p class={selected() === i() ? "text-black" : "text-purple-500"}>
+              <p class={index() === i() ? "text-black" : "text-purple-500"}>
                 {"["}
-                {p.exe_path.split("\\").pop()!}
+                {getExeName(p.exe_path)}
                 {"]"}
               </p>
               <p class="flex-grow overflow-hidden whitespace-nowrap text-ellipsis">

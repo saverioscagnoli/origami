@@ -2,31 +2,39 @@
 import { render } from "solid-js/web";
 
 import "@style";
-import { useEvent } from "@hooks";
-import { BackendEvent, Command, goDown, goUp } from "@lib";
+
+import { useEvent, useSelection } from "@hooks";
+import { BackendEvent, Command, ShowWindowSelectorPayload, cn } from "@lib";
 import { For, createSignal } from "solid-js";
 import { invoke } from "@tauri-apps/api";
 
 const WindowSelector = () => {
-  const [selected, setSelected] = createSignal<number>(0);
   const [titles, setTitles] = createSignal<string[]>([]);
+  const [processIndex, setProcessIndex] = createSignal<number>(0);
 
-  window.addEventListener("keydown", e => {
+  const index = useSelection(titles, async (e, _) => {
+    if (e.key === "Enter") {
+      if (e.ctrlKey) {
+        await invoke(Command.ShowMonitorSelector, {
+          pid: 0,
+          index: processIndex()
+        });
+
+        return;
+      } else {
+        await invoke(Command.FocusWindow, { pid: 0, monitorNumber: index() });
+      }
+    }
+
     if (e.key === "Escape") {
       e.preventDefault();
       invoke(Command.HideWindowSelector);
     }
-
-    if (e.key === "Tab") {
-      e.preventDefault();
-
-      if (e.shiftKey) goUp(setSelected, titles());
-      else goDown(setSelected, titles());
-    }
   });
 
-  useEvent<string[]>(BackendEvent.ShowWindowSelector, titles => {
-    setTitles(titles);
+  useEvent<ShowWindowSelectorPayload>(BackendEvent.ShowWindowSelector, p => {
+    setTitles(p.titles);
+    setProcessIndex(p.index);
   });
 
   return (
@@ -34,10 +42,10 @@ const WindowSelector = () => {
       <For each={titles()}>
         {(t, i) => (
           <p
-            class={[
+            class={cn(
               "w-full h-12 px-2 flex items-center overflow-hidden whitespace-nowrap",
-              selected() === i() ? "bg-[#FFDC34] text-black" : ""
-            ].join(" ")}
+              index() === i() && "bg-[#FFDC34] text-black"
+            )}
           >
             {t}
           </p>

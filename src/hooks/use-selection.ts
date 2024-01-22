@@ -1,24 +1,30 @@
 import { goDown, goUp } from "@lib";
-import { createSignal, onMount } from "solid-js";
+import { Accessor, createSignal, onCleanup } from "solid-js";
 
 function useSelection<T>(
-  arr: T[],
+  arr: Accessor<T[]>,
   cb: (e: KeyboardEvent, selected: T) => void
 ) {
   const [index, setIndex] = createSignal<number>(0);
 
-  window.addEventListener("keydown", e => {
-    if (e.key === "Tab") {
-      if (e.shiftKey) goUp(setIndex, arr);
-      else goDown(setIndex, arr);
+  const handler = (e: KeyboardEvent) => {
+    const currentArr = arr();
 
-      console.log(arr.length);
+    if (e.key === "Tab") {
+      if (e.shiftKey) goUp(setIndex, currentArr);
+      else goDown(setIndex, currentArr);
     }
 
-    if (e.key === "ArrowUp") goUp(setIndex, arr);
-    if (e.key === "ArrowDown") goDown(setIndex, arr);
+    if (e.key === "ArrowUp") goUp(setIndex, currentArr);
+    if (e.key === "ArrowDown") goDown(setIndex, currentArr);
 
-    cb(e, arr[index()]);
+    cb(e, currentArr[index()]);
+  };
+
+  window.addEventListener("keydown", handler);
+
+  onCleanup(() => {
+    window.removeEventListener("keydown", handler);
   });
 
   return index;

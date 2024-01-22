@@ -2,9 +2,41 @@
 import { render } from "solid-js/web";
 
 import "@style";
+import { For, createSignal } from "solid-js";
+import { useEvent, useSelection } from "@hooks";
+import { BackendEvent, Command, MonitorInfo, cn } from "@lib";
+import { invoke } from "@tauri-apps/api";
 
 const MonitorSelector = () => {
-  return <div>monitorselector</div>;
+  const [monitors, setMonitors] = createSignal<MonitorInfo[]>([]);
+
+  const index = useSelection(monitors, async (e, _) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      await invoke(Command.HideMonitorSelector);
+    }
+  });
+
+  useEvent<MonitorInfo[]>(BackendEvent.ShowMonitorSelector, m => {
+    setMonitors(m);
+  });
+
+  return (
+    <div class="w-screen h-screen flex flex-col bg-[#1D1919] text-white">
+      <For each={monitors()}>
+        {(_, i) => (
+          <p
+            class={cn(
+              "w-full h-12 px-2 flex items-center overflow-hidden whitespace-nowrap",
+              index() === i() && "bg-[#FFDC34] text-black"
+            )}
+          >
+            Monitor {i() + 1}
+          </p>
+        )}
+      </For>
+    </div>
+  );
 };
 
 render(() => <MonitorSelector />, document.getElementById("root")!);

@@ -9,15 +9,19 @@ use std::{
 use base64::engine::general_purpose;
 use base64::Engine;
 
-use crate::libs::consts::{BANNED_PROCESSES_NAMES, BANNED_PROCESSES_TITLES};
+use crate::libs::{
+    consts::{BANNED_PROCESSES_NAMES, BANNED_PROCESSES_TITLES},
+    enums::WindowLabel,
+    utils,
+};
 use image::RgbaImage;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use winapi::{
     ctypes::c_void,
     shared::{
         minwindef::{BOOL, DWORD, LPARAM, MAX_PATH},
         ntdef::HANDLE,
-        windef::{HICON, HWND},
+        windef::{HDC, HICON, HMONITOR, HWND, POINT, RECT},
     },
     um::{
         processthreadsapi::{OpenProcess, TerminateProcess},
@@ -26,8 +30,11 @@ use winapi::{
         wingdi::{DeleteObject, GetDIBits, GetObjectW, BITMAP, BITMAPINFOHEADER, DIB_RGB_COLORS},
         winnt::{PROCESS_QUERY_INFORMATION, PROCESS_TERMINATE},
         winuser::{
-            EnumWindows, GetDC, GetIconInfo, GetWindowTextLengthW, GetWindowTextW,
-            GetWindowThreadProcessId, IsWindowVisible, ReleaseDC,
+            EnumDisplayMonitors, EnumWindows, GetDC, GetIconInfo, GetMonitorInfoW, GetWindowLongW,
+            GetWindowRect, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId,
+            IsWindowVisible, MonitorFromPoint, MonitorFromWindow, ReleaseDC, SetForegroundWindow,
+            SetWindowPos, ShowWindow, GWL_STYLE, HWND_TOP, MONITORINFO, MONITOR_DEFAULTTONEAREST,
+            SWP_SHOWWINDOW, SW_MAXIMIZE, SW_RESTORE, WS_MAXIMIZE,
         },
     },
 };
@@ -225,4 +232,156 @@ pub fn kill_process(pid: u32) -> Result<Vec<Process>, String> {
     }
 
     Ok(list_processes())
+}
+
+unsafe extern "system" fn enum_monitor_callback(
+    hmonitor: HMONITOR,
+    _: HDC,
+    _: *mut RECT,
+    data: LPARAM,
+) -> i32 {
+    let monitors: &mut Vec<MonitorInfo> = &mut *(data as *mut Vec<MonitorInfo>);
+
+    let mut monitor_info: MONITORINFO = std::mem::zeroed();
+    monitor_info.cbSize = std::mem::size_of::<MONITORINFO>() as u32;
+
+    if GetMonitorInfoW(hmonitor, &mut monitor_info as *mut _ as *mut _) != 0 {
+        let position = (monitor_info.rcMonitor.left, monitor_info.rcMonitor.top);
+
+        monitors.push(MonitorInfo { position });
+    }
+
+    1
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct MonitorInfo {
+    pub position: (i32, i32),
+}
+
+impl Clone for MonitorInfo {
+    fn clone(&self) -> Self {
+        MonitorInfo {
+            position: self.position,
+        }
+    }
+}
+
+pub fn get_monitor_info() -> Vec<MonitorInfo> {
+    let mut monitors: Vec<MonitorInfo> = Vec::new();
+
+    unsafe {
+        EnumDisplayMonitors(
+            null_mut(),
+            null_mut(),
+            Some(enum_monitor_callback),
+            &mut monitors as *mut _ as LPARAM,
+        );
+    }
+
+    monitors
+}
+
+pub struct FocusTargetInfo {
+    pub pid: i32,
+    pub monitor_number: i32,
+}
+
+pub unsafe extern "system" fn focus_window_callback(hwnd: HWND, lparam: LPARAM) -> i32 {
+    if IsWindowVisible(hwnd) == 0 {
+        return 1;
+    }
+
+    let params = &mut *(lparam as *mut FocusTargetInfo);
+
+    let target_process_id = params.pid;
+    let target_monitor_number = params.monitor_number;
+
+    let mut process_id = 0;
+
+    GetWindowThreadProcessId(hwnd, &mut process_id);
+
+    if process_id == target_process_id as u32 {
+        let window_style = GetWindowLongW(hwnd, GWL_STYLE) as u32;
+        let window_monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+
+        let monitor_info = get_monitor_info();
+        let monitor = monitor_info[target_monitor_number as usize].clone();
+
+        let (x, y) = monitor.position;
+
+        let target_monitor = MonitorFromPoint(POINT { x, y }, MONITOR_DEFAULTTONEAREST);
+
+        let mut rect = std::mem::zeroed();
+        GetWindowRect(hwnd, &mut rect);
+
+        let window_width = rect.right - rect.left;
+        let window_height = rect.bottom - rect.top;
+
+        if window_monitor != target_monitor {
+            if window_style & WS_MAXIMIZE != 0 {
+                ShowWindow(hwnd, SW_RESTORE);
+                SetWindowPos(
+                    hwnd,
+                    HWND_TOP,
+                    x,
+                    y,
+                    window_width,
+                    window_height,
+                    SWP_SHOWWINDOW,
+                );
+                SetForegroundWindow(hwnd);
+                ShowWindow(hwnd, SW_MAXIMIZE);
+            } else {
+                SetWindowPos(
+                    hwnd,
+                    HWND_TOP,
+                    x,
+                    y,
+                    window_width,
+                    window_height,
+                    SWP_SHOWWINDOW,
+                );
+                ShowWindow(hwnd, SW_RESTORE);
+                SetForegroundWindow(hwnd);
+            }
+        } else {
+            SetWindowPos(
+                hwnd,
+                HWND_TOP,
+                rect.left,
+                rect.top,
+                window_width,
+                window_height,
+                SWP_SHOWWINDOW,
+            );
+
+            if window_style & WS_MAXIMIZE != 0 {
+                ShowWindow(hwnd, SW_RESTORE);
+                SetForegroundWindow(hwnd);
+                ShowWindow(hwnd, SW_MAXIMIZE);
+            } else {
+                ShowWindow(hwnd, SW_RESTORE);
+                SetForegroundWindow(hwnd);
+            }
+        }
+    }
+
+    1
+}
+
+#[tauri::command]
+pub fn focus_window(app: tauri::AppHandle, pid: i32, monitor_number: i32) {
+    let mut params = FocusTargetInfo {
+        pid,
+        monitor_number,
+    };
+
+    unsafe {
+        EnumWindows(Some(focus_window_callback), &mut params as *mut _ as LPARAM);
+    }
+
+    utils::hide_window(&app, WindowLabel::WindowSwitcher);
+    utils::hide_window(&app, WindowLabel::WindowSelector);
+    utils::hide_window(&app, WindowLabel::MonitorSelector);
 }
