@@ -1,10 +1,10 @@
 import { goDown, goUp } from "@lib";
-import { Accessor, createSignal, onCleanup } from "solid-js";
+import { Accessor, Setter, createSignal, onCleanup } from "solid-js";
 
 function useSelection<T>(
   arr: Accessor<T[]>,
   cb: (e: KeyboardEvent, selected: T) => void
-) {
+): [Accessor<number>, Setter<number>] {
   const [index, setIndex] = createSignal<number>(0);
 
   const handler = (e: KeyboardEvent) => {
@@ -27,7 +27,7 @@ function useSelection<T>(
     window.removeEventListener("keydown", handler);
   });
 
-  return index;
+  return [index, setIndex];
 }
 
 export { useSelection };

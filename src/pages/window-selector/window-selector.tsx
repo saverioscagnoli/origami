@@ -12,29 +12,46 @@ const WindowSelector = () => {
   const [titles, setTitles] = createSignal<string[]>([]);
   const [processIndex, setProcessIndex] = createSignal<number>(0);
 
-  const index = useSelection(titles, async (e, _) => {
+  useEvent<ShowWindowSelectorPayload>(BackendEvent.ShowWindowSelector, p => {
+    setTitles(p.titles);
+    setProcessIndex(p.index);
+  });
+
+  const [index] = useSelection(titles, async (e, _) => {
     if (e.key === "Enter") {
+      let title = titles()[index()];
+
       if (e.ctrlKey) {
         await invoke(Command.ShowMonitorSelector, {
-          pid: 0,
+          title,
           index: processIndex()
         });
 
         return;
       } else {
-        await invoke(Command.FocusWindow, { pid: 0, monitorNumber: index() });
+        await invoke(Command.FocusWindow, {
+          windowTitle: title,
+          monitorNumber: 0
+        });
       }
+    }
+
+    if (e.key === "-" && e.ctrlKey) {
+      await invoke(Command.MinimizeWindow, {
+        title: titles()[index()]
+      });
+    }
+
+    if (e.key === "=" && e.ctrlKey) {
+      await invoke(Command.MaximizeWindow, {
+        title: titles()[index()]
+      });
     }
 
     if (e.key === "Escape") {
       e.preventDefault();
       invoke(Command.HideWindowSelector);
     }
-  });
-
-  useEvent<ShowWindowSelectorPayload>(BackendEvent.ShowWindowSelector, p => {
-    setTitles(p.titles);
-    setProcessIndex(p.index);
   });
 
   return (

@@ -3,13 +3,16 @@ use std::sync::mpsc::Receiver;
 use serde::Serialize;
 use tauri::{PhysicalPosition, PhysicalSize};
 
-use crate::libs::{
-    consts::{
-        FRONTEND_ENTRY_HEIGHT, MONITOR_SELECTOR_WIDTH, MONITOR_Y_OFFSET, WINDOW_SELECTOR_WIDTH,
-        WINDOW_SWITCHER_HEIGHT, WINDOW_SWITCHER_WIDTH,
+use crate::{
+    funcs::processes::MonitorInfo,
+    libs::{
+        consts::{
+            FRONTEND_ENTRY_HEIGHT, MONITOR_SELECTOR_WIDTH, MONITOR_Y_OFFSET, WINDOW_SELECTOR_WIDTH,
+            WINDOW_SWITCHER_HEIGHT, WINDOW_SWITCHER_WIDTH,
+        },
+        enums::{BackendEvent, HotKeyName, WindowLabel},
+        utils,
     },
-    enums::{BackendEvent, HotKeyName, WindowLabel},
-    utils,
 };
 
 use crate::funcs::processes;
@@ -97,8 +100,14 @@ pub fn hide_window_selector(app: tauri::AppHandle) {
     utils::hide_window(&app, WindowLabel::WindowSelector);
 }
 
+#[derive(Serialize)]
+struct MonitorSelectorPayload {
+    title: String,
+    monitor_info: Vec<MonitorInfo>,
+}
+
 #[tauri::command]
-pub fn show_monitor_selector(app: tauri::AppHandle, pid: i32, index: i32) {
+pub fn show_monitor_selector(app: tauri::AppHandle, title: String, index: i32) {
     let window_selector_win = utils::get_window(&app, WindowLabel::WindowSelector);
     let is_window_selector_visible = window_selector_win.is_visible().unwrap();
 
@@ -132,7 +141,14 @@ pub fn show_monitor_selector(app: tauri::AppHandle, pid: i32, index: i32) {
             .unwrap();
     }
 
-    utils::emit_to_frontend(&app, BackendEvent::ShowMonitorSelector, monitor_info);
+    utils::emit_to_frontend(
+        &app,
+        BackendEvent::ShowMonitorSelector,
+        MonitorSelectorPayload {
+            title,
+            monitor_info,
+        },
+    );
     utils::show_window(&app, WindowLabel::MonitorSelector);
 }
 

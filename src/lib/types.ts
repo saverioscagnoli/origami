@@ -9,9 +9,20 @@ type KeyEvent = InputEvent & { target: HTMLInputElement };
 
 type MonitorInfo = { position: [number, number] };
 
+interface MonitorSelectorPayload {
+  title: string;
+  monitor_info: MonitorInfo[];
+}
+
 interface ShowWindowSelectorPayload {
   titles: string[];
   index: number;
 }
 
-export type { Process, KeyEvent, MonitorInfo, ShowWindowSelectorPayload };
+export type {
+  Process,
+  KeyEvent,
+  MonitorInfo,
+  ShowWindowSelectorPayload,
+  MonitorSelectorPayload
+};

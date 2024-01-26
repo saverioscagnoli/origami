@@ -1,8 +1,7 @@
-//import { useSelection } from "@hooks";
 import { useSelection } from "@hooks";
 import { Command, Process, cn, getExeName } from "@lib";
 import { invoke } from "@tauri-apps/api";
-import { Accessor, Component, For, Setter } from "solid-js";
+import { Accessor, Component, For, Setter, createEffect } from "solid-js";
 
 interface ProcessListProps {
   search: Accessor<string>;
@@ -24,7 +23,7 @@ const ProcessList: Component<ProcessListProps> = ({
     );
   };
 
-  const index = useSelection(filteredProcesses, async (e, p) => {
+  const [index, setIndex] = useSelection(filteredProcesses, async (e, p) => {
     if (e.key === "Enter") {
       if (p.titles.length > 1) {
         await invoke(Command.ShowWindowSelector, {
@@ -37,14 +36,29 @@ const ProcessList: Component<ProcessListProps> = ({
 
       if (e.ctrlKey) {
         await invoke(Command.ShowMonitorSelector, {
-          pid: p.id,
+          title: p.titles[0],
           index: index()
         });
 
         return;
       }
 
-      await invoke(Command.FocusWindow, { pid: p.id, monitorNumber: 0 });
+      await invoke(Command.FocusWindow, {
+        windowTitle: p.titles[0],
+        monitorNumber: 0
+      });
+    }
+
+    if (e.key === "-" && e.ctrlKey) {
+      await invoke(Command.MinimizeWindow, {
+        title: p.titles[0]
+      });
+    }
+
+    if (e.key === "=" && e.ctrlKey) {
+      await invoke(Command.MaximizeWindow, {
+        title: p.titles[0]
+      });
     }
 
     if (e.key === "Delete") {
@@ -54,6 +68,10 @@ const ProcessList: Component<ProcessListProps> = ({
 
       if (res) setProcesses(res);
     }
+  });
+
+  createEffect(() => {
+    setIndex(0);
   });
 
   return (

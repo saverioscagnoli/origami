@@ -4,21 +4,36 @@ import { render } from "solid-js/web";
 import "@style";
 import { For, createSignal } from "solid-js";
 import { useEvent, useSelection } from "@hooks";
-import { BackendEvent, Command, MonitorInfo, cn } from "@lib";
+import {
+  BackendEvent,
+  Command,
+  MonitorInfo,
+  MonitorSelectorPayload,
+  cn
+} from "@lib";
 import { invoke } from "@tauri-apps/api";
 
 const MonitorSelector = () => {
+  const [title, setTitle] = createSignal<string>("");
   const [monitors, setMonitors] = createSignal<MonitorInfo[]>([]);
 
-  const index = useSelection(monitors, async (e, _) => {
+  useEvent<MonitorSelectorPayload>(BackendEvent.ShowMonitorSelector, p => {
+    setTitle(p.title);
+    setMonitors(p.monitor_info);
+  });
+
+  const [index] = useSelection(monitors, async (e, _) => {
     if (e.key === "Escape") {
       e.preventDefault();
       await invoke(Command.HideMonitorSelector);
     }
-  });
 
-  useEvent<MonitorInfo[]>(BackendEvent.ShowMonitorSelector, m => {
-    setMonitors(m);
+    if (e.key === "Enter") {
+      await invoke(Command.FocusWindow, {
+        windowTitle: title(),
+        monitorNumber: index()
+      });
+    }
   });
 
   return (

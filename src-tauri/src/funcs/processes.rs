@@ -34,7 +34,7 @@ use winapi::{
             GetWindowRect, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId,
             IsWindowVisible, MonitorFromPoint, MonitorFromWindow, ReleaseDC, SetForegroundWindow,
             SetWindowPos, ShowWindow, GWL_STYLE, HWND_TOP, MONITORINFO, MONITOR_DEFAULTTONEAREST,
-            SWP_SHOWWINDOW, SW_MAXIMIZE, SW_RESTORE, WS_MAXIMIZE,
+            SWP_SHOWWINDOW, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE, WS_MAXIMIZE,
         },
     },
 };
@@ -283,8 +283,8 @@ pub fn get_monitor_info() -> Vec<MonitorInfo> {
 }
 
 pub struct FocusTargetInfo {
-    pub pid: i32,
-    pub monitor_number: i32,
+    title: Vec<u16>,
+    monitor_number: i32,
 }
 
 pub unsafe extern "system" fn focus_window_callback(hwnd: HWND, lparam: LPARAM) -> i32 {
@@ -294,14 +294,14 @@ pub unsafe extern "system" fn focus_window_callback(hwnd: HWND, lparam: LPARAM) 
 
     let params = &mut *(lparam as *mut FocusTargetInfo);
 
-    let target_process_id = params.pid;
+    let target_title = &params.title;
     let target_monitor_number = params.monitor_number;
 
-    let mut process_id = 0;
+    let mut title: Vec<u16> = vec![0; 256]; // Buffer for the window title
+    GetWindowTextW(hwnd, title.as_mut_ptr(), title.len() as i32);
+    title.retain(|&i| i != 0); // Remove trailing null characters
 
-    GetWindowThreadProcessId(hwnd, &mut process_id);
-
-    if process_id == target_process_id as u32 {
+    if title == *target_title {
         let window_style = GetWindowLongW(hwnd, GWL_STYLE) as u32;
         let window_monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
 
@@ -371,9 +371,11 @@ pub unsafe extern "system" fn focus_window_callback(hwnd: HWND, lparam: LPARAM) 
 }
 
 #[tauri::command]
-pub fn focus_window(app: tauri::AppHandle, pid: i32, monitor_number: i32) {
+pub fn focus_window(app: tauri::AppHandle, window_title: String, monitor_number: i32) {
+    let title: Vec<u16> = OsStr::new(&window_title).encode_wide().collect();
+
     let mut params = FocusTargetInfo {
-        pid,
+        title,
         monitor_number,
     };
 
@@ -384,4 +386,88 @@ pub fn focus_window(app: tauri::AppHandle, pid: i32, monitor_number: i32) {
     utils::hide_window(&app, WindowLabel::WindowSwitcher);
     utils::hide_window(&app, WindowLabel::WindowSelector);
     utils::hide_window(&app, WindowLabel::MonitorSelector);
+}
+
+pub struct MinimizeTargetInfo {
+    title: Vec<u16>,
+}
+
+pub unsafe extern "system" fn minimize_window_callback(hwnd: HWND, lparam: LPARAM) -> i32 {
+    if IsWindowVisible(hwnd) == 0 {
+        return 1;
+    }
+
+    let params = &mut *(lparam as *mut MinimizeTargetInfo);
+
+    let target_title = &params.title;
+
+    let mut title: Vec<u16> = vec![0; 256];
+    GetWindowTextW(hwnd, title.as_mut_ptr(), title.len() as i32);
+    title.retain(|&i| i != 0);
+
+    if title == *target_title {
+        ShowWindow(hwnd, SW_MINIMIZE);
+    }
+
+    1
+}
+
+#[tauri::command]
+pub fn minimize_window(app: tauri::AppHandle, title: String) {
+    let title: Vec<u16> = OsStr::new(&title).encode_wide().collect();
+
+    let mut params = MinimizeTargetInfo { title };
+
+    unsafe {
+        EnumWindows(
+            Some(minimize_window_callback),
+            &mut params as *mut _ as LPARAM,
+        );
+    }
+
+    let window_switcher_win = utils::get_window(&app, WindowLabel::WindowSwitcher);
+
+    window_switcher_win.set_focus().unwrap();
+}
+
+pub struct MaximizeTargetInfo {
+    title: Vec<u16>,
+}
+
+pub unsafe extern "system" fn maximize_window_callback(hwnd: HWND, lparam: LPARAM) -> i32 {
+    if IsWindowVisible(hwnd) == 0 {
+        return 1;
+    }
+
+    let params = &mut *(lparam as *mut MaximizeTargetInfo);
+
+    let target_title = &params.title;
+
+    let mut title: Vec<u16> = vec![0; 256];
+    GetWindowTextW(hwnd, title.as_mut_ptr(), title.len() as i32);
+    title.retain(|&i| i != 0);
+
+    if title == *target_title {
+        ShowWindow(hwnd, SW_MAXIMIZE);
+    }
+
+    1
+}
+
+#[tauri::command]
+pub fn maximize_window(app: tauri::AppHandle, title: String) {
+    let title: Vec<u16> = OsStr::new(&title).encode_wide().collect();
+
+    let mut params = MinimizeTargetInfo { title };
+
+    unsafe {
+        EnumWindows(
+            Some(maximize_window_callback),
+            &mut params as *mut _ as LPARAM,
+        );
+    }
+
+    let window_switcher_win = utils::get_window(&app, WindowLabel::WindowSwitcher);
+
+    window_switcher_win.set_focus().unwrap();
 }
