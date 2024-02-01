@@ -20,6 +20,10 @@ const SearchBar: Component<SearchBarProps> = ({
     setProcesses(p);
   });
 
+  useEvent(BackendEvent.HideWindowSwitcher, () => {
+    setSearch("");
+  });
+
   const onSearch = (e: KeyEvent) => {
     let val = e.target.value;
     setSearch(val);

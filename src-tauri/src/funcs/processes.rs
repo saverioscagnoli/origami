@@ -11,7 +11,7 @@ use base64::Engine;
 
 use crate::libs::{
     consts::{BANNED_PROCESSES_NAMES, BANNED_PROCESSES_TITLES},
-    enums::WindowLabel,
+    enums::{BackendEvent, WindowLabel},
     utils,
 };
 use image::RgbaImage;
@@ -34,7 +34,7 @@ use winapi::{
             GetWindowRect, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId,
             IsWindowVisible, MonitorFromPoint, MonitorFromWindow, ReleaseDC, SetForegroundWindow,
             SetWindowPos, ShowWindow, GWL_STYLE, HWND_TOP, MONITORINFO, MONITOR_DEFAULTTONEAREST,
-            SWP_SHOWWINDOW, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE, WS_MAXIMIZE,
+            SWP_SHOWWINDOW, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE, WS_MAXIMIZE, WS_MINIMIZE,
         },
     },
 };
@@ -383,9 +383,23 @@ pub fn focus_window(app: tauri::AppHandle, window_title: String, monitor_number:
         EnumWindows(Some(focus_window_callback), &mut params as *mut _ as LPARAM);
     }
 
+    utils::emit_to_frontend(&app, BackendEvent::HideWindowSwitcher, "");
+
+    let window_selector_win = utils::get_window(&app, WindowLabel::WindowSelector);
+
+    if window_selector_win.is_visible().unwrap() {
+        utils::hide_window(&app, WindowLabel::WindowSelector);
+        utils::hide_window(&app, WindowLabel::WindowSelector);
+    }
+
+    let monitor_selector_win = utils::get_window(&app, WindowLabel::MonitorSelector);
+
+    if monitor_selector_win.is_visible().unwrap() {
+        utils::hide_window(&app, WindowLabel::MonitorSelector);
+        utils::hide_window(&app, WindowLabel::MonitorSelector);
+    }
+
     utils::hide_window(&app, WindowLabel::WindowSwitcher);
-    utils::hide_window(&app, WindowLabel::WindowSelector);
-    utils::hide_window(&app, WindowLabel::MonitorSelector);
 }
 
 pub struct MinimizeTargetInfo {

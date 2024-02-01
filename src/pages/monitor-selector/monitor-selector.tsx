@@ -22,7 +22,13 @@ const MonitorSelector = () => {
     setMonitors(p.monitor_info);
   });
 
-  const [index] = useSelection(monitors, async (e, _) => {
+  useEvent(BackendEvent.HideMonitorSelector, () => {
+    console.log("hide");
+    setTitle("");
+    setIndex(0);
+  });
+
+  const [index, setIndex] = useSelection(monitors, async (e, _) => {
     if (e.key === "Escape") {
       e.preventDefault();
       await invoke(Command.HideMonitorSelector);

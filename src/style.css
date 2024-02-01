@@ -7,3 +7,16 @@
 body {
   font-family: "Fira Code", monospace;
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(166, 72, 253);
+  border-radius: 9999px;
+}

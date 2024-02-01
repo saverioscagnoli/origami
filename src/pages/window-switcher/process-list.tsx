@@ -1,7 +1,14 @@
-import { useSelection } from "@hooks";
-import { Command, Process, cn, getExeName } from "@lib";
+import { useEvent, useSelection } from "@hooks";
+import { BackendEvent, Command, Process, cn, getExeName } from "@lib";
 import { invoke } from "@tauri-apps/api";
-import { Accessor, Component, For, Setter, createEffect } from "solid-js";
+import {
+  Accessor,
+  Component,
+  For,
+  Setter,
+  createEffect,
+  createSignal
+} from "solid-js";
 
 interface ProcessListProps {
   search: Accessor<string>;
@@ -14,6 +21,13 @@ const ProcessList: Component<ProcessListProps> = ({
   processes,
   setProcesses
 }) => {
+  const [refs, setRefs] = createSignal<HTMLDivElement[]>([]);
+  let containerRef: HTMLDivElement;
+
+  const addRef = (el: HTMLDivElement) => {
+    setRefs(p => [...p, el]);
+  };
+
   const filteredProcesses = () => {
     let s = search().toLowerCase();
     return processes().filter(
@@ -23,7 +37,16 @@ const ProcessList: Component<ProcessListProps> = ({
     );
   };
 
+  useEvent(BackendEvent.HideWindowSwitcher, () => {
+    setRefs([]);
+  });
+
   const [index, setIndex] = useSelection(filteredProcesses, async (e, p) => {
+    setTimeout(() => {
+      containerRef.scrollTop = 0;
+      refs()[index()]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 10);
+
     if (e.key === "Enter") {
       if (p.titles.length > 1) {
         await invoke(Command.ShowWindowSelector, {
@@ -71,14 +94,19 @@ const ProcessList: Component<ProcessListProps> = ({
   });
 
   createEffect(() => {
+    search();
     setIndex(0);
   });
 
   return (
-    <div class="w-full flex flex-col overflow-auto select-none">
+    <div
+      ref={containerRef!}
+      class="w-full flex flex-col overflow-auto select-none"
+    >
       <For each={filteredProcesses()}>
         {(p, i) => (
           <div
+            ref={addRef}
             class={cn(
               "w-full flex items-center gap-4 p-2",
               index() === i() && "bg-[#FFDC34] text-black"
