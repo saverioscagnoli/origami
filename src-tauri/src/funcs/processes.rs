@@ -34,7 +34,7 @@ use winapi::{
             GetWindowRect, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId,
             IsWindowVisible, MonitorFromPoint, MonitorFromWindow, ReleaseDC, SetForegroundWindow,
             SetWindowPos, ShowWindow, GWL_STYLE, HWND_TOP, MONITORINFO, MONITOR_DEFAULTTONEAREST,
-            SWP_SHOWWINDOW, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE, WS_MAXIMIZE, WS_MINIMIZE,
+            SWP_SHOWWINDOW, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE, WS_MAXIMIZE,
         },
     },
 };
@@ -333,6 +333,7 @@ pub unsafe extern "system" fn focus_window_callback(hwnd: HWND, lparam: LPARAM) 
                 SetForegroundWindow(hwnd);
                 ShowWindow(hwnd, SW_MAXIMIZE);
             } else {
+                ShowWindow(hwnd, SW_RESTORE);
                 SetWindowPos(
                     hwnd,
                     HWND_TOP,
