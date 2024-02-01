@@ -5,7 +5,9 @@ mod hotkey_listener;
 mod libs;
 mod window_manager;
 
-use funcs::processes::{focus_window, kill_process, maximize_window, minimize_window};
+use funcs::processes::{
+    close_window, focus_window, kill_process, maximize_window, minimize_window,
+};
 use hotkey_listener::Listener;
 use libs::utils;
 use std::{sync::mpsc, thread};
@@ -27,7 +29,8 @@ fn main() {
             hide_monitor_selector,
             minimize_window,
             maximize_window,
-            focus_window
+            focus_window,
+            close_window
         ])
         .system_tray(system_tray)
         .on_system_tray_event(|app, event| {

@@ -23,7 +23,6 @@ const MonitorSelector = () => {
   });
 
   useEvent(BackendEvent.HideMonitorSelector, () => {
-    console.log("hide");
     setTitle("");
     setIndex(0);
   });

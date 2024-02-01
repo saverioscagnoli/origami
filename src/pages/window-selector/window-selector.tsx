@@ -17,7 +17,12 @@ const WindowSelector = () => {
     setProcessIndex(p.index);
   });
 
-  const [index] = useSelection(titles, async (e, _) => {
+  useEvent(BackendEvent.HideWindowSelector, () => {
+    setTitles([]);
+    setIndex(0);
+  });
+
+  const [index, setIndex] = useSelection(titles, async (e, _) => {
     if (e.key === "Enter") {
       let title = titles()[index()];
 

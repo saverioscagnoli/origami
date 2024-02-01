@@ -41,6 +41,10 @@ const ProcessList: Component<ProcessListProps> = ({
     setRefs([]);
   });
 
+  useEvent(BackendEvent.HideWindowSwitcher, () => {
+    setIndex(0);
+  });
+
   const [index, setIndex] = useSelection(filteredProcesses, async (e, p) => {
     setTimeout(() => {
       containerRef.scrollTop = 0;
@@ -85,9 +89,10 @@ const ProcessList: Component<ProcessListProps> = ({
     }
 
     if (e.key === "Delete") {
-      let res = await invoke<Process[] | null>(Command.KillProcess, {
-        pid: p.id
-      });
+      let res: Process[] | null = null;
+
+      if (e.ctrlKey) res = await invoke(Command.KillProcess, { pid: p.id });
+      else res = await invoke(Command.CloseWindow, { title: p.titles[0] });
 
       if (res) setProcesses(res);
     }

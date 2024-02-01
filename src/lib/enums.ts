@@ -13,9 +13,10 @@ enum Command {
   HideWindowSelector = "hide_window_selector",
   ShowMonitorSelector = "show_monitor_selector",
   HideMonitorSelector = "hide_monitor_selector",
-  FocusWindow = "focus_window",
   MinimizeWindow = "minimize_window",
   MaximizeWindow = "maximize_window",
+  FocusWindow = "focus_window",
+  CloseWindow = "close_window"
 }
 
 export { BackendEvent, Command };

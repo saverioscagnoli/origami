@@ -32,9 +32,10 @@ use winapi::{
         winuser::{
             EnumDisplayMonitors, EnumWindows, GetDC, GetIconInfo, GetMonitorInfoW, GetWindowLongW,
             GetWindowRect, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId,
-            IsWindowVisible, MonitorFromPoint, MonitorFromWindow, ReleaseDC, SetForegroundWindow,
-            SetWindowPos, ShowWindow, GWL_STYLE, HWND_TOP, MONITORINFO, MONITOR_DEFAULTTONEAREST,
-            SWP_SHOWWINDOW, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE, WS_MAXIMIZE,
+            IsWindowVisible, MonitorFromPoint, MonitorFromWindow, ReleaseDC, SendMessageW,
+            SetForegroundWindow, SetWindowPos, ShowWindow, GWL_STYLE, HWND_TOP, MONITORINFO,
+            MONITOR_DEFAULTTONEAREST, SWP_SHOWWINDOW, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE,
+            WM_CLOSE, WS_MAXIMIZE,
         },
     },
 };
@@ -390,14 +391,14 @@ pub fn focus_window(app: tauri::AppHandle, window_title: String, monitor_number:
 
     if window_selector_win.is_visible().unwrap() {
         utils::hide_window(&app, WindowLabel::WindowSelector);
-        utils::hide_window(&app, WindowLabel::WindowSelector);
+        utils::emit_to_frontend(&app, BackendEvent::HideWindowSelector, "");
     }
 
     let monitor_selector_win = utils::get_window(&app, WindowLabel::MonitorSelector);
 
     if monitor_selector_win.is_visible().unwrap() {
         utils::hide_window(&app, WindowLabel::MonitorSelector);
-        utils::hide_window(&app, WindowLabel::MonitorSelector);
+        utils::emit_to_frontend(&app, BackendEvent::HideMonitorSelector, "");
     }
 
     utils::hide_window(&app, WindowLabel::WindowSwitcher);
@@ -485,4 +486,41 @@ pub fn maximize_window(app: tauri::AppHandle, title: String) {
     let window_switcher_win = utils::get_window(&app, WindowLabel::WindowSwitcher);
 
     window_switcher_win.set_focus().unwrap();
+}
+
+pub unsafe extern "system" fn close_window_callback(hwnd: HWND, lparam: LPARAM) -> i32 {
+    if IsWindowVisible(hwnd) == 0 {
+        return 1;
+    }
+
+    let params = &mut *(lparam as *mut MinimizeTargetInfo);
+
+    let target_title = &params.title;
+
+    let mut title: Vec<u16> = vec![0; 256];
+    GetWindowTextW(hwnd, title.as_mut_ptr(), title.len() as i32);
+    title.retain(|&i| i != 0);
+
+    if title == *target_title {
+        SendMessageW(hwnd, WM_CLOSE, 0, 0);
+    }
+
+    1
+}
+
+#[tauri::command]
+pub fn close_window(app: tauri::AppHandle, title: String) -> Vec<Process> {
+    let title: Vec<u16> = OsStr::new(&title).encode_wide().collect();
+
+    let mut params = MinimizeTargetInfo { title };
+
+    unsafe {
+        EnumWindows(Some(close_window_callback), &mut params as *mut _ as LPARAM);
+    }
+
+    let window_switcher_win = utils::get_window(&app, WindowLabel::WindowSwitcher);
+
+    window_switcher_win.set_focus().unwrap();
+
+    list_processes()
 }
