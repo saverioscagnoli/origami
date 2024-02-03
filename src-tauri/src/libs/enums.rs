@@ -5,6 +5,8 @@ pub enum BackendEvent {
     HideWindowSelector,
     ShowMonitorSelector,
     HideMonitorSelector,
+    ShowCalculator,
+    HideCalculator,
 }
 
 impl BackendEvent {
@@ -16,6 +18,8 @@ impl BackendEvent {
             BackendEvent::HideWindowSelector => "hide-window-selector",
             BackendEvent::ShowMonitorSelector => "show-monitor-selector",
             BackendEvent::HideMonitorSelector => "hide-monitor-selector",
+            BackendEvent::ShowCalculator => "show-calculator",
+            BackendEvent::HideCalculator => "hide-calculator",
         }
     }
 }
@@ -24,6 +28,7 @@ pub enum WindowLabel {
     WindowSwitcher,
     WindowSelector,
     MonitorSelector,
+    Calculator,
 }
 
 impl WindowLabel {
@@ -32,6 +37,7 @@ impl WindowLabel {
             WindowLabel::WindowSwitcher => "window-switcher",
             WindowLabel::WindowSelector => "window-selector",
             WindowLabel::MonitorSelector => "monitor-selector",
+            WindowLabel::Calculator => "calculator",
         }
     }
 
@@ -40,6 +46,7 @@ impl WindowLabel {
             WindowLabel::WindowSwitcher,
             WindowLabel::WindowSelector,
             WindowLabel::MonitorSelector,
+            WindowLabel::Calculator,
         ]
         .into_iter()
     }
@@ -48,6 +55,7 @@ impl WindowLabel {
 #[derive(Clone)]
 pub enum HotKeyName {
     WindowSwitcher,
+    Calculator,
 }
 
 impl Copy for HotKeyName {}

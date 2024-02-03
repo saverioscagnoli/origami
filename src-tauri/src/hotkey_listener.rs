@@ -44,8 +44,10 @@ impl<'a> Listener<'a> {
 
     fn init_hotkeys(&mut self) {
         let switcher_hotkey = HotKey::new(Some(Modifiers::ALT), Code::KeyP);
+        let calculator_hotkey = HotKey::new(Some(Modifiers::ALT), Code::KeyC);
 
         self.register_hotkey(HotKeyName::WindowSwitcher, switcher_hotkey);
+        self.register_hotkey(HotKeyName::Calculator, calculator_hotkey);
     }
 
     fn register_hotkey(&mut self, name: HotKeyName, hotkey: HotKey) {

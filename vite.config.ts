@@ -25,7 +25,8 @@ export default defineConfig(async () => ({
       input: {
         "window-switcher": "./html/window-switcher.html",
         "window-selector": "./html/window-selector.html",
-        "monitor-selector": "./html/monitor-selector.html"
+        "monitor-selector": "./html/monitor-selector.html",
+        "calculator": "./html/calculator.html",
       }
     }
   }

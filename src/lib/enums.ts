@@ -4,7 +4,9 @@ enum BackendEvent {
   ShowWindowSelector = "show-window-selector",
   HideWindowSelector = "hide-window-selector",
   ShowMonitorSelector = "show-monitor-selector",
-  HideMonitorSelector = "hide-monitor-selector"
+  HideMonitorSelector = "hide-monitor-selector",
+  ShowCalculator = "show-calculator",
+  HideCalculator = "hide-calculator"
 }
 
 enum Command {
@@ -19,4 +21,18 @@ enum Command {
   CloseWindow = "close_window"
 }
 
-export { BackendEvent, Command };
+enum Operator {
+  Add = "+",
+  Subtract = "-",
+  Multiply = "*",
+  Divide = "/",
+  Power = "^"
+}
+
+enum Token {
+  Point = ".",
+  LeftParen = "(",
+  RightParen = ")"
+}
+
+export { BackendEvent, Command, Operator, Token };

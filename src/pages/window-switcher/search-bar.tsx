@@ -30,7 +30,8 @@ const SearchBar: Component<SearchBarProps> = ({
   };
 
   return (
-    <div class="w-full h-16 flex p-2">
+    <div class="w-full h-16 flex items-center p-2">
+      <p class="ml-1">{">"}</p>
       <input
         ref={inputRef!}
         class="!w-full !p-2"

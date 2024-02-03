@@ -31,6 +31,7 @@ impl<'a> WindowManager<'a> {
         for name in &self.receiver {
             match name {
                 HotKeyName::WindowSwitcher => self.window_switcher_callback(),
+                HotKeyName::Calculator => self.calculator_callback(),
             }
         }
     }
@@ -56,6 +57,19 @@ impl<'a> WindowManager<'a> {
             );
 
             utils::show_window(self.app, WindowLabel::WindowSwitcher);
+        }
+    }
+
+    fn calculator_callback(&self) {
+        let calculator_win = utils::get_window(self.app, WindowLabel::Calculator);
+        let is_calculator_visible = calculator_win.is_visible().unwrap();
+
+        if is_calculator_visible {
+            utils::emit_to_frontend(self.app, BackendEvent::HideCalculator, "");
+            utils::hide_window(self.app, WindowLabel::Calculator);
+        } else {
+            utils::emit_to_frontend(self.app, BackendEvent::ShowCalculator, "");
+            utils::show_window(self.app, WindowLabel::Calculator);
         }
     }
 }
