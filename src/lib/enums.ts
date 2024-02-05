@@ -6,7 +6,8 @@ enum BackendEvent {
   ShowMonitorSelector = "show-monitor-selector",
   HideMonitorSelector = "hide-monitor-selector",
   ShowCalculator = "show-calculator",
-  HideCalculator = "hide-calculator"
+  HideCalculator = "hide-calculator",
+  SendProcesses = "send-processes"
 }
 
 enum Command {
@@ -26,7 +27,13 @@ enum Operator {
   Subtract = "-",
   Multiply = "*",
   Divide = "/",
-  Power = "^"
+  Power = "^",
+  Factorial = "!"
+}
+
+enum Function {
+  Sine = "sin",
+  Cosine = "cos"
 }
 
 enum Token {
@@ -35,4 +42,4 @@ enum Token {
   RightParen = ")"
 }
 
-export { BackendEvent, Command, Operator, Token };
+export { BackendEvent, Command, Operator, Function, Token };

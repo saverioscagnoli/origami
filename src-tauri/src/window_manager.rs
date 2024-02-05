@@ -1,4 +1,4 @@
-use std::sync::mpsc::Receiver;
+use std::{sync::mpsc::Receiver, thread, time::Duration};
 
 use serde::Serialize;
 use tauri::{PhysicalPosition, PhysicalSize};
@@ -49,7 +49,6 @@ impl<'a> WindowManager<'a> {
             utils::hide_window(self.app, WindowLabel::WindowSelector);
             utils::hide_window(self.app, WindowLabel::MonitorSelector);
         } else {
-            processes::list_processes();
             utils::emit_to_frontend(
                 self.app,
                 BackendEvent::ShowWindowSwitcher,
@@ -57,6 +56,32 @@ impl<'a> WindowManager<'a> {
             );
 
             utils::show_window(self.app, WindowLabel::WindowSwitcher);
+
+            self.start_sending_processes();
+        }
+    }
+
+    fn start_sending_processes(&self) {
+        let app = self.app.clone();
+        let window_switcher_win = utils::get_window(&app, WindowLabel::WindowSwitcher);
+        let is_window_switcher_visible = window_switcher_win.is_visible().unwrap();
+
+        if is_window_switcher_visible {
+            thread::spawn(move || loop {
+                let is_window_switcher_visible = window_switcher_win.is_visible().unwrap();
+
+                if !is_window_switcher_visible {
+                    break;
+                }
+
+                utils::emit_to_frontend(
+                    &app,
+                    BackendEvent::SendProcesses,
+                    processes::list_processes(),
+                );
+
+                thread::sleep(Duration::from_millis(100));
+            });
         }
     }
 

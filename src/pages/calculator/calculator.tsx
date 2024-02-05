@@ -3,13 +3,22 @@ import { render } from "solid-js/web";
 
 import "@style";
 import { useEvent } from "@hooks";
-import { shuntingYard, BackendEvent, evaluate, KeyEvent } from "@lib";
-import { For, createEffect, createSignal } from "solid-js";
+import { BackendEvent, KeyEvent, ExpressionParser } from "@lib";
+import { For, createEffect, createSignal, onMount } from "solid-js";
 
 const Calculator = () => {
+  const [parser, setParser] = createSignal<ExpressionParser>();
   const [expr, setExpr] = createSignal<string>("");
   const [result, setResult] = createSignal<number>(0);
   const [history, setHistory] = createSignal<string[]>([]);
+
+  onMount(() => {
+    setParser(new ExpressionParser(""));
+  });
+
+  createEffect(() => {
+    parser()?.setExpression(expr());
+  });
 
   let inputRef: HTMLInputElement;
 
@@ -25,10 +34,7 @@ const Calculator = () => {
       return;
     }
 
-    let rpn = shuntingYard(e.target.value);
-    let res = evaluate(rpn);
-
-    setResult(res === undefined ? NaN : res);
+    setResult(parser()?.evaluate() ?? 0);
   };
 
   const onKeyDown = (e: KeyboardEvent) => {

@@ -7,6 +7,7 @@ pub enum BackendEvent {
     HideMonitorSelector,
     ShowCalculator,
     HideCalculator,
+    SendProcesses,
 }
 
 impl BackendEvent {
@@ -20,6 +21,7 @@ impl BackendEvent {
             BackendEvent::HideMonitorSelector => "hide-monitor-selector",
             BackendEvent::ShowCalculator => "show-calculator",
             BackendEvent::HideCalculator => "hide-calculator",
+            BackendEvent::SendProcesses => "send-processes",
         }
     }
 }

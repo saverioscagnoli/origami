@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { ClassValue } from "clsx";
 import { Setter } from "solid-js";
 import { twMerge } from "tailwind-merge";
-import { Operator } from "./enums";
+import { Function, Operator } from "./enums";
 
 function trimPath(path: string): string {
   return path.split("\\").pop() || "";
@@ -29,7 +29,20 @@ function isNumber<T>(value: T): boolean {
 }
 
 function isOperator(value: string): boolean {
-  return [...Object.values(Operator)].includes(value as Operator);
+  return Object.values(Operator).includes(value as Operator);
 }
 
-export { trimPath, goUp, goDown, getExeName, cn, isNumber, isOperator };
+function isFunction(value: string): boolean {
+  return Object.values(Function).includes(value as Function);
+}
+
+export {
+  trimPath,
+  goUp,
+  goDown,
+  getExeName,
+  cn,
+  isNumber,
+  isOperator,
+  isFunction
+};

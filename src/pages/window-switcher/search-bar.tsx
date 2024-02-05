@@ -20,6 +20,10 @@ const SearchBar: Component<SearchBarProps> = ({
     setProcesses(p);
   });
 
+  useEvent<Process[]>(BackendEvent.SendProcesses, (p) => {
+    setProcesses(p);
+  })
+
   useEvent(BackendEvent.HideWindowSwitcher, () => {
     setSearch("");
   });
