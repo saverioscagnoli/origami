@@ -1,6 +1,9 @@
 {
   "name": "origami",
   "type": "module",
+  "scripts": {
+    "dev:fe": "cd apps/file-explorer && bun tauri dev"
+  },
   "private": true,
   "workspaces": [
     "apps/*"

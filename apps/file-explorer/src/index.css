@@ -1,11 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 
+@import "@radix-ui/colors/slate.css";
+@import "@radix-ui/colors/slate-dark.css";
+
+@import "@radix-ui/colors/tomato.css";
+@import "@radix-ui/colors/tomato-dark.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "@radix-ui/colors/slate.css";
-@import "@radix-ui/colors/slate-dark.css";
 
 body {
   font-family: "Inter", sans-serif;

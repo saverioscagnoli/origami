@@ -1,15 +1,42 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+use tauri::Manager;
+
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+fn minimize(app: tauri::AppHandle) {
+  if let Some(window) = app.get_window("main") {
+    window.minimize().unwrap();
+  }
+}
+
+#[tauri::command]
+fn toggle_maximize(app: tauri::AppHandle) {
+  if let Some(window) = app.get_window("main") {
+    if window.is_maximized().unwrap() {
+      window.unmaximize().unwrap();
+    } else {
+      window.maximize().unwrap();
+    }
+  }
+}
+
+#[tauri::command]
+fn quit(app: tauri::AppHandle) {
+  app.exit(0);
 }
 
 fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+  tauri::Builder
+    ::default()
+    .invoke_handler(tauri::generate_handler![minimize, toggle_maximize, quit])
+    .setup(|app| {
+      let window = app.get_window("main").unwrap();
+
+      window.open_devtools();
+
+      Ok(())
+    })
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
 }
