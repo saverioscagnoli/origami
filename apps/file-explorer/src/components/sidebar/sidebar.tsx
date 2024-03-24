@@ -16,7 +16,7 @@ const Sidebar = () => {
   }, []);
 
   return (
-    <div className={cn("w-1/6 h-full", "border-r border-r-[--gray-3]")}>
+    <div className={cn("w-1/4 h-full", "border-r border-r-[--gray-3]")}>
       {disks.map(d => (
         <Disk
           key={d.available_space}
