@@ -15,13 +15,22 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "window": {
+        "startDragging": true,
+        "maximize": true,
+        "unmaximize": true,
+        "minimize": true,
+        "unminimize": true,
+        "close": true
       }
     },
     "windows": [
       {
         "title": "explorer",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "decorations": false
       }
     ],
     "security": {
