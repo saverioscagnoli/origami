@@ -19,13 +19,15 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+
     "baseUrl": "./src",
     "paths": {
       "@utils": ["lib/utils.ts"],
-      "@components/*": ["components/*"],
-      "@tredici/*": ["components/tredici/*"],
+      "@contexts/*": ["contexts/*"],
       "@hooks/*": ["hooks/*"],
-      "@contexts/*": ["contexts/*"]
+      "@components/*": ["components/*"],
+      "@providers/*": ["components/providers/*"],
+      "@tredici": ["components/tredici/index.ts"]
     }
   },
   "include": ["src"],

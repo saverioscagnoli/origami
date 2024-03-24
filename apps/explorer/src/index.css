@@ -3,9 +3,6 @@
 @import "@radix-ui/colors/slate.css";
 @import "@radix-ui/colors/slate-dark.css";
 
-@import "@radix-ui/colors/tomato.css";
-@import "@radix-ui/colors/tomato-dark.css";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

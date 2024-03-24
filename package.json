@@ -1,17 +1,9 @@
 {
   "name": "origami",
-  "type": "module",
-  "scripts": {
-    "dev:fe": "cd apps/file-explorer && bun tauri dev"
-  },
+  "repository": "https://github.com/saverioscagnoli/origami",
+  "license": "MIT",
   "private": true,
   "workspaces": [
     "apps/*"
-  ],
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  }
+  ]
 }
