@@ -2,13 +2,15 @@ import { useDirectory } from "@hooks/use-directory";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  EyeOpenIcon,
   FilePlusIcon,
   PlusIcon
 } from "@radix-ui/react-icons";
 import { Menubar } from "@tredici";
 
 const TopbarMenu = () => {
-  const { history, historyIndex, goBack, goForward } = useDirectory();
+  const { history, historyIndex, showHidden, goBack, goForward } =
+    useDirectory();
 
   return (
     <Menubar>
@@ -33,6 +35,16 @@ const TopbarMenu = () => {
           >
             Forward
           </Menubar.Item>
+
+          <Menubar.Separator />
+
+          <Menubar.CheckboxItem
+            leftIcon={<EyeOpenIcon />}
+            checked={showHidden.get()}
+            onCheckedChange={showHidden.set}
+          >
+            Show Hidden Files
+          </Menubar.CheckboxItem>
         </Menubar.Content>
       </Menubar.Menu>
     </Menubar>

@@ -15,6 +15,8 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(0);
 
+  const [showHidden, setShowHidden] = useState<boolean>(false);
+
   useEffect(() => {
     homeDir().then(p => {
       setDir(p);
@@ -66,6 +68,7 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
         entries: toAccessor([entries, setEntries]),
         history: toAccessor([history, setHistory]),
         historyIndex: toAccessor([historyIndex, setHistoryIndex]),
+        showHidden: toAccessor([showHidden, setShowHidden]),
         read,
         changeDir,
         goBack,

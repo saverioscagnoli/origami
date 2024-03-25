@@ -38,7 +38,7 @@ const fileIconMap = new Map<string, ReactNode>([
 ]);
 
 const Entry: React.FC<DirEntry> = ({ name, path, is_folder, is_hidden }) => {
-  const { dir, read, changeDir } = useDirectory();
+  const { dir, read, changeDir, showHidden } = useDirectory();
   const { renaming } = useEntryContext();
 
   const nameRef = useRef<HTMLParagraphElement>(null);
@@ -82,7 +82,8 @@ const Entry: React.FC<DirEntry> = ({ name, path, is_folder, is_hidden }) => {
         "text-sm",
         "cursor-pointer",
         "hover:bg-[--gray-3]",
-        "select-none"
+        "select-none",
+        is_hidden && !showHidden.get() && "hidden"
       )}
       onClick={onClick}
     >

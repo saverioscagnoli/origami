@@ -6,6 +6,7 @@ type DirectoryContextValue = {
   entries: Accessor<DirEntry[]>;
   history: Accessor<string[]>;
   historyIndex: Accessor<number>;
+  showHidden: Accessor<boolean>
   changeDir: (path: string, is_folder?: boolean) => void;
   read: (path: string) => void;
   goBack: () => void;
