@@ -4,8 +4,6 @@ import { cn } from "@utils";
 const Bottombar = () => {
   const { entries } = useDirectory();
   const items = entries.get();
-  const folders = items.filter(item => item.is_folder);
-  const files = items.length - folders.length;
 
   return (
     <div
@@ -18,9 +16,7 @@ const Bottombar = () => {
         "z-30"
       )}
     >
-      <p className={cn("px-6", "text-xs")}>
-        {items.length} Items | {folders.length} Folders | {files} Files
-      </p>
+      <p className={cn("px-6", "text-xs")}>{items.length} Items</p>
     </div>
   );
 };

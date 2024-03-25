@@ -15,7 +15,8 @@ const Topbar = () => {
         "flex justify-between",
         "fixed top-0 left-0",
         "border-b border-b-[--gray-6]",
-        "z-30"
+        "z-30",
+        "select-none"
       )}
     >
       <div className={cn("flex items-center", "gap-2")}>
@@ -41,7 +42,10 @@ const Topbar = () => {
           "w-full h-full",
           "flex justify-center items-center",
           "cursor-default",
-          "text-sm"
+          "text-sm",
+          "text-ellipsis",
+          "overflow-hidden",
+          "whitespace-nowrap"
         )}
         data-tauri-drag-region
       >

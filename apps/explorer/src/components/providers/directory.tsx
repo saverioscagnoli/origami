@@ -2,7 +2,7 @@ import { DirectoryContext } from "@contexts/directory";
 import { invoke } from "@tauri-apps/api";
 import { DirEntry } from "@types";
 import { ReactNode, useEffect, useState } from "react";
-import { homeDir } from "@tauri-apps/api/path";
+import { homeDir, sep } from "@tauri-apps/api/path";
 import { toAccessor } from "@utils";
 
 type DirectoryProviderProps = {
@@ -27,10 +27,17 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
 
   const read = async (path: string) => {
     const newEntries = await invoke<DirEntry[]>("read_dir", { path });
+
+    newEntries.sort((a, b) => {
+      if (a.is_folder && !b.is_folder) return -1;
+      if (!a.is_folder && b.is_folder) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
     setEntries(newEntries);
   };
 
-  const changeDir = async (path: string, is_folder?: boolean) => {
+  const changeDir = async (path: string, is_folder: boolean = true) => {
     if (!is_folder) return;
 
     setDir(path);
@@ -69,6 +76,7 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
         history: toAccessor([history, setHistory]),
         historyIndex: toAccessor([historyIndex, setHistoryIndex]),
         showHidden: toAccessor([showHidden, setShowHidden]),
+        sep,
         read,
         changeDir,
         goBack,

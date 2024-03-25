@@ -14,6 +14,7 @@ import { DirEntry } from "@types";
 import { BsFolderFill } from "react-icons/bs";
 import { useEntryContext } from "@hooks/use-entry-context";
 import { renameFile } from "@tauri-apps/api/fs";
+import { invoke } from "@tauri-apps/api";
 
 const fileIconMap = new Map<string, ReactNode>([
   ["txt", <FileTextIcon />],
@@ -37,11 +38,25 @@ const fileIconMap = new Map<string, ReactNode>([
   ["appImage", <CubeIcon />]
 ]);
 
-const Entry: React.FC<DirEntry> = ({ name, path, is_folder, is_hidden }) => {
+const Entry: React.FC<DirEntry> = ({
+  name,
+  path,
+  is_folder,
+  is_hidden,
+  last_modified,
+  size
+}) => {
   const { dir, read, changeDir, showHidden } = useDirectory();
   const { renaming } = useEntryContext();
 
   const nameRef = useRef<HTMLParagraphElement>(null);
+  const entryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    entryRef.current.addEventListener("dblclick", () => {
+      invoke("open_file", { path });
+    });
+  }, []);
 
   useEffect(() => {
     if (renaming.get()) {
@@ -75,6 +90,7 @@ const Entry: React.FC<DirEntry> = ({ name, path, is_folder, is_hidden }) => {
 
   return (
     <div
+      ref={entryRef}
       className={cn(
         "w-full h-6",
         "flex items-center gap-4",
@@ -122,6 +138,8 @@ const Entry: React.FC<DirEntry> = ({ name, path, is_folder, is_hidden }) => {
         {name}
       </p>
       {is_hidden && <EyeOpenIcon />}
+      <p className={cn("w-44", "text-[--gray-10]", "pl-8")}>{last_modified}</p>
+      {!is_folder && <p className={cn("text-[--gray-10]", "pl-4")}>{size}</p>}
     </div>
   );
 };
