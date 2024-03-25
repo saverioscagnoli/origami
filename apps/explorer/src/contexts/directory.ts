@@ -5,6 +5,8 @@ type DirectoryContextValue = {
   dir: Accessor<string>;
   entries: Accessor<DirEntry[]>;
   history: Accessor<string[]>;
+  read: (path: string) => void;
+  goBack: () => void;
 };
 
 const DirectoryContext = createContext<DirectoryContextValue | null>(null);

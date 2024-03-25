@@ -2,6 +2,7 @@ import { DirectoryContext } from "@contexts/directory";
 import { invoke } from "@tauri-apps/api";
 import { DirEntry } from "@types";
 import { ReactNode, useEffect, useState } from "react";
+import { homeDir } from "@tauri-apps/api/path";
 
 type DirectoryProviderProps = {
   children: ReactNode;
@@ -13,12 +14,23 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
   const [history, setHistory] = useState<string[]>([]);
 
   useEffect(() => {
-    invoke<DirEntry[]>("read_dir").then(setEntries);
+    homeDir().then(p => {
+      setDir(p);
+      read(p);
+    });
   }, []);
 
-  useEffect(() => {
-    console.log(history);
-  }, [history]);
+  const read = async (path: string) => {
+    const newEntries = await invoke<DirEntry[]>("read_dir", { path });
+    setEntries(newEntries);
+  };
+
+  const goBack = async () => {
+    const oldPath = history.pop()!;
+    await read(oldPath);
+    setDir(oldPath);
+    setHistory(history);
+  };
 
   return (
     <DirectoryContext.Provider
@@ -34,7 +46,9 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
         history: {
           get: () => history,
           set: setHistory
-        }
+        },
+        read,
+        goBack
       }}
     >
       {children}

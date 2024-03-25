@@ -15,12 +15,7 @@ struct DirEntry {
 }
 
 #[tauri::command]
-fn read_dir(path: Option<String>) -> Vec<DirEntry> {
-  let path = match path {
-    Some(path) => PathBuf::from(path),
-    None => dirs::home_dir().unwrap(),
-  };
-
+fn read_dir(path: String) -> Vec<DirEntry> {
   let mut entries = Vec::new();
 
   for entry in fs::read_dir(path).unwrap() {

@@ -1,12 +1,40 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { cn } from "@utils";
-import { CubeIcon, FileIcon } from "@radix-ui/react-icons";
+import {
+  ArchiveIcon,
+  CubeIcon,
+  DiscIcon,
+  FileIcon,
+  FileTextIcon,
+  ImageIcon
+} from "@radix-ui/react-icons";
 import { useDirectory } from "@hooks/use-directory";
-import { invoke } from "@tauri-apps/api/tauri";
 import { DirEntry } from "@types";
+import { BsFolderFill } from "react-icons/bs";
+
+const fileIconMap = new Map<string, ReactNode>([
+  ["txt", <FileTextIcon />],
+  ["jpg", <ImageIcon />],
+  ["jpeg", <ImageIcon />],
+  ["png", <ImageIcon />],
+  ["gif", <ImageIcon />],
+  ["webp", <ImageIcon />],
+  ["svg", <ImageIcon />],
+  ["zip", <ArchiveIcon />],
+  ["rar", <ArchiveIcon />],
+  ["7z", <ArchiveIcon />],
+  ["tar", <ArchiveIcon />],
+  ["gz", <ArchiveIcon />],
+  ["mp3", <DiscIcon />],
+  ["wav", <DiscIcon />],
+  ["ogg", <DiscIcon />],
+  ["exe", <CubeIcon />],
+  ["msi", <CubeIcon />],
+  ["appImage", <CubeIcon />]
+]);
 
 const Entry: React.FC<DirEntry> = ({ name, path, is_folder }) => {
-  const { dir, entries, history } = useDirectory();
+  const { dir, read, history } = useDirectory();
 
   const onClick = () => {
     if (!is_folder) return;
@@ -14,7 +42,7 @@ const Entry: React.FC<DirEntry> = ({ name, path, is_folder }) => {
     dir.set(path);
 
     history.set(p => [...p, path.split("\\").slice(0, -1).join("\\")]);
-    invoke<DirEntry[]>("read_dir", { path }).then(entries.set);
+    read(path);
   };
 
   return (
@@ -23,14 +51,28 @@ const Entry: React.FC<DirEntry> = ({ name, path, is_folder }) => {
         "w-full h-6",
         "flex items-center gap-4",
         "px-4",
+        "text-sm",
         "cursor-pointer",
         "hover:bg-[--gray-3]",
         "select-none"
       )}
       onClick={onClick}
     >
-      {is_folder ? <CubeIcon /> : <FileIcon />}
-      {name}
+      {is_folder ? (
+        <BsFolderFill />
+      ) : (
+        fileIconMap.get(name.split(".").pop()!) ?? <FileIcon />
+      )}
+      <p
+        className={cn(
+          "w-52",
+          "text-ellipsis",
+          "overflow-hidden",
+          "whitespace-nowrap"
+        )}
+      >
+        {name}
+      </p>
     </div>
   );
 };

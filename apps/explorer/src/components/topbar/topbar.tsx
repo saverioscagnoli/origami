@@ -1,6 +1,7 @@
 import { cn } from "@utils";
 import { TopbarButtons } from "./topbar-buttons";
 import { useDirectory } from "@hooks/use-directory";
+import { TopbarMenu } from "./topbar-menu";
 
 const Topbar = () => {
   const { dir } = useDirectory();
@@ -15,9 +16,14 @@ const Topbar = () => {
         "z-[9999]"
       )}
     >
-      <span>Menu</span>
+      <TopbarMenu />
       <div
-        className={cn("w-full h-full", "flex justify-center items-center")}
+        className={cn(
+          "w-full h-full",
+          "flex justify-center items-center",
+          "cursor-default",
+          "text-sm"
+        )}
         data-tauri-drag-region
       >
         {dir.get()}
