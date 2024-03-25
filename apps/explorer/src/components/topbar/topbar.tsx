@@ -13,7 +13,7 @@ const Topbar = () => {
         "flex justify-between",
         "fixed top-0 left-0",
         "border-b border-b-[--gray-6]",
-        "z-[9999]"
+        "z-30"
       )}
     >
       <TopbarMenu />

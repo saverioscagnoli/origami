@@ -107,7 +107,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
             "bg-[--slate-1]",
             "text-[--slate-12]",
             "context-menu-content",
-            "z-[10000]",
+            "z-40",
             className
           )}
           {...props}

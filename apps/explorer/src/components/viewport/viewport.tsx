@@ -4,6 +4,7 @@ import { Entry } from "./entry";
 import { ScrollArea } from "@tredici";
 import { EmptySpaceContextMenu } from "./empty-space-context-menu";
 import { EntryContextMenu } from "./entry-context-menu";
+import { EntryContextProvider } from "@components/providers/entry";
 
 const Viewport = () => {
   const { entries } = useDirectory();
@@ -12,9 +13,11 @@ const Viewport = () => {
     <EmptySpaceContextMenu>
       <ScrollArea className={cn("w-full h-full", "flex flex-col")}>
         {entries.get().map(f => (
-          <EntryContextMenu key={f.name}>
-            <Entry {...f} />
-          </EntryContextMenu>
+          <EntryContextProvider key={f.name}>
+            <EntryContextMenu>
+              <Entry {...f} />
+            </EntryContextMenu>
+          </EntryContextProvider>
         ))}
         <ScrollArea.Scrollbar colorScheme="gray" />
       </ScrollArea>

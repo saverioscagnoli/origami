@@ -34,10 +34,15 @@ fn read_dir(path: String) -> Vec<DirEntry> {
   entries
 }
 
+#[tauri::command]
+fn rename_file(old_path: String, new_path: String) {
+  fs::rename(old_path, new_path).unwrap();
+}
+
 fn main() {
   tauri::Builder
     ::default()
-    .invoke_handler(tauri::generate_handler![read_dir])
+    .invoke_handler(tauri::generate_handler![read_dir, rename_file])
     .setup(|app| {
       let window: tauri::Window = app.get_window("main").unwrap();
 

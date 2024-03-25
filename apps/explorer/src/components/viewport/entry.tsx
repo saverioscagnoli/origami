@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import { cn } from "@utils";
 import {
   ArchiveIcon,
@@ -11,6 +11,8 @@ import {
 import { useDirectory } from "@hooks/use-directory";
 import { DirEntry } from "@types";
 import { BsFolderFill } from "react-icons/bs";
+import { useEntryContext } from "@hooks/use-entry-context";
+import { renameFile } from "@tauri-apps/api/fs";
 
 const fileIconMap = new Map<string, ReactNode>([
   ["txt", <FileTextIcon />],
@@ -20,6 +22,7 @@ const fileIconMap = new Map<string, ReactNode>([
   ["gif", <ImageIcon />],
   ["webp", <ImageIcon />],
   ["svg", <ImageIcon />],
+  ["ico", <ImageIcon />],
   ["zip", <ArchiveIcon />],
   ["rar", <ArchiveIcon />],
   ["7z", <ArchiveIcon />],
@@ -35,6 +38,35 @@ const fileIconMap = new Map<string, ReactNode>([
 
 const Entry: React.FC<DirEntry> = ({ name, path, is_folder }) => {
   const { dir, read, history } = useDirectory();
+  const { renaming } = useEntryContext();
+
+  const nameRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (renaming.get()) {
+      setTimeout(() => {
+        if (nameRef.current) {
+          nameRef.current.focus();
+
+          const text = nameRef.current.firstChild;
+          const range = document.createRange();
+
+          range.selectNodeContents(text);
+
+          const end =
+            name.lastIndexOf(".") === -1 ? name.length : name.lastIndexOf(".");
+
+          range.setStart(text, 0);
+          range.setEnd(text, end);
+
+          const sel = window.getSelection();
+
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+        }
+      }, 10);
+    }
+  }, [renaming.get()]);
 
   const onClick = () => {
     if (!is_folder) return;
@@ -64,12 +96,31 @@ const Entry: React.FC<DirEntry> = ({ name, path, is_folder }) => {
         fileIconMap.get(name.split(".").pop()!) ?? <FileIcon />
       )}
       <p
+        ref={nameRef}
+        contentEditable={renaming.get()}
+        spellCheck={false}
+        onBlur={() => renaming.set(false)}
+        onKeyDown={e => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.currentTarget.blur();
+            renaming.set(false);
+            renameFile(
+              path,
+              path.replace(name, e.currentTarget.textContent!)
+            ).then(() => {
+              read(dir.get());
+            });
+          }
+        }}
         className={cn(
           "w-52",
-          "text-ellipsis",
-          "overflow-hidden",
-          "whitespace-nowrap"
+          !renaming.get() && ["text-ellipsis", "overflow-hidden"],
+          "whitespace-nowrap",
+          "rounded-sm",
+          "outline-none"
         )}
+        suppressContentEditableWarning
       >
         {name}
       </p>

@@ -19,6 +19,9 @@
       "path": {
         "all": true
       },
+      "fs": {
+        "renameFile": true
+      },
       "window": {
         "startDragging": true,
         "maximize": true,

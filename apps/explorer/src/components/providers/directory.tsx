@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api";
 import { DirEntry } from "@types";
 import { ReactNode, useEffect, useState } from "react";
 import { homeDir } from "@tauri-apps/api/path";
+import { toAccessor } from "@utils";
 
 type DirectoryProviderProps = {
   children: ReactNode;
@@ -35,18 +36,9 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
   return (
     <DirectoryContext.Provider
       value={{
-        dir: {
-          get: () => dir,
-          set: setDir
-        },
-        entries: {
-          get: () => entries,
-          set: setEntries
-        },
-        history: {
-          get: () => history,
-          set: setHistory
-        },
+        dir: toAccessor([dir, setDir]),
+        entries: toAccessor([entries, setEntries]),
+        history: toAccessor([history, setHistory]),
         read,
         goBack
       }}
