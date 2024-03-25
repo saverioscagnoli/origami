@@ -4,6 +4,7 @@ import {
   ArchiveIcon,
   CubeIcon,
   DiscIcon,
+  EyeOpenIcon,
   FileIcon,
   FileTextIcon,
   ImageIcon
@@ -36,8 +37,8 @@ const fileIconMap = new Map<string, ReactNode>([
   ["appImage", <CubeIcon />]
 ]);
 
-const Entry: React.FC<DirEntry> = ({ name, path, is_folder }) => {
-  const { dir, read, history } = useDirectory();
+const Entry: React.FC<DirEntry> = ({ name, path, is_folder, is_hidden }) => {
+  const { dir, read, changeDir } = useDirectory();
   const { renaming } = useEntryContext();
 
   const nameRef = useRef<HTMLParagraphElement>(null);
@@ -69,12 +70,7 @@ const Entry: React.FC<DirEntry> = ({ name, path, is_folder }) => {
   }, [renaming.get()]);
 
   const onClick = () => {
-    if (!is_folder) return;
-
-    dir.set(path);
-
-    history.set(p => [...p, path.split("\\").slice(0, -1).join("\\")]);
-    read(path);
+    changeDir(path, is_folder);
   };
 
   return (
@@ -124,6 +120,7 @@ const Entry: React.FC<DirEntry> = ({ name, path, is_folder }) => {
       >
         {name}
       </p>
+      {is_hidden && <EyeOpenIcon />}
     </div>
   );
 };
