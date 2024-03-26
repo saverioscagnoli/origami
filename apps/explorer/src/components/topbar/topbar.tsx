@@ -3,7 +3,11 @@ import { TopbarButtons } from "./topbar-buttons";
 import { useDirectory } from "@hooks/use-directory";
 import { TopbarMenu } from "./topbar-menu";
 import { IconButton } from "@tredici";
-import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  MagnifyingGlassIcon
+} from "@radix-ui/react-icons";
 
 const Topbar = () => {
   const { dir, history, historyIndex, goBack, goForward } = useDirectory();
@@ -35,6 +39,8 @@ const Topbar = () => {
           disabled={historyIndex.get() === history.get().length - 1}
           onClick={goForward}
         />
+
+        <IconButton variant="ghost" icon={<MagnifyingGlassIcon />} size="sm" />
       </div>
 
       <div

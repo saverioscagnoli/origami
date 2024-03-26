@@ -34,7 +34,7 @@ const SidebarDevices = () => {
                 <BackpackIcon />
                 <p>{d.mount_point}</p>
               </span>
-              <p>{d.total} GB</p>
+              <p className={cn("text-sm")}>{d.total} GB</p>
             </div>
             <Progress
               className={cn("w-full")}

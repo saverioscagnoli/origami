@@ -16,7 +16,7 @@ const TopbarMenu = () => {
     <Menubar>
       <Menubar.Menu>
         <Menubar.Trigger>Menu</Menubar.Trigger>
-        <Menubar.Content sideOffset={10}>
+        <Menubar.Content sideOffset={7}>
           <Menubar.Item leftIcon={<FilePlusIcon />}>New File...</Menubar.Item>
           <Menubar.Item leftIcon={<PlusIcon />}>New Folder...</Menubar.Item>
 
@@ -45,6 +45,8 @@ const TopbarMenu = () => {
           >
             Show Hidden Files
           </Menubar.CheckboxItem>
+
+          <Menubar.Arrow />
         </Menubar.Content>
       </Menubar.Menu>
     </Menubar>

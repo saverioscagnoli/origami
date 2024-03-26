@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::fs;
+use std::{ fs, path::PathBuf };
 use chrono::prelude::{ DateTime, Utc };
 
 use globmatch::is_hidden_path;
@@ -17,6 +17,7 @@ struct DirEntry {
   is_hidden: bool,
   last_modified: String,
   size: String,
+  can_be_opened: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -25,6 +26,13 @@ struct Disk {
   total: f64,
   free: f64,
   mount_point: String,
+}
+
+fn can_read_dir(path: &PathBuf) -> bool {
+  match fs::read_dir(path) {
+    Ok(_) => true,
+    Err(_) => false,
+  }
 }
 
 #[tauri::command]
@@ -37,6 +45,9 @@ fn read_dir(path: String) -> Vec<DirEntry> {
     let name = entry.file_name();
     let is_folder = path.is_dir();
     let is_hidden = is_hidden_path(&path);
+
+    let can_be_opened = fs::metadata(&path).is_ok();
+
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
     let datetime: DateTime<Utc> = DateTime::from(modified);
 
@@ -50,14 +61,29 @@ fn read_dir(path: String) -> Vec<DirEntry> {
 
     let size = format!("{:.2} MB", size);
 
-    entries.push(DirEntry {
-      name: name.to_string_lossy().to_string(),
-      path: path.to_string_lossy().to_string(),
-      is_folder,
-      is_hidden,
-      last_modified: datetime.format("%d/%m/%Y %H:%M").to_string(),
-      size,
-    });
+    if is_folder {
+      if can_read_dir(&path) {
+        entries.push(DirEntry {
+          name: name.to_string_lossy().to_string(),
+          path: path.to_string_lossy().to_string(),
+          is_folder,
+          is_hidden,
+          last_modified: datetime.format("%d/%m/%Y %H:%M").to_string(),
+          size,
+          can_be_opened,
+        });
+      }
+    } else {
+      entries.push(DirEntry {
+        name: name.to_string_lossy().to_string(),
+        path: path.to_string_lossy().to_string(),
+        is_folder,
+        is_hidden,
+        last_modified: datetime.format("%d/%m/%Y %H:%M").to_string(),
+        size,
+        can_be_opened,
+      });
+    }
   }
 
   entries

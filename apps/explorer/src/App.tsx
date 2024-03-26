@@ -9,7 +9,14 @@ function App() {
   return (
     <>
       <Topbar />
-      <div className={cn("w-screen h-[calc(100vh-2rem)]", "mt-8", "flex")}>
+      <div
+        className={cn(
+          "w-screen h-[calc(100vh-2rem)]",
+          "mt-8",
+          "flex",
+          "select-none"
+        )}
+      >
         <DisksProvider>
           <Sidebar />
         </DisksProvider>

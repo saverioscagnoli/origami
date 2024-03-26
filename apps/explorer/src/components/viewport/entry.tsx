@@ -44,17 +44,26 @@ const Entry: React.FC<DirEntry> = ({
   is_folder,
   is_hidden,
   last_modified,
-  size
+  size,
+  can_be_opened
 }) => {
-  const { dir, read, changeDir, showHidden } = useDirectory();
+  const { dir, read, changeDir, showHidden, selected } = useDirectory();
   const { renaming } = useEntryContext();
 
   const nameRef = useRef<HTMLParagraphElement>(null);
   const entryRef = useRef<HTMLDivElement>(null);
 
+  if (path.toLowerCase().includes("cookies")) {
+    console.log("Cookies directory detected, path: ", path, can_be_opened);
+  }
+
   useEffect(() => {
     entryRef.current.addEventListener("dblclick", () => {
-      invoke("open_file", { path });
+      if (is_folder) {
+        changeDir(path);
+      } else {
+        invoke("open_file", { path });
+      }
     });
   }, []);
 
@@ -85,7 +94,9 @@ const Entry: React.FC<DirEntry> = ({
   }, [renaming.get()]);
 
   const onClick = () => {
-    changeDir(path, is_folder);
+    selected.set([
+      { name, path, is_folder, is_hidden, last_modified, size, can_be_opened }
+    ]);
   };
 
   return (
@@ -96,10 +107,11 @@ const Entry: React.FC<DirEntry> = ({
         "flex items-center gap-4",
         "px-4",
         "text-sm",
-        "cursor-pointer",
+        renaming.get() ? "cursor-text" : "cursor-pointer",
         "hover:bg-[--gray-3]",
+        selected.get().some(e => e.path === path) && "bg-[--gray-4]",
         "select-none",
-        is_hidden && !showHidden.get() && "hidden"
+        ((is_hidden && !showHidden.get()) || !can_be_opened) && "hidden"
       )}
       onClick={onClick}
     >

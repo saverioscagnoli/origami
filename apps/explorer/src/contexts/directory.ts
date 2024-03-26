@@ -4,6 +4,7 @@ import { createContext } from "react";
 type DirectoryContextValue = {
   dir: Accessor<string>;
   entries: Accessor<DirEntry[]>;
+  selected: Accessor<DirEntry[]>;
   history: Accessor<string[]>;
   historyIndex: Accessor<number>;
   showHidden: Accessor<boolean>;

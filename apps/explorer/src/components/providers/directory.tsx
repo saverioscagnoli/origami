@@ -12,6 +12,7 @@ type DirectoryProviderProps = {
 const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
   const [dir, setDir] = useState<string>("");
   const [entries, setEntries] = useState<DirEntry[]>([]);
+  const [selected, setSelected] = useState<DirEntry[]>([]);
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(0);
 
@@ -24,6 +25,10 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
       read(p);
     });
   }, []);
+
+  useEffect(() => {
+    setSelected([]);
+  }, [dir]);
 
   const read = async (path: string) => {
     const newEntries = await invoke<DirEntry[]>("read_dir", { path });
@@ -73,6 +78,7 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
       value={{
         dir: toAccessor([dir, setDir]),
         entries: toAccessor([entries, setEntries]),
+        selected: toAccessor([selected, setSelected]),
         history: toAccessor([history, setHistory]),
         historyIndex: toAccessor([historyIndex, setHistoryIndex]),
         showHidden: toAccessor([showHidden, setShowHidden]),

@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { ContextMenu, Dialog } from "@tredici";
-import { Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
+import { Pencil1Icon, StarFilledIcon, TrashIcon } from "@radix-ui/react-icons";
 import { useEntryContext } from "@hooks/use-entry-context";
 
 type EntryContextMenuProps = {
@@ -19,6 +19,9 @@ const EntryContextMenu: React.FC<EntryContextMenuProps> = ({ children }) => {
       <ContextMenu>
         <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
         <ContextMenu.Content>
+          <ContextMenu.Item leftIcon={<StarFilledIcon />}>
+            Star
+          </ContextMenu.Item>
           <ContextMenu.Item leftIcon={<Pencil1Icon />} onClick={startRenaming}>
             Rename
           </ContextMenu.Item>
