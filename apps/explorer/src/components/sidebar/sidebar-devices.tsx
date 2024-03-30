@@ -2,6 +2,7 @@ import { Progress } from "@tredici";
 import { useDisks } from "@hooks/use-disks";
 import { cn } from "@utils";
 import { BackpackIcon } from "@radix-ui/react-icons";
+import { LuUsb } from "react-icons/lu";
 import { useDirectory } from "@hooks/use-directory";
 
 const SidebarDevices = () => {
@@ -31,7 +32,7 @@ const SidebarDevices = () => {
           >
             <div className={cn("w-full", "flex", "justify-between")}>
               <span className={cn("flex items-center gap-2", "self-start")}>
-                <BackpackIcon />
+                {d.is_removable ? <LuUsb /> : <BackpackIcon />}
                 <p>{d.mount_point}</p>
               </span>
               <p className={cn("text-sm")}>{d.total} GB</p>

@@ -93,10 +93,12 @@ const Entry: React.FC<{ style: CSSProperties }> = ({ style }) => {
     }
   }, [renaming.get()]);
 
-  const onClick = () => {
-    selected.set([
-      { name, path, is_folder, is_hidden, last_modified, size, can_be_opened }
-    ]);
+  const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (e.ctrlKey) {
+      selected.set([...selected.get(), entry]);
+    } else {
+      selected.set([entry]);
+    }
   };
 
   return (

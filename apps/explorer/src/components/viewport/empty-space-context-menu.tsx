@@ -10,10 +10,13 @@ type EmptySpaceContextMenuProps = {
 const EmptySpaceContextMenu: React.FC<EmptySpaceContextMenuProps> = ({
   children
 }) => {
-  const { reload } = useDirectory();
+  const { reload, selected } = useDirectory();
+  const onOpenChange = () => {
+    selected.set([]);
+  };
 
   return (
-    <ContextMenu>
+    <ContextMenu onOpenChange={onOpenChange}>
       <ContextMenu.Trigger className={cn("w-full h-full")}>
         {children}
       </ContextMenu.Trigger>

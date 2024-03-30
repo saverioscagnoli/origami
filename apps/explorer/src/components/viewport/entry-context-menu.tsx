@@ -3,13 +3,15 @@ import { ContextMenu } from "@tredici";
 import { Pencil1Icon, StarFilledIcon, TrashIcon } from "@radix-ui/react-icons";
 import { useEntryContext } from "@hooks/use-entry-context";
 import { DeleteEntryDialog } from "./delete-entry-dialog";
+import { useDirectory } from "@hooks/use-directory";
 
 type EntryContextMenuProps = {
   children: ReactNode;
 };
 
 const EntryContextMenu: React.FC<EntryContextMenuProps> = ({ children }) => {
-  const { renaming } = useEntryContext();
+  const { selected } = useDirectory();
+  const { renaming, entry } = useEntryContext();
   const menuRef = useRef<HTMLDivElement>(null);
 
   const startRenaming = () => {
@@ -21,7 +23,7 @@ const EntryContextMenu: React.FC<EntryContextMenuProps> = ({ children }) => {
   };
 
   return (
-    <ContextMenu modal={false}>
+    <ContextMenu onOpenChange={() => selected.set([entry])}>
       <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
       <ContextMenu.Content ref={menuRef}>
         <ContextMenu.Item leftIcon={<StarFilledIcon />}>Star</ContextMenu.Item>

@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{ fs, path::PathBuf };
+use std::{ fs, path::PathBuf, thread, time::Duration };
 use chrono::prelude::{ DateTime, Utc };
 
 use globmatch::is_hidden_path;
@@ -10,6 +10,12 @@ use tauri::Manager;
 use window_shadows::set_shadow;
 
 fn init(app: &tauri::AppHandle) {
+  let clone = app.clone();
+
+  thread::spawn(move || {
+    list_disks(&clone);
+  });
+
   let path_resolver = app.path_resolver();
   let config_dir = path_resolver.app_config_dir().unwrap();
 
@@ -42,6 +48,7 @@ struct Disk {
   total: f64,
   free: f64,
   mount_point: String,
+  is_removable: bool,
 }
 
 fn can_read_dir(path: &PathBuf) -> bool {
@@ -110,23 +117,26 @@ fn open_file(path: String) {
   opener::open(path).unwrap_or(());
 }
 
-#[tauri::command]
-fn list_disks() -> Vec<Disk> {
-  let mut disks = Vec::new();
+fn list_disks(app: &tauri::AppHandle) -> Vec<Disk> {
+  loop {
+    let mut disks = Vec::new();
 
-  for disk in sysinfo::Disks::new_with_refreshed_list().iter() {
-    let total = (disk.total_space() as f64) / 1024.0 / 1024.0 / 1024.0;
-    let free = (disk.available_space() as f64) / 1024.0 / 1024.0 / 1024.0;
+    for disk in sysinfo::Disks::new_with_refreshed_list().iter() {
+      let total = (disk.total_space() as f64) / 1024.0 / 1024.0 / 1024.0;
+      let free = (disk.available_space() as f64) / 1024.0 / 1024.0 / 1024.0;
 
-    disks.push(Disk {
-      name: disk.name().to_str().unwrap().to_string(),
-      total: f64::trunc(total * 100.0) / 100.0,
-      free: f64::trunc(free * 100.0) / 100.0,
-      mount_point: disk.mount_point().to_str().unwrap().to_string(),
-    });
+      disks.push(Disk {
+        name: disk.name().to_str().unwrap().to_string(),
+        total: f64::trunc(total * 100.0) / 100.0,
+        free: f64::trunc(free * 100.0) / 100.0,
+        mount_point: disk.mount_point().to_str().unwrap().to_string(),
+        is_removable: disk.is_removable(),
+      });
+    }
+
+    app.emit_all("send-disks", &disks).unwrap();
+    thread::sleep(Duration::from_secs(1));
   }
-
-  disks
 }
 
 #[tauri::command]
@@ -141,7 +151,7 @@ fn remove_entry(path: String, is_folder: bool) {
 fn main() {
   tauri::Builder
     ::default()
-    .invoke_handler(tauri::generate_handler![read_dir, open_file, list_disks, remove_entry])
+    .invoke_handler(tauri::generate_handler![read_dir, open_file, remove_entry])
     .setup(|app| {
       let handle = app.handle();
 

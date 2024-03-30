@@ -1,8 +1,8 @@
 import { DisksContext } from "@contexts/disks";
-import { invoke } from "@tauri-apps/api";
+import { useEvent } from "@hooks/use-event";
 import { Disk } from "@types";
 import { toAccessor } from "@utils";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 
 type DisksProviderProps = {
   children: ReactNode;
@@ -11,9 +11,9 @@ type DisksProviderProps = {
 const DisksProvider: React.FC<DisksProviderProps> = ({ children }) => {
   const [disks, setDisks] = useState<Disk[]>([]);
 
-  useEffect(() => {
-    invoke<Disk[]>("list_disks").then(setDisks);
-  }, []);
+  useEvent<Disk[]>("send-disks", (d) => {
+    setDisks(d);
+  }) ;
 
   return (
     <DisksContext.Provider value={{ disks: toAccessor([disks, setDisks]) }}>
