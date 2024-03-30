@@ -32,6 +32,7 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
 
   useEffect(() => {
     setSelected([]);
+    setSearchTerm("");
   }, [dir]);
 
   const read = async (path: string) => {
