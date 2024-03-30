@@ -9,6 +9,22 @@ use serde::{ Deserialize, Serialize };
 use tauri::Manager;
 use window_shadows::set_shadow;
 
+fn init(app: &tauri::AppHandle) {
+  let path_resolver = app.path_resolver();
+  let config_dir = path_resolver.app_config_dir().unwrap();
+
+  let starred_dir = config_dir.join("starred");
+
+  if !starred_dir.exists() {
+    fs::create_dir_all(&starred_dir).unwrap();
+  }
+
+  println!("Starred dir: {:?}", starred_dir);
+  println!("Config dir: {:?}", config_dir);
+
+  //let config_file = config_dir.join("config.json");
+}
+
 #[derive(Serialize, Deserialize)]
 struct DirEntry {
   name: String,
@@ -118,6 +134,10 @@ fn main() {
     ::default()
     .invoke_handler(tauri::generate_handler![read_dir, open_file, list_disks])
     .setup(|app| {
+      let handle = app.handle();
+
+      init(&handle);
+
       let window: tauri::Window = app.get_window("main").unwrap();
 
       #[cfg(any(windows, target_os = "macos"))]
