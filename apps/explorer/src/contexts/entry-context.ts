@@ -1,7 +1,8 @@
-import { Accessor } from "@types";
+import { Accessor, DirEntry } from "@types";
 import { createContext } from "react";
 
 type EntryContextValue = {
+  entry: DirEntry;
   renaming: Accessor<boolean>;
 };
 

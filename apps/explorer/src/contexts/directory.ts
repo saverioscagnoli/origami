@@ -12,6 +12,7 @@ type DirectoryContextValue = {
   sep: string;
   changeDir: (path: string, is_folder?: boolean) => void;
   read: (path: string) => void;
+  reload: () => void;
   goBack: () => void;
   goForward: () => void;
 };

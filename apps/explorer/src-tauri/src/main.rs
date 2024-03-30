@@ -129,10 +129,19 @@ fn list_disks() -> Vec<Disk> {
   disks
 }
 
+#[tauri::command]
+fn remove_entry(path: String, is_folder: bool) {
+  if is_folder {
+    fs::remove_dir_all(path).unwrap();
+  } else {
+    fs::remove_file(path).unwrap();
+  }
+}
+
 fn main() {
   tauri::Builder
     ::default()
-    .invoke_handler(tauri::generate_handler![read_dir, open_file, list_disks])
+    .invoke_handler(tauri::generate_handler![read_dir, open_file, list_disks, remove_entry])
     .setup(|app| {
       let handle = app.handle();
 

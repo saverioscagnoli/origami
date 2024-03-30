@@ -19,9 +19,9 @@ type RowProps = {
 const Row: React.FC<RowProps> = ({ index, style, data }) => {
   const f = data[index];
   return (
-    <EntryContextProvider key={f.name}>
+    <EntryContextProvider entry={f} key={f.name}>
       <EntryContextMenu>
-        <Entry {...f} style={style} />
+        <Entry style={style} />
       </EntryContextMenu>
     </EntryContextProvider>
   );

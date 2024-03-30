@@ -10,7 +10,6 @@ import {
   ImageIcon
 } from "@radix-ui/react-icons";
 import { useDirectory } from "@hooks/use-directory";
-import { DirEntry } from "@types";
 import { BsFolderFill } from "react-icons/bs";
 import { useEntryContext } from "@hooks/use-entry-context";
 import { renameFile } from "@tauri-apps/api/fs";
@@ -38,18 +37,18 @@ const fileIconMap = new Map<string, ReactNode>([
   ["appImage", <CubeIcon />]
 ]);
 
-const Entry: React.FC<DirEntry & { style: CSSProperties }> = ({
-  name,
-  path,
-  is_folder,
-  is_hidden,
-  last_modified,
-  size,
-  can_be_opened,
-  style
-}) => {
-  const { dir, read, changeDir, showHidden, selected } = useDirectory();
-  const { renaming } = useEntryContext();
+const Entry: React.FC<{ style: CSSProperties }> = ({ style }) => {
+  const { dir, read, changeDir, selected } = useDirectory();
+  const { renaming, entry } = useEntryContext();
+  const {
+    name,
+    path,
+    is_folder,
+    is_hidden,
+    last_modified,
+    size,
+    can_be_opened
+  } = entry;
 
   const nameRef = useRef<HTMLParagraphElement>(null);
   const entryRef = useRef<HTMLDivElement>(null);

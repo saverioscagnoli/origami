@@ -45,6 +45,10 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
     setChanging(false);
   };
 
+  const reload = async () => {
+    await read(dir);
+  };
+
   const changeDir = async (path: string, is_folder: boolean = true) => {
     if (!is_folder) return;
 
@@ -90,6 +94,7 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
         changing: toAccessor([changing, setChanging]),
         sep,
         read,
+        reload,
         changeDir,
         goBack,
         goForward
