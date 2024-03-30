@@ -39,11 +39,18 @@ const Fallback = () => (
 );
 
 const Viewport = () => {
-  const { entries, changing, showHidden } = useDirectory();
+  const { entries, changing, showHidden, searchTerm } = useDirectory();
 
-  const filteredEntries = entries
+  let filteredEntries = entries
     .get()
     .filter(e => !(e.is_hidden && !showHidden.get()) || !e.can_be_opened);
+
+  if (searchTerm.get()) {
+    const term = searchTerm.get().toLowerCase();
+    filteredEntries = filteredEntries.filter(e =>
+      e.name.toLowerCase().includes(term)
+    );
+  }
 
   return (
     <EmptySpaceContextMenu>

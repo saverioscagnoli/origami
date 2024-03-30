@@ -79,10 +79,15 @@ fn read_dir(path: String) -> Vec<DirEntry> {
     if is_folder {
       size = 0.0;
     } else {
-      size = (fs::metadata(&path).unwrap().len() as f64) / 1024.0 / 1024.0;
+      size = (fs::metadata(&path).unwrap().len() as f64) / 1024.0;
     }
 
-    let size = format!("{:.2} MB", size);
+    let size = match size {
+      size if size < 1.0 => format!("{:.2} B", size * 1024.0),
+      size if size < 1024.0 => format!("{:.2} KB", size),
+      size if size >= 1024.0 * 1024.0 => format!("{:.2} GB", size / 1024.0 / 1024.0),
+      _ => format!("{:.2} MB", size / 1024.0),
+    };
 
     if is_folder {
       if can_read_dir(&path) {

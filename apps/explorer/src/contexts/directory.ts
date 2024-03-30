@@ -9,6 +9,8 @@ type DirectoryContextValue = {
   historyIndex: Accessor<number>;
   showHidden: Accessor<boolean>;
   changing: Accessor<boolean>;
+  searching: Accessor<boolean>;
+  searchTerm: Accessor<string>;
   sep: string;
   changeDir: (path: string, is_folder?: boolean) => void;
   createFile: () => void;

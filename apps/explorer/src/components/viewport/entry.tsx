@@ -197,7 +197,7 @@ const Entry: React.FC<EntryProps> = ({ style, index }) => {
       >
         {name}
       </p>
-      {is_hidden && <EyeOpenIcon />}
+      <span className={cn("w-1")}>{is_hidden && <EyeOpenIcon />}</span>
       <p className={cn("w-44", "text-[--gray-10]", "pl-8")}>{last_modified}</p>
       {!is_folder && <p className={cn("text-[--gray-10]", "pl-4")}>{size}</p>}
     </div>
