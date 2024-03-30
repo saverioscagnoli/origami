@@ -6,3 +6,4 @@ export * from "./dialog/dialog";
 export * from "./input";
 export * from "./icon-button";
 export * from "./progress/progress";
+export * from "./spinner";

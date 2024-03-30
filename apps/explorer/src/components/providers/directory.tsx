@@ -17,6 +17,7 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
   const [historyIndex, setHistoryIndex] = useState<number>(0);
 
   const [showHidden, setShowHidden] = useState<boolean>(false);
+  const [changing, setChanging] = useState<boolean>(false);
 
   useEffect(() => {
     homeDir().then(p => {
@@ -31,6 +32,7 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
   }, [dir]);
 
   const read = async (path: string) => {
+    setChanging(true);
     const newEntries = await invoke<DirEntry[]>("read_dir", { path });
 
     newEntries.sort((a, b) => {
@@ -40,6 +42,7 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
     });
 
     setEntries(newEntries);
+    setChanging(false);
   };
 
   const changeDir = async (path: string, is_folder: boolean = true) => {
@@ -51,7 +54,9 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
       newHistory.push(path);
       return newHistory;
     });
+
     setHistoryIndex(prevIndex => prevIndex + 1);
+
     read(path);
   };
 
@@ -82,6 +87,7 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
         history: toAccessor([history, setHistory]),
         historyIndex: toAccessor([historyIndex, setHistoryIndex]),
         showHidden: toAccessor([showHidden, setShowHidden]),
+        changing: toAccessor([changing, setChanging]),
         sep,
         read,
         changeDir,

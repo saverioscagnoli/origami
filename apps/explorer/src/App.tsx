@@ -11,7 +11,7 @@ function App() {
       <Topbar />
       <div
         className={cn(
-          "w-screen h-[calc(100vh-2rem)]",
+          "w-screen h-[calc(100vh-3.5rem)]",
           "mt-8",
           "flex",
           "select-none"
@@ -21,8 +21,8 @@ function App() {
           <Sidebar />
         </DisksProvider>
         <Viewport />
-        <Bottombar />
       </div>
+      <Bottombar />
     </>
   );
 }

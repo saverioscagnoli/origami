@@ -10,7 +10,8 @@ import {
   desktopDir,
   documentDir,
   downloadDir,
-  pictureDir
+  pictureDir,
+  appConfigDir
 } from "@tauri-apps/api/path";
 import { cn } from "@utils";
 import React, { ReactNode, useEffect, useState } from "react";
@@ -45,12 +46,14 @@ const SidebarFolder: React.FC<SidebarFolderProps> = ({ icon, path, label }) => {
 };
 
 const SidebarFolders = () => {
+  const [starred, setStarred] = useState<string>("");
   const [desktop, setDesktop] = useState<string>("");
   const [downloads, setDownloads] = useState<string>("");
   const [documents, setDocuments] = useState<string>("");
   const [pictures, setPictures] = useState<string>("");
 
   useEffect(() => {
+    appConfigDir().then(p => setStarred(p + "starred"));
     desktopDir().then(setDesktop);
     downloadDir().then(setDownloads);
     documentDir().then(setDocuments);
@@ -59,7 +62,7 @@ const SidebarFolders = () => {
 
   return (
     <div className={cn("flex flex-col", "py-4")}>
-      <SidebarFolder icon={<StarFilledIcon />} path={desktop} label="Starred" />
+      <SidebarFolder icon={<StarFilledIcon />} path={starred} label="Starred" />
       <SidebarFolder icon={<DesktopIcon />} path={desktop} label="Desktop" />
       <SidebarFolder
         icon={<DownloadIcon />}

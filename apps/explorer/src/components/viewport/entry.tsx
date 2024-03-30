@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { CSSProperties, ReactNode, useEffect, useRef } from "react";
 import { cn } from "@utils";
 import {
   ArchiveIcon,
@@ -38,14 +38,15 @@ const fileIconMap = new Map<string, ReactNode>([
   ["appImage", <CubeIcon />]
 ]);
 
-const Entry: React.FC<DirEntry> = ({
+const Entry: React.FC<DirEntry & { style: CSSProperties }> = ({
   name,
   path,
   is_folder,
   is_hidden,
   last_modified,
   size,
-  can_be_opened
+  can_be_opened,
+  style
 }) => {
   const { dir, read, changeDir, showHidden, selected } = useDirectory();
   const { renaming } = useEntryContext();
@@ -110,10 +111,10 @@ const Entry: React.FC<DirEntry> = ({
         renaming.get() ? "cursor-text" : "cursor-pointer",
         "hover:bg-[--gray-3]",
         selected.get().some(e => e.path === path) && "bg-[--gray-4]",
-        "select-none",
-        ((is_hidden && !showHidden.get()) || !can_be_opened) && "hidden"
+        "select-none"
       )}
       onClick={onClick}
+      style={style}
     >
       {is_folder ? (
         <BsFolderFill />
