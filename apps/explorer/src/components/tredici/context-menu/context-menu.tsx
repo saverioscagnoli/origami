@@ -345,6 +345,7 @@ const ContextMenuSubContent = forwardRef<
           "shadow-lg",
           "bg-[--slate-1]",
           "text-[--slate-12]",
+          "z-40",
           "context-menu-content",
           className
         )}

@@ -21,7 +21,7 @@ const Row: React.FC<RowProps> = ({ index, style, data }) => {
   return (
     <EntryContextProvider entry={f} key={f.name}>
       <EntryContextMenu>
-        <Entry style={style} />
+        <Entry style={style} index={index} />
       </EntryContextMenu>
     </EntryContextProvider>
   );

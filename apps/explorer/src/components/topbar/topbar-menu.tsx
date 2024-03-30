@@ -3,22 +3,33 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   EyeOpenIcon,
-  FilePlusIcon,
-  PlusIcon
+  FilePlusIcon
 } from "@radix-ui/react-icons";
 import { Menubar } from "@tredici";
+import { BsFolderFill } from "react-icons/bs";
 
 const TopbarMenu = () => {
-  const { history, historyIndex, showHidden, goBack, goForward } =
-    useDirectory();
+  const {
+    history,
+    historyIndex,
+    showHidden,
+    createFile,
+    createDir,
+    goBack,
+    goForward
+  } = useDirectory();
 
   return (
     <Menubar>
       <Menubar.Menu>
         <Menubar.Trigger>Menu</Menubar.Trigger>
         <Menubar.Content sideOffset={7}>
-          <Menubar.Item leftIcon={<FilePlusIcon />}>New File...</Menubar.Item>
-          <Menubar.Item leftIcon={<PlusIcon />}>New Folder...</Menubar.Item>
+          <Menubar.Item leftIcon={<FilePlusIcon />} onClick={createFile}>
+            New File
+          </Menubar.Item>
+          <Menubar.Item leftIcon={<BsFolderFill />} onClick={createDir}>
+            New Folder
+          </Menubar.Item>
 
           <Menubar.Separator />
           <Menubar.Item

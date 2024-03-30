@@ -1,4 +1,10 @@
-import React, { CSSProperties, ReactNode, useEffect, useRef } from "react";
+import React, {
+  CSSProperties,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState
+} from "react";
 import { cn } from "@utils";
 import {
   ArchiveIcon,
@@ -14,6 +20,7 @@ import { BsFolderFill } from "react-icons/bs";
 import { useEntryContext } from "@hooks/use-entry-context";
 import { renameFile } from "@tauri-apps/api/fs";
 import { invoke } from "@tauri-apps/api";
+import { LuMusic } from "react-icons/lu";
 
 const fileIconMap = new Map<string, ReactNode>([
   ["txt", <FileTextIcon />],
@@ -29,16 +36,23 @@ const fileIconMap = new Map<string, ReactNode>([
   ["7z", <ArchiveIcon />],
   ["tar", <ArchiveIcon />],
   ["gz", <ArchiveIcon />],
-  ["mp3", <DiscIcon />],
-  ["wav", <DiscIcon />],
-  ["ogg", <DiscIcon />],
+  ["mp3", <LuMusic />],
+  ["wav", <LuMusic />],
+  ["ogg", <LuMusic />],
   ["exe", <CubeIcon />],
   ["msi", <CubeIcon />],
+  ["iso", <DiscIcon />],
   ["appImage", <CubeIcon />]
 ]);
 
-const Entry: React.FC<{ style: CSSProperties }> = ({ style }) => {
-  const { dir, read, changeDir, selected } = useDirectory();
+type EntryProps = {
+  style: CSSProperties;
+  index: number;
+};
+
+const Entry: React.FC<EntryProps> = ({ style, index }) => {
+  const [creating, setCreating] = useState<boolean>(false);
+  const { entries, dir, sep, reload, changeDir, selected } = useDirectory();
   const { renaming, entry } = useEntryContext();
   const {
     name,
@@ -66,6 +80,13 @@ const Entry: React.FC<{ style: CSSProperties }> = ({ style }) => {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (entries.get().at(-1).name === "") {
+      renaming.set(true);
+      setCreating(true);
+    }
+  }, [entries.get()]);
 
   useEffect(() => {
     if (renaming.get()) {
@@ -103,6 +124,7 @@ const Entry: React.FC<{ style: CSSProperties }> = ({ style }) => {
 
   return (
     <div
+      data-indx={index}
       ref={entryRef}
       className={cn(
         "w-full h-6",
@@ -126,18 +148,42 @@ const Entry: React.FC<{ style: CSSProperties }> = ({ style }) => {
         ref={nameRef}
         contentEditable={renaming.get()}
         spellCheck={false}
-        onBlur={() => renaming.set(false)}
+        onBlur={() => {
+          renaming.set(false);
+          setCreating(false);
+        }}
         onKeyDown={e => {
           if (e.key === "Enter") {
             e.preventDefault();
             e.currentTarget.blur();
-            renaming.set(false);
-            renameFile(
-              path,
-              path.replace(name, e.currentTarget.textContent!)
-            ).then(() => {
-              read(dir.get());
-            });
+
+            if (!creating) {
+              renaming.set(false);
+              renameFile(
+                path,
+                path.replace(
+                  name,
+                  e.currentTarget.textContent === ""
+                    ? is_folder
+                      ? "New Folder"
+                      : "File"
+                    : e.currentTarget.textContent
+                )
+              ).then(() => {
+                reload();
+              });
+            } else {
+              invoke(
+                entries.get().at(-1).is_folder ? "create_dir" : "create_file",
+                {
+                  path: dir.get() + sep + e.currentTarget.textContent
+                }
+              ).then(() => {
+                reload();
+              });
+            }
+
+            setCreating(false);
           }
         }}
         className={cn(

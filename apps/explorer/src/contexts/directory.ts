@@ -11,6 +11,8 @@ type DirectoryContextValue = {
   changing: Accessor<boolean>;
   sep: string;
   changeDir: (path: string, is_folder?: boolean) => void;
+  createFile: () => void;
+  createDir: () => void;
   read: (path: string) => void;
   reload: () => void;
   goBack: () => void;

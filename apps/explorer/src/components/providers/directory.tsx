@@ -64,6 +64,42 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
     read(path);
   };
 
+  const createFile = () => {
+    const newEntry: DirEntry = {
+      name: "",
+      is_folder: false,
+      is_hidden: false,
+      last_modified: "",
+      path: dir + sep + "",
+      size: "0 MB",
+      can_be_opened: true
+    };
+
+    setEntries([...entries, newEntry]);
+
+    setTimeout(() => {
+      setSelected([newEntry]);
+    }, 10);
+  };
+
+  const createDir = () => {
+    const newEntry: DirEntry = {
+      name: "",
+      is_folder: true,
+      is_hidden: false,
+      last_modified: "",
+      path: dir + sep + "",
+      size: "0 MB",
+      can_be_opened: true
+    };
+
+    setEntries([...entries, newEntry]);
+
+    setTimeout(() => {
+      setSelected([newEntry]);
+    }, 10);
+  };
+
   const goBack = async () => {
     if (historyIndex > 0) {
       const oldPath = history[historyIndex - 1];
@@ -96,6 +132,8 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
         read,
         reload,
         changeDir,
+        createFile,
+        createDir,
         goBack,
         goForward
       }}
