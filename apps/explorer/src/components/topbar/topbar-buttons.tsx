@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Cross1Icon, MinusIcon, SquareIcon } from "@radix-ui/react-icons";
+import { BoxIcon, Cross1Icon, MinusIcon } from "@radix-ui/react-icons";
 import { cn } from "@utils";
 import { appWindow } from "@tauri-apps/api/window";
 
@@ -34,7 +34,7 @@ const TopbarButtons = () => {
     <div className={cn("flex items-center")}>
       <TopbarButton icon={<MinusIcon />} onClick={() => appWindow.minimize()} />
       <TopbarButton
-        icon={<SquareIcon width={13} height={13} />}
+        icon={<BoxIcon />}
         onClick={() => appWindow.toggleMaximize()}
       />
       <TopbarButton

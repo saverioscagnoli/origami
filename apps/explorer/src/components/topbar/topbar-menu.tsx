@@ -3,7 +3,8 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   EyeOpenIcon,
-  FilePlusIcon
+  FilePlusIcon,
+  MagnifyingGlassIcon
 } from "@radix-ui/react-icons";
 import { Menubar } from "@tredici";
 import { BsFolderFill } from "react-icons/bs";
@@ -13,11 +14,14 @@ const TopbarMenu = () => {
     history,
     historyIndex,
     showHidden,
+    searching,
     createFile,
     createDir,
     goBack,
     goForward
   } = useDirectory();
+
+  const search = () => searching.set(true);
 
   return (
     <Menubar>
@@ -57,7 +61,11 @@ const TopbarMenu = () => {
             Show Hidden Files
           </Menubar.CheckboxItem>
 
-          <Menubar.Arrow />
+          <Menubar.Separator />
+
+          <Menubar.Item leftIcon={<MagnifyingGlassIcon />} onClick={search}>
+            Find in folder
+          </Menubar.Item>
         </Menubar.Content>
       </Menubar.Menu>
     </Menubar>

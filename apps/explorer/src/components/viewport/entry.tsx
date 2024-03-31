@@ -8,22 +8,28 @@ import React, {
 import { cn } from "@utils";
 import {
   ArchiveIcon,
+  CodeIcon,
+  CrumpledPaperIcon,
   CubeIcon,
   DiscIcon,
   EyeOpenIcon,
   FileIcon,
   FileTextIcon,
-  ImageIcon
+  GearIcon,
+  GlobeIcon,
+  ImageIcon,
+  MixerVerticalIcon
 } from "@radix-ui/react-icons";
 import { useDirectory } from "@hooks/use-directory";
 import { BsFolderFill } from "react-icons/bs";
 import { useEntryContext } from "@hooks/use-entry-context";
 import { renameFile } from "@tauri-apps/api/fs";
 import { invoke } from "@tauri-apps/api";
-import { LuMusic } from "react-icons/lu";
+import { LuMusic, LuKey, LuLibrary } from "react-icons/lu";
 
 const fileIconMap = new Map<string, ReactNode>([
   ["txt", <FileTextIcon />],
+  ["log", <FileTextIcon />],
   ["jpg", <ImageIcon />],
   ["jpeg", <ImageIcon />],
   ["png", <ImageIcon />],
@@ -40,9 +46,20 @@ const fileIconMap = new Map<string, ReactNode>([
   ["wav", <LuMusic />],
   ["ogg", <LuMusic />],
   ["exe", <CubeIcon />],
+  ["bin", <CubeIcon />],
   ["msi", <CubeIcon />],
   ["iso", <DiscIcon />],
-  ["appImage", <CubeIcon />]
+  ["appimage", <CubeIcon />],
+  ["key", <LuKey />],
+  ["ppk", <LuKey />],
+  ["env", <GlobeIcon />],
+  ["dll", <LuLibrary />],
+  ["xml", <CodeIcon />],
+  ["html", <CodeIcon />],
+  ["ini", <MixerVerticalIcon />],
+  ["config", <MixerVerticalIcon />],
+  ["sys", <GearIcon />],
+  ["tmp", <CrumpledPaperIcon />]
 ]);
 
 type EntryProps = {
@@ -142,7 +159,7 @@ const Entry: React.FC<EntryProps> = ({ style, index }) => {
       {is_folder ? (
         <BsFolderFill />
       ) : (
-        fileIconMap.get(name.split(".").pop()!) ?? <FileIcon />
+        fileIconMap.get(name.split(".").pop().toLowerCase()) ?? <FileIcon />
       )}
       <p
         ref={nameRef}
