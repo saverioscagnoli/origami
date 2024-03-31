@@ -11,7 +11,9 @@ type DirectoryContextValue = {
   changing: Accessor<boolean>;
   searching: Accessor<boolean>;
   searchTerm: Accessor<string>;
+  copying: Accessor<DirEntry | null>;
   sep: string;
+  starredPath: string;
   changeDir: (path: string, is_folder?: boolean) => void;
   createFile: () => void;
   createDir: () => void;

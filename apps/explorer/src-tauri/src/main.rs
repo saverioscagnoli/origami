@@ -1,9 +1,14 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{ fs, path::PathBuf, thread, time::Duration };
+mod fs_manager;
+mod commands;
+mod utils;
+
+use std::{ env, fs, path::PathBuf, thread, time::Duration };
 use chrono::prelude::{ DateTime, Utc };
 
+use fs_extra::dir::CopyOptions;
+use fs_manager::FSManager;
 use globmatch::is_hidden_path;
 use serde::{ Deserialize, Serialize };
 use tauri::Manager;
@@ -25,9 +30,6 @@ fn init(app: &tauri::AppHandle) {
     fs::create_dir_all(&starred_dir).unwrap();
   }
 
-  println!("Starred dir: {:?}", starred_dir);
-  println!("Config dir: {:?}", config_dir);
-
   //let config_file = config_dir.join("config.json");
 }
 
@@ -40,6 +42,8 @@ struct DirEntry {
   last_modified: String,
   size: String,
   can_be_opened: bool,
+  is_symlink: bool,
+  is_starred: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -58,8 +62,14 @@ fn can_read_dir(path: &PathBuf) -> bool {
   }
 }
 
+fn exists(path: &PathBuf) -> bool {
+  fs::metadata(path).is_ok()
+}
+
 #[tauri::command]
-fn read_dir(path: String) -> Vec<DirEntry> {
+fn read_dir(app: tauri::AppHandle, path: String) -> Vec<DirEntry> {
+  let path_resolver = app.path_resolver();
+  let config_path = path_resolver.app_config_dir().unwrap();
   let mut entries = Vec::new();
 
   for entry in fs::read_dir(path).unwrap() {
@@ -73,6 +83,10 @@ fn read_dir(path: String) -> Vec<DirEntry> {
 
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
     let datetime: DateTime<Utc> = DateTime::from(modified);
+    let is_symlink = fs::symlink_metadata(&path).unwrap().file_type().is_symlink();
+
+    let starred_path = config_path.join("starred").join(&name);
+    let is_starred = exists(&starred_path);
 
     let size: f64;
 
@@ -99,6 +113,8 @@ fn read_dir(path: String) -> Vec<DirEntry> {
           last_modified: datetime.format("%d/%m/%Y %H:%M").to_string(),
           size,
           can_be_opened,
+          is_symlink,
+          is_starred,
         });
       }
     } else {
@@ -110,6 +126,8 @@ fn read_dir(path: String) -> Vec<DirEntry> {
         last_modified: datetime.format("%d/%m/%Y %H:%M").to_string(),
         size,
         can_be_opened,
+        is_symlink,
+        is_starred,
       });
     }
   }
@@ -145,29 +163,30 @@ fn list_disks(app: &tauri::AppHandle) -> Vec<Disk> {
 }
 
 #[tauri::command]
-fn create_dir(path: String) {
-  fs::create_dir(path).unwrap();
-}
-
-#[tauri::command]
-fn create_file(path: String) {
-  fs::File::create(path).unwrap();
-}
-
-#[tauri::command]
-fn remove_entry(path: String, is_folder: bool) {
+fn paste(from: String, to: String, is_folder: bool) {
+  println!("{} | {}", from, to);
   if is_folder {
-    fs::remove_dir_all(path).unwrap();
+    fs_extra::dir::copy(from, to, &CopyOptions::new()).unwrap();
   } else {
-    fs::remove_file(path).unwrap();
+    fs::copy(from, to).unwrap();
   }
 }
 
 fn main() {
+  let fs_manager = FSManager::new();
+
   tauri::Builder
     ::default()
     .invoke_handler(
-      tauri::generate_handler![read_dir, open_file, create_dir, create_file, remove_entry]
+      tauri::generate_handler![
+        read_dir,
+        open_file,
+        commands::create_entry,
+        commands::delete_entry,
+        commands::star_entry,
+        commands::unstar_entry,
+        paste
+      ]
     )
     .setup(|app| {
       let handle = app.handle();
@@ -186,6 +205,7 @@ fn main() {
 
       Ok(())
     })
+    .manage(fs_manager)
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

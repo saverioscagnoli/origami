@@ -10,12 +10,13 @@ type DeleteEntryDialogProps = {
 };
 
 const DeleteEntryDialog: React.FC<DeleteEntryDialogProps> = ({ children }) => {
-  const { reload } = useDirectory();
+  const { dir, reload } = useDirectory();
   const { entry } = useEntryContext();
 
   const onDelete = async () => {
-    await invoke("remove_entry", {
-      path: entry.path,
+    await invoke("delete_entry", {
+      dir: dir.get(),
+      name: entry.name,
       isFolder: entry.is_folder
     });
     reload();

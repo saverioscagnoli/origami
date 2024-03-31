@@ -6,6 +6,8 @@ type DirEntry = {
   last_modified: string;
   size: string;
   can_be_opened: boolean;
+  is_symlink: boolean;
+  is_starred: boolean;
 };
 
 export type { DirEntry };

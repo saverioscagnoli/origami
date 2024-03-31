@@ -8,6 +8,7 @@ import React, {
 import { cn } from "@utils";
 import {
   ArchiveIcon,
+  ArrowLeftIcon,
   CodeIcon,
   CrumpledPaperIcon,
   CubeIcon,
@@ -18,7 +19,8 @@ import {
   GearIcon,
   GlobeIcon,
   ImageIcon,
-  MixerVerticalIcon
+  MixerVerticalIcon,
+  StarFilledIcon
 } from "@radix-ui/react-icons";
 import { useDirectory } from "@hooks/use-directory";
 import { BsFolderFill } from "react-icons/bs";
@@ -69,7 +71,7 @@ type EntryProps = {
 
 const Entry: React.FC<EntryProps> = ({ style, index }) => {
   const [creating, setCreating] = useState<boolean>(false);
-  const { entries, dir, sep, reload, changeDir, selected } = useDirectory();
+  const { entries, dir, reload, changeDir, selected } = useDirectory();
   const { renaming, entry } = useEntryContext();
   const {
     name,
@@ -78,15 +80,12 @@ const Entry: React.FC<EntryProps> = ({ style, index }) => {
     is_hidden,
     last_modified,
     size,
-    can_be_opened
+    is_symlink,
+    is_starred
   } = entry;
 
   const nameRef = useRef<HTMLParagraphElement>(null);
   const entryRef = useRef<HTMLDivElement>(null);
-
-  if (path.toLowerCase().includes("cookies")) {
-    console.log("Cookies directory detected, path: ", path, can_be_opened);
-  }
 
   useEffect(() => {
     entryRef.current.addEventListener("dblclick", () => {
@@ -190,12 +189,11 @@ const Entry: React.FC<EntryProps> = ({ style, index }) => {
                 reload();
               });
             } else {
-              invoke(
-                entries.get().at(-1).is_folder ? "create_dir" : "create_file",
-                {
-                  path: dir.get() + sep + e.currentTarget.textContent
-                }
-              ).then(() => {
+              invoke("create_entry", {
+                dir: dir.get(),
+                name: e.currentTarget.textContent,
+                isFolder: is_folder
+              }).then(() => {
                 reload();
               });
             }
@@ -214,6 +212,12 @@ const Entry: React.FC<EntryProps> = ({ style, index }) => {
       >
         {name}
       </p>
+      <span className={cn("w-1", "mr-2")}>
+        {is_starred && <StarFilledIcon />}
+      </span>
+      <span className={cn("w-1", "mr-2")}>
+        {is_symlink && <ArrowLeftIcon />}
+      </span>
       <span className={cn("w-1")}>{is_hidden && <EyeOpenIcon />}</span>
       <p className={cn("w-44", "text-[--gray-10]", "pl-8")}>{last_modified}</p>
       {!is_folder && <p className={cn("text-[--gray-10]", "pl-4")}>{size}</p>}

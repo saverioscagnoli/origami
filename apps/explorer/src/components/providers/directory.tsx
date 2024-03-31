@@ -2,7 +2,7 @@ import { DirectoryContext } from "@contexts/directory";
 import { invoke } from "@tauri-apps/api";
 import { DirEntry } from "@types";
 import { ReactNode, useEffect, useState } from "react";
-import { homeDir, sep } from "@tauri-apps/api/path";
+import { appConfigDir, homeDir, sep } from "@tauri-apps/api/path";
 import { toAccessor } from "@utils";
 
 type DirectoryProviderProps = {
@@ -22,12 +22,18 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
   const [searching, setSearching] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
+  const [copying, setCopying] = useState<DirEntry | null>(null);
+
+  const [starredPath, setStarredPath] = useState<string>("");
+
   useEffect(() => {
     homeDir().then(p => {
       setDir(p);
       setHistory([p]);
       read(p);
     });
+
+    appConfigDir().then(p => setStarredPath(p + "starred"));
   }, []);
 
   useEffect(() => {
@@ -76,7 +82,9 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
       last_modified: "",
       path: dir + sep + "",
       size: "0 MB",
-      can_be_opened: true
+      can_be_opened: true,
+      is_starred: false,
+      is_symlink: false
     };
 
     setEntries([...entries, newEntry]);
@@ -94,7 +102,9 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
       last_modified: "",
       path: dir + sep + "",
       size: "0 MB",
-      can_be_opened: true
+      can_be_opened: true,
+      is_starred: false,
+      is_symlink: false
     };
 
     setEntries([...entries, newEntry]);
@@ -134,6 +144,8 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
         changing: toAccessor([changing, setChanging]),
         searching: toAccessor([searching, setSearching]),
         searchTerm: toAccessor([searchTerm, setSearchTerm]),
+        copying: toAccessor([copying, setCopying]),
+        starredPath,
         sep,
         read,
         reload,
