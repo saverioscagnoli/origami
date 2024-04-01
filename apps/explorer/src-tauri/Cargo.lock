@@ -732,6 +732,7 @@ dependencies = [
  "sysinfo",
  "tauri",
  "tauri-build",
+ "winapi",
  "window-shadows",
 ]
 

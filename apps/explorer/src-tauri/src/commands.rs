@@ -1,6 +1,13 @@
 use tauri::State;
+use crate::{ fs_manager::{ Entry, FSManager }, utils };
 
-use crate::{ fs_manager::FSManager, utils };
+#[tauri::command]
+pub fn read_dir(app: tauri::AppHandle, fs_manager: State<FSManager>, path: String) -> Vec<Entry> {
+  let path_resolver = app.path_resolver();
+  let starred_dir = path_resolver.app_config_dir().unwrap().join("starred");
+
+  fs_manager.read_dir(path, starred_dir)
+}
 
 #[tauri::command]
 pub fn create_entry(
@@ -45,4 +52,19 @@ pub fn unstar_entry(
   let starred_dir = utils::get_starred_dir(&app);
 
   fs_manager.delete_entry(starred_dir, name, is_folder).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn open_file(path: String) {
+  opener::open(path).unwrap_or(());
+}
+
+#[tauri::command]
+pub fn paste(
+  fs_manager: State<FSManager>,
+  source: String,
+  target: String,
+  cutting: bool
+) -> Result<(), String> {
+  fs_manager.paste(source, target, cutting).map_err(|e| e.to_string())
 }

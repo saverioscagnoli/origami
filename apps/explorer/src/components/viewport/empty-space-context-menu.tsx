@@ -25,9 +25,9 @@ const EmptySpaceContextMenu: React.FC<EmptySpaceContextMenuProps> = ({
 
   const onPaste = async () => {
     await invoke("paste", {
-      from: copying.get().path,
-      to: dir.get() + copying.get().name,
-      isFolder: copying.get().is_folder
+      source: copying.get().path,
+      target: dir.get(),
+      cutting: false
     });
     copying.set(null);
     reload();

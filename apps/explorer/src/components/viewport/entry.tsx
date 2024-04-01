@@ -202,7 +202,7 @@ const Entry: React.FC<EntryProps> = ({ style, index }) => {
           }
         }}
         className={cn(
-          "w-52",
+          "w-44",
           !renaming.get() && ["text-ellipsis", "overflow-hidden"],
           "whitespace-nowrap",
           "rounded-sm",

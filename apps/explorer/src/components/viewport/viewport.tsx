@@ -51,7 +51,7 @@ const Viewport = () => {
 
   let filteredEntries = entries
     .get()
-    .filter(e => !(e.is_hidden && !showHidden.get()) || !e.can_be_opened);
+    .filter(e => !(e.is_hidden && !showHidden.get()));
 
   if (searchTerm.get()) {
     const term = searchTerm.get().toLowerCase();

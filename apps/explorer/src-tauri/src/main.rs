@@ -4,12 +4,8 @@ mod fs_manager;
 mod commands;
 mod utils;
 
-use std::{ env, fs, path::PathBuf, thread, time::Duration };
-use chrono::prelude::{ DateTime, Utc };
-
-use fs_extra::dir::CopyOptions;
+use std::{ env, fs, thread, time::Duration };
 use fs_manager::FSManager;
-use globmatch::is_hidden_path;
 use serde::{ Deserialize, Serialize };
 use tauri::Manager;
 use window_shadows::set_shadow;
@@ -34,110 +30,12 @@ fn init(app: &tauri::AppHandle) {
 }
 
 #[derive(Serialize, Deserialize)]
-struct DirEntry {
-  name: String,
-  path: String,
-  is_folder: bool,
-  is_hidden: bool,
-  last_modified: String,
-  size: String,
-  can_be_opened: bool,
-  is_symlink: bool,
-  is_starred: bool,
-}
-
-#[derive(Serialize, Deserialize)]
 struct Disk {
   name: String,
   total: f64,
   free: f64,
   mount_point: String,
   is_removable: bool,
-}
-
-fn can_read_dir(path: &PathBuf) -> bool {
-  match fs::read_dir(path) {
-    Ok(_) => true,
-    Err(_) => false,
-  }
-}
-
-fn exists(path: &PathBuf) -> bool {
-  fs::metadata(path).is_ok()
-}
-
-#[tauri::command]
-fn read_dir(app: tauri::AppHandle, path: String) -> Vec<DirEntry> {
-  let path_resolver = app.path_resolver();
-  let config_path = path_resolver.app_config_dir().unwrap();
-  let mut entries = Vec::new();
-
-  for entry in fs::read_dir(path).unwrap() {
-    let entry = entry.unwrap();
-    let path = entry.path();
-    let name = entry.file_name();
-    let is_folder = path.is_dir();
-    let is_hidden = is_hidden_path(&path);
-
-    let can_be_opened = fs::metadata(&path).is_ok();
-
-    let modified = fs::metadata(&path).unwrap().modified().unwrap();
-    let datetime: DateTime<Utc> = DateTime::from(modified);
-    let is_symlink = fs::symlink_metadata(&path).unwrap().file_type().is_symlink();
-
-    let starred_path = config_path.join("starred").join(&name);
-    let is_starred = exists(&starred_path);
-
-    let size: f64;
-
-    if is_folder {
-      size = 0.0;
-    } else {
-      size = (fs::metadata(&path).unwrap().len() as f64) / 1024.0;
-    }
-
-    let size = match size {
-      size if size < 1.0 => format!("{:.2} B", size * 1024.0),
-      size if size < 1024.0 => format!("{:.2} KB", size),
-      size if size >= 1024.0 * 1024.0 => format!("{:.2} GB", size / 1024.0 / 1024.0),
-      _ => format!("{:.2} MB", size / 1024.0),
-    };
-
-    if is_folder {
-      if can_read_dir(&path) {
-        entries.push(DirEntry {
-          name: name.to_string_lossy().to_string(),
-          path: path.to_string_lossy().to_string(),
-          is_folder,
-          is_hidden,
-          last_modified: datetime.format("%d/%m/%Y %H:%M").to_string(),
-          size,
-          can_be_opened,
-          is_symlink,
-          is_starred,
-        });
-      }
-    } else {
-      entries.push(DirEntry {
-        name: name.to_string_lossy().to_string(),
-        path: path.to_string_lossy().to_string(),
-        is_folder,
-        is_hidden,
-        last_modified: datetime.format("%d/%m/%Y %H:%M").to_string(),
-        size,
-        can_be_opened,
-        is_symlink,
-        is_starred,
-      });
-    }
-  }
-
-  entries
-}
-
-#[tauri::command]
-fn open_file(path: String) {
-  opener::open(path).unwrap_or(());
 }
 
 fn list_disks(app: &tauri::AppHandle) -> Vec<Disk> {
@@ -162,16 +60,6 @@ fn list_disks(app: &tauri::AppHandle) -> Vec<Disk> {
   }
 }
 
-#[tauri::command]
-fn paste(from: String, to: String, is_folder: bool) {
-  println!("{} | {}", from, to);
-  if is_folder {
-    fs_extra::dir::copy(from, to, &CopyOptions::new()).unwrap();
-  } else {
-    fs::copy(from, to).unwrap();
-  }
-}
-
 fn main() {
   let fs_manager = FSManager::new();
 
@@ -179,13 +67,13 @@ fn main() {
     ::default()
     .invoke_handler(
       tauri::generate_handler![
-        read_dir,
-        open_file,
+        commands::read_dir,
+        commands::open_file,
         commands::create_entry,
         commands::delete_entry,
         commands::star_entry,
         commands::unstar_entry,
-        paste
+        commands::paste
       ]
     )
     .setup(|app| {
@@ -196,7 +84,9 @@ fn main() {
       let window: tauri::Window = app.get_window("main").unwrap();
 
       #[cfg(any(windows, target_os = "macos"))]
-      set_shadow(&window, true).unwrap();
+      {
+        set_shadow(&window, true).unwrap();
+      }
 
       #[cfg(debug_assertions)]
       {

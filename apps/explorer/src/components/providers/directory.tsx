@@ -82,7 +82,6 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
       last_modified: "",
       path: dir + sep + "",
       size: "0 MB",
-      can_be_opened: true,
       is_starred: false,
       is_symlink: false
     };
@@ -102,7 +101,6 @@ const DirectoryProvider: React.FC<DirectoryProviderProps> = ({ children }) => {
       last_modified: "",
       path: dir + sep + "",
       size: "0 MB",
-      can_be_opened: true,
       is_starred: false,
       is_symlink: false
     };
