@@ -9,7 +9,7 @@ pub struct Entry {
   pub is_symlink: bool,
   pub is_starred: bool,
   pub last_modified: String,
-  pub size: String,
+  pub size: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

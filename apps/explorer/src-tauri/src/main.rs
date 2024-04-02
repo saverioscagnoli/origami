@@ -41,7 +41,8 @@ fn main() {
         commands::delete_entry,
         commands::star_entry,
         commands::unstar_entry,
-        commands::paste
+        commands::paste,
+        commands::get_file_size
       ]
     )
     .setup(|app| {

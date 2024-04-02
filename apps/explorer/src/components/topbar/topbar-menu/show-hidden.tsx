@@ -1,9 +1,10 @@
+import { useFlags } from "@hooks/use-flags";
 import { EyeClosedIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 import { Menubar } from "@tredici";
-import { Accessor } from "@types";
-import React from "react";
 
-const ShowHidden: React.FC<{ showHidden: Accessor<boolean> }> = ({ showHidden }) => {
+const ShowHidden = () => {
+  const { showHidden } = useFlags();
+
   return (
     <Menubar.CheckboxItem
       checked={showHidden.get()}

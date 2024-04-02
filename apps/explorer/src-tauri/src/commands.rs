@@ -2,11 +2,19 @@ use tauri::State;
 use crate::{ fs_manager::FSManager, structs::Entry, utils };
 
 #[tauri::command]
-pub fn read_dir(app: tauri::AppHandle, fs_manager: State<FSManager>, path: String) -> Vec<Entry> {
+pub async fn read_dir<'a>(
+  app: tauri::AppHandle,
+  fs_manager: State<'a, FSManager>,
+  path: String
+) -> Result<Vec<Entry>, ()> {
   let path_resolver = app.path_resolver();
   let starred_dir = path_resolver.app_config_dir().unwrap().join("starred");
 
-  fs_manager.read_dir(path, starred_dir)
+  let mut entries = fs_manager.read_dir(path, starred_dir).await;
+
+  utils::sort_dir(&mut entries);
+
+  Ok(entries)
 }
 
 #[tauri::command]
@@ -39,7 +47,9 @@ pub fn star_entry(
 ) -> Result<(), String> {
   let starred_dir = utils::get_starred_dir(&app);
 
-  fs_manager.create_symlink(dir, starred_dir, name, is_folder).map_err(|e| e.to_string())
+  fs_manager
+    .create_symlink(dir, starred_dir, name, is_folder)
+    .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -67,4 +77,13 @@ pub fn paste(
   cutting: bool
 ) -> Result<(), String> {
   fs_manager.paste(source, target, cutting).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn get_file_size<'a>(
+  fs_manager: State<'a, FSManager>,
+  path: String
+) -> Result<u64, ()> {
+  let size = fs_manager.get_file_size(path).await;
+  Ok(size)
 }

@@ -1,7 +1,19 @@
-use std::{ path::PathBuf, process::Command };
+use std::{ cmp::Ordering, path::PathBuf, process::Command };
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
+
+use crate::structs::Entry;
+
+pub fn sort_dir(entries: &mut Vec<Entry>) {
+  entries.sort_by(|a, b| {
+    match (a.is_folder, b.is_folder) {
+      (true, false) => Ordering::Less,
+      (false, true) => Ordering::Greater,
+      _ => a.name.cmp(&b.name),
+    }
+  });
+}
 
 pub fn check_vscode_install() -> Result<bool, String> {
   let output = Command::new("cmd")
@@ -20,4 +32,13 @@ pub fn get_starred_dir(app: &tauri::AppHandle) -> PathBuf {
   let starred_dir = config_dir.join("starred");
 
   starred_dir
+}
+
+pub fn format_size(size: f64) -> String {
+  match size {
+    size if size < 1.0 => format!("{:.2} B", size * 1024.0),
+    size if size < 1024.0 => format!("{:.2} KB", size),
+    size if size >= 1024.0 * 1024.0 => format!("{:.2} GB", size / 1024.0 / 1024.0),
+    _ => format!("{:.2} MB", size / 1024.0),
+  }
 }

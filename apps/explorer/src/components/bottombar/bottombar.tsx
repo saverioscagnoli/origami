@@ -1,6 +1,7 @@
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { cn } from "@utils";
 import { useMemo } from "react";
+import { SelectedSize } from "./selected-size";
 
 const Bottombar = () => {
   const { entries } = useCurrentDir();
@@ -17,6 +18,7 @@ const Bottombar = () => {
       )}
     >
       <p className={cn("px-6", "text-xs")}>{n} Items</p>
+      <SelectedSize />
     </div>
   );
 };

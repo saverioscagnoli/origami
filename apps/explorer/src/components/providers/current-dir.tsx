@@ -6,8 +6,9 @@ import { Entry } from "@types";
 const CurrentDirProvider = useProvider(CurrentDirContext, () => {
   const dir = useAccessor<string>("");
   const entries = useAccessor<Entry[]>([]);
+  const selected = useAccessor<Entry[]>([]);
 
-  return { dir, entries };
+  return { dir, entries, selected };
 });
 
 export { CurrentDirProvider };

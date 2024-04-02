@@ -1,6 +1,8 @@
 use std::{ fs::{ self }, io, iter::once, os::windows::ffi::OsStrExt, path::Path };
 use chrono::{ DateTime, Utc };
 use fs_extra::dir::CopyOptions;
+use rayon::iter::{ ParallelBridge, ParallelIterator };
+use walkdir::WalkDir;
 use winapi::um::{ fileapi::GetFileAttributesW, winnt::FILE_ATTRIBUTE_HIDDEN };
 
 use crate::structs::Entry;
@@ -12,7 +14,11 @@ impl FSManager {
     Self {}
   }
 
-  pub fn read_dir<P: AsRef<Path>, Q: AsRef<Path>>(&self, path: P, starred_dir: Q) -> Vec<Entry> {
+  pub async fn read_dir<P: AsRef<Path>, Q: AsRef<Path>>(
+    &self,
+    path: P,
+    starred_dir: Q
+  ) -> Vec<Entry> {
     let path = path.as_ref();
     let mut entries: Vec<Entry> = Vec::new();
 
@@ -37,7 +43,13 @@ impl FSManager {
         .format("%d/%m/%Y %H:%M")
         .to_string();
 
-      let size = self.get_file_size(&path);
+      let size = {
+        if is_folder {
+          0
+        } else {
+          self.get_file_size(path.to_string_lossy().to_string()).await
+        }
+      };
 
       entries.push(Entry {
         name,
@@ -137,7 +149,9 @@ impl FSManager {
 
         fs_extra::dir
           ::copy(source, target, &options)
-          .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+          .map_err(|e|
+            std::io::Error::new(std::io::ErrorKind::Other, e.to_string())
+          )?;
       } else {
         fs::copy(source, target)?;
       }
@@ -161,7 +175,11 @@ impl FSManager {
     #[cfg(windows)]
     {
       let path = path.as_ref();
-      let wide_string: Vec<u16> = path.as_os_str().encode_wide().chain(once(0)).collect();
+      let wide_string: Vec<u16> = path
+        .as_os_str()
+        .encode_wide()
+        .chain(once(0))
+        .collect();
       let attributes = unsafe { GetFileAttributesW(wide_string.as_ptr()) };
       (attributes & FILE_ATTRIBUTE_HIDDEN) != 0
     }
@@ -176,20 +194,21 @@ impl FSManager {
     fs::symlink_metadata(&path).unwrap().file_type().is_symlink()
   }
 
-  pub fn get_file_size<P: AsRef<Path>>(&self, path: P) -> String {
-    let size: f64;
-
-    if path.as_ref().is_dir() {
-      size = 0.0;
-    } else {
-      size = (fs::metadata(&path).unwrap().len() as f64) / 1024.0;
-    }
-
-    let size = match size {
-      size if size < 1.0 => format!("{:.2} B", size * 1024.0),
-      size if size < 1024.0 => format!("{:.2} KB", size),
-      size if size >= 1024.0 * 1024.0 => format!("{:.2} GB", size / 1024.0 / 1024.0),
-      _ => format!("{:.2} MB", size / 1024.0),
+  pub async fn get_file_size(&self, path: String) -> u64 {
+    let is_folder = Path::new(&path).is_dir();
+    let size = {
+      if is_folder {
+        WalkDir::new(path)
+          .into_iter()
+          .filter_map(|entry| entry.ok())
+          .par_bridge()
+          .filter_map(|entry| entry.metadata().ok())
+          .filter(|metadata| !metadata.is_dir())
+          .map(|metadata| (metadata.len()))
+          .sum()
+      } else {
+        fs::metadata(&path).unwrap().len()
+      }
     };
 
     size
