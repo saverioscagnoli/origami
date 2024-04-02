@@ -1,5 +1,5 @@
 use tauri::State;
-use crate::{ fs_manager::{ Entry, FSManager }, utils };
+use crate::{ fs_manager::FSManager, structs::Entry, utils };
 
 #[tauri::command]
 pub fn read_dir(app: tauri::AppHandle, fs_manager: State<FSManager>, path: String) -> Vec<Entry> {

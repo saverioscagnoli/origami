@@ -1,16 +1,21 @@
 import { clsx, ClassValue } from "clsx";
-import { Dispatch, SetStateAction } from "react";
+import { Context, useContext } from "react";
 import { twMerge } from "tailwind-merge";
 
 function cn(...args: ClassValue[]) {
   return twMerge(clsx(...args));
 }
 
-function toAccessor<T>([state, setState]: [T, Dispatch<SetStateAction<T>>]) {
-  return {
-    get: () => state,
-    set: setState
+function createContextHook<T>(Context: Context<T>, name: string): () => T {
+  return () => {
+    const ctx = useContext(Context);
+
+    if (!ctx) {
+      throw new Error(`use${name} must be used within a ${name}Provider`);
+    }
+
+    return ctx;
   };
 }
 
-export { cn, toAccessor };
+export { cn, createContextHook };

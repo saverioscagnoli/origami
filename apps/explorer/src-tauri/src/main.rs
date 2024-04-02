@@ -1,21 +1,20 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod fs_manager;
+mod event_emitter;
+mod structs;
 mod commands;
 mod utils;
 
-use std::{ env, fs, thread, time::Duration };
+use std::{ env, fs };
+use event_emitter::EventEmitter;
 use fs_manager::FSManager;
-use serde::{ Deserialize, Serialize };
 use tauri::Manager;
 use window_shadows::set_shadow;
 
 fn init(app: &tauri::AppHandle) {
-  let clone = app.clone();
-
-  thread::spawn(move || {
-    list_disks(&clone);
-  });
+  let emitter = EventEmitter::new(app);
+  emitter.start_emitting();
 
   let path_resolver = app.path_resolver();
   let config_dir = path_resolver.app_config_dir().unwrap();
@@ -27,37 +26,6 @@ fn init(app: &tauri::AppHandle) {
   }
 
   //let config_file = config_dir.join("config.json");
-}
-
-#[derive(Serialize, Deserialize)]
-struct Disk {
-  name: String,
-  total: f64,
-  free: f64,
-  mount_point: String,
-  is_removable: bool,
-}
-
-fn list_disks(app: &tauri::AppHandle) -> Vec<Disk> {
-  loop {
-    let mut disks = Vec::new();
-
-    for disk in sysinfo::Disks::new_with_refreshed_list().iter() {
-      let total = (disk.total_space() as f64) / 1024.0 / 1024.0 / 1024.0;
-      let free = (disk.available_space() as f64) / 1024.0 / 1024.0 / 1024.0;
-
-      disks.push(Disk {
-        name: disk.name().to_str().unwrap().to_string(),
-        total: f64::trunc(total * 100.0) / 100.0,
-        free: f64::trunc(free * 100.0) / 100.0,
-        mount_point: disk.mount_point().to_str().unwrap().to_string(),
-        is_removable: disk.is_removable(),
-      });
-    }
-
-    app.emit_all("send-disks", &disks).unwrap();
-    thread::sleep(Duration::from_secs(1));
-  }
 }
 
 fn main() {

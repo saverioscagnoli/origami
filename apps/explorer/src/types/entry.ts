@@ -1,4 +1,4 @@
-type DirEntry = {
+type Entry = {
   name: string;
   path: string;
   is_folder: boolean;
@@ -9,4 +9,4 @@ type DirEntry = {
   size: string;
 };
 
-export type { DirEntry };
+export type { Entry };

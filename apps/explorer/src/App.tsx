@@ -1,29 +1,36 @@
-import { cn } from "@utils";
-import { Topbar } from "@components/topbar";
-import { Sidebar } from "@components/sidebar";
-import { Viewport } from "@components/viewport";
 import { Bottombar } from "@components/bottombar";
-import { DisksProvider } from "@providers/disks";
+import { Sidebar } from "@components/sidebar";
+import { Topbar } from "@components/topbar";
+import { Workspace } from "@components/workspace";
+import { useNavigation } from "@hooks/use-navigation";
+import { onMount } from "@life-cycle";
+import { homeDir } from "@tauri-apps/api/path";
+import { cn } from "@utils";
 
 function App() {
+  const { changeDir } = useNavigation();
+
+  onMount(async () => {
+    let home = await homeDir();
+    changeDir(home)();
+  });
+
   return (
-    <>
+    <div className={cn("select-none")}>
       <Topbar />
       <div
         className={cn(
-          "w-screen h-[calc(100vh-3.5rem)]",
-          "mt-8",
-          "flex",
-          "select-none"
+          "w-full h-[calc(100vh-3.5rem)]",
+          "fixed",
+          "flex gap-0",
+          "mt-8"
         )}
       >
-        <DisksProvider>
-          <Sidebar />
-        </DisksProvider>
-        <Viewport />
+        <Sidebar />
+        <Workspace />
       </div>
       <Bottombar />
-    </>
+    </div>
   );
 }
 

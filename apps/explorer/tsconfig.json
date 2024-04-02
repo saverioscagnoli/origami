@@ -24,6 +24,7 @@
     "baseUrl": "./src",
     "paths": {
       "@utils": ["lib/utils.ts"],
+      "@life-cycle": ["lib/life-cycle.ts"],
       "@contexts/*": ["contexts/*"],
       "@hooks/*": ["hooks/*"],
       "@components/*": ["components/*"],

@@ -1,19 +1,9 @@
 use std::{ fs::{ self }, io, iter::once, os::windows::ffi::OsStrExt, path::Path };
 use chrono::{ DateTime, Utc };
-use serde::{ Deserialize, Serialize };
+use fs_extra::dir::CopyOptions;
 use winapi::um::{ fileapi::GetFileAttributesW, winnt::FILE_ATTRIBUTE_HIDDEN };
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Entry {
-  name: String,
-  path: String,
-  is_folder: bool,
-  is_hidden: bool,
-  is_symlink: bool,
-  is_starred: bool,
-  last_modified: String,
-  size: String,
-}
+use crate::structs::Entry;
 
 pub struct FSManager {}
 
@@ -141,7 +131,13 @@ impl FSManager {
       fs::rename(source, target)?;
     } else {
       if source.is_dir() {
-        fs::copy(source, target)?;
+        let mut options = CopyOptions::new();
+        options.overwrite = true;
+        options.copy_inside = true;
+
+        fs_extra::dir
+          ::copy(source, target, &options)
+          .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
       } else {
         fs::copy(source, target)?;
       }

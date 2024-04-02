@@ -21,8 +21,11 @@ const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
-    } else {
+    } else if (theme === "light") {
       document.documentElement.classList.add("light");
+    } else {
+      const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.add(darkMode ? "dark" : "light");
     }
   }, [theme]);
 
