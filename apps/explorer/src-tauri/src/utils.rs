@@ -33,12 +33,3 @@ pub fn get_starred_dir(app: &tauri::AppHandle) -> PathBuf {
 
   starred_dir
 }
-
-pub fn format_size(size: f64) -> String {
-  match size {
-    size if size < 1.0 => format!("{:.2} B", size * 1024.0),
-    size if size < 1024.0 => format!("{:.2} KB", size),
-    size if size >= 1024.0 * 1024.0 => format!("{:.2} GB", size / 1024.0 / 1024.0),
-    _ => format!("{:.2} MB", size / 1024.0),
-  }
-}
