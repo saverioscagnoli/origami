@@ -36,6 +36,10 @@ impl<'a> EventEmitter<'a> {
       let mut disks = Vec::new();
 
       for disk in sysinfo::Disks::new_with_refreshed_list().iter() {
+        if disk.file_system() == "vfat" {
+          continue;
+        }
+
         let total = (disk.total_space() as f64) / 1024.0 / 1024.0 / 1024.0;
         let free = (disk.available_space() as f64) / 1024.0 / 1024.0 / 1024.0;
 

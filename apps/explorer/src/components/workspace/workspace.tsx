@@ -60,8 +60,6 @@ const Workspace = () => {
     [entries, showHidden]
   );
 
-  console.log("rendering workspace");
-
   return (
     <EmptySpaceContextMenu>
       <div className={cn("w-full h-full", "overflow-auto")}>

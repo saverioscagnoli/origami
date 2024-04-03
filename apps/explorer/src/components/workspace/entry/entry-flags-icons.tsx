@@ -1,3 +1,4 @@
+import { ArrowLeftIcon, EyeOpenIcon, StarFilledIcon } from "@radix-ui/react-icons";
 import { cn } from "@utils";
 import React from "react";
 
@@ -14,9 +15,15 @@ const EntryFlagsIcons: React.FC<EntryFlagsIconsProps> = ({
 }) => {
   return (
     <span className={cn("w-fit", "flex gap-2")}>
-      <span className={cn(is_hidden ? "visible" : "invisible")}>{"🙈"}</span>
-      <span className={cn(is_symlink ? "visible" : "invisible")}>{"🔗"}</span>
-      <span className={cn(is_starred ? "visible" : "invisible")}>{"⭐"}</span>
+      <span className={cn(is_hidden ? "visible" : "invisible")}>
+        <EyeOpenIcon />
+      </span>
+      <span className={cn(is_symlink ? "visible" : "invisible")}>
+        <ArrowLeftIcon />
+      </span>
+      <span className={cn(is_starred ? "visible" : "invisible")}>
+        <StarFilledIcon />
+      </span>
     </span>
   );
 };

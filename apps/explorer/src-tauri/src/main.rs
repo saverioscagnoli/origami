@@ -10,6 +10,8 @@ use std::{ env, fs };
 use event_emitter::EventEmitter;
 use fs_manager::FSManager;
 use tauri::Manager;
+
+#[cfg(any(windows, target_os = "macos"))]
 use window_shadows::set_shadow;
 
 fn init(app: &tauri::AppHandle) {
@@ -48,7 +50,7 @@ fn main() {
     .setup(|app| {
       let handle = app.handle();
 
-     init(&handle);
+      init(&handle);
 
       let window: tauri::Window = app.get_window("main").unwrap();
 

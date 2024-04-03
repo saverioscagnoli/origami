@@ -13,7 +13,8 @@ const Devices = () => {
   useEvent<Disk[]>("send-disks", disks.set);
 
   return (
-    <div className={cn("flex flex-col")}>
+    <div className={cn("flex flex-col", "mt-4")}>
+      <p className={cn("px-2")}>Devices</p>
       <For of={disks.get()}>
         {(disk, i) => (
           <Device key={i} {...disk} onClick={changeDir(disk.mount_point)} />
