@@ -6,12 +6,12 @@ import { EntryFlagsIcons } from "./entry-flags-icons";
 import { EntryDate } from "./entry-date";
 import { EntrySize } from "./entry-size";
 import { useCurrentDir } from "@hooks/use-current-dir";
-import { useFlags } from "@hooks/use-flags";
 
 type EntryProps = EntryT & {
   style: CSSProperties;
   onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onDoubleClick: () => void;
+  onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 };
 
 const Entry: React.FC<EntryProps> = ({
@@ -25,7 +25,8 @@ const Entry: React.FC<EntryProps> = ({
   size,
   style,
   onClick,
-  onDoubleClick
+  onDoubleClick,
+  onContextMenu
 }) => {
   const { selected } = useCurrentDir();
   const isSelected = useMemo(
@@ -47,6 +48,7 @@ const Entry: React.FC<EntryProps> = ({
       style={style}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
+      onContextMenu={onContextMenu}
     >
       <EntryName name={name} is_folder={is_folder} />
       <EntryFlagsIcons

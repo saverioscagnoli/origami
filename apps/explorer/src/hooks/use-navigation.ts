@@ -3,12 +3,13 @@ import { invoke } from "@tauri-apps/api";
 import { useCurrentDir } from "./use-current-dir";
 
 const useNavigation = () => {
-  const { dir, entries } = useCurrentDir();
+  const { dir, entries, selected } = useCurrentDir();
 
   const changeDir = (path: string) => async () => {
     let newEntries = await invoke<Entry[]>("read_dir", { path });
     dir.set(path);
     entries.set(newEntries);
+    selected.set([]);
   };
 
   const open = (entry: Entry) => async () => {
@@ -19,7 +20,11 @@ const useNavigation = () => {
     }
   };
 
-  return { changeDir, open };
+  const reload = async () => {
+    await changeDir(dir.get())();
+  };
+
+  return { changeDir, open, reload };
 };
 
 export { useNavigation };

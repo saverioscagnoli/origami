@@ -49,6 +49,13 @@ const Workspace = () => {
       }
     };
 
+  const onContextMenu =
+    (entry: EntryT) => () => {
+      if (!selected.get().some(e => e.path === entry.path)) {
+        selected.set([entry]);
+      }
+    };
+
   const filteredEntries = useMemo(
     () => entries.get().filter(e => showHidden.get() || !e.is_hidden),
     [entries, showHidden]
@@ -64,7 +71,12 @@ const Workspace = () => {
               width={width}
               height={height}
               itemCount={filteredEntries.length}
-              itemData={{ entries: filteredEntries, onClick, onDoubleClick: open }}
+              itemData={{
+                entries: filteredEntries,
+                onClick,
+                onDoubleClick: open,
+                onContextMenu
+              }}
               itemSize={24}
             >
               {Row}

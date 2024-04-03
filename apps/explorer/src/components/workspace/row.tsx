@@ -10,10 +10,13 @@ type RowProps = ListChildComponentProps<{
     entry: EntryT
   ) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onDoubleClick: (entry: EntryT) => () => Promise<void>;
+  onContextMenu: (
+    entry: EntryT
+  ) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }>;
 
 const Row: React.FC<RowProps> = ({ index, style, data }) => {
-  const { entries, onClick, onDoubleClick } = data;
+  const { entries, onClick, onDoubleClick, onContextMenu } = data;
   const entry = entries[index];
 
   return (
@@ -23,6 +26,7 @@ const Row: React.FC<RowProps> = ({ index, style, data }) => {
         style={style}
         onClick={onClick(entry)}
         onDoubleClick={onDoubleClick(entry)}
+        onContextMenu={onContextMenu(entry)}
       />
     </EntryContextMenu>
   );

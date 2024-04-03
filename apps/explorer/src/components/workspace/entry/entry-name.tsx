@@ -12,11 +12,13 @@ type EntryNameProps = {
 const EntryName: React.FC<EntryNameProps> = ({ name, is_folder }) => {
   return (
     <span className={cn("w-44", "flex items-center gap-2")} draggable>
-      {is_folder ? (
-        <BsFolderFill />
-      ) : (
-        fileIconMap.get(name.split(".").pop()) ?? <FileIcon />
-      )}
+      <span className="min-w-4">
+        {is_folder ? (
+          <BsFolderFill />
+        ) : (
+          fileIconMap.get(name.split(".").pop().toLowerCase()) ?? <FileIcon />
+        )}
+      </span>
       <p className={cn("truncate")}>{name}</p>
     </span>
   );

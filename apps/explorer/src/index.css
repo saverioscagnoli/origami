@@ -15,7 +15,7 @@
 @tailwind utilities;
 
 body {
-  font-family: "Inter", sans-serif;
+  font-family: "DM Sans", sans-serif;
   color: var(--slate-12);
   background-color: var(--slate-1);
   transition: background-color 150ms, color 150ms;

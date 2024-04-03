@@ -35,7 +35,7 @@ const SidebarFolders = () => {
   onMount(async () => {
     paths.set([
       {
-        path: (await appConfigDir()) + "starred/",
+        path: (await appConfigDir()) + "starred" + sep,
         icon: <StarFilledIcon />
       },
       {

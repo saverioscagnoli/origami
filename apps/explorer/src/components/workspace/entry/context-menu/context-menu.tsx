@@ -14,12 +14,18 @@ const EntryContextMenu: React.FC<EntryContextMenuProps> = ({ children }) => {
     [selected.get()]
   );
 
+  const canStar = useMemo(() => {
+    const allStarred = selected.get().every(e => e.is_starred);
+    const allNotStarred = selected.get().every(e => !e.is_starred);
+    return allStarred || allNotStarred;
+  }, [selected.get()]);
+
   return (
     <ContextMenu>
       <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
       <ContextMenu.Content>
         {canOpen && <Open />}
-        <Star />
+        {canStar && <Star />}
       </ContextMenu.Content>
     </ContextMenu>
   );

@@ -87,15 +87,10 @@ impl FSManager {
     Ok(())
   }
 
-  pub fn delete_entry<P: AsRef<Path>>(
-    &self,
-    dir: P,
-    name: String,
-    is_folder: bool
-  ) -> io::Result<()> {
-    let path = dir.as_ref().join(name);
+  pub fn delete_entry(&self, path: String) -> io::Result<()> {
+    let path = Path::new(&path);
 
-    if is_folder {
+    if path.is_dir() {
       fs::remove_dir_all(path)?;
     } else {
       fs::remove_file(path)?;
@@ -108,27 +103,27 @@ impl FSManager {
     &self,
     target_path: String,
     link_dir: String,
-    is_folder: bool
   ) -> io::Result<()> {
     let name = Path::new(&target_path).file_name().unwrap();
-    let target_path = Path::new(&target_path).join(&name);
     let link_path = Path::new(&link_dir).join(&name);
+
+    let is_folder = Path::new(&target_path).is_dir();
 
     #[cfg(windows)]
     {
       if is_folder {
         use std::os::windows::fs::symlink_dir;
-        symlink_dir(target_path, link_path)?;
+        symlink_dir(&target_path, link_path)?;
       } else {
         use std::os::windows::fs::symlink_file;
-        symlink_file(target_path, link_path)?;
+        symlink_file(&target_path, link_path)?;
       }
     }
 
     #[cfg(unix)]
     {
       use std::os::unix::fs::symlink;
-      symlink(target_path, link_path)?;
+      symlink(&target_path, link_path)?;
     }
 
     Ok(())

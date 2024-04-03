@@ -15,9 +15,6 @@ use tauri::Manager;
 use window_shadows::set_shadow;
 
 fn init(app: &tauri::AppHandle) {
-  let emitter = EventEmitter::new(app);
-  emitter.start_emitting();
-
   let path_resolver = app.path_resolver();
   let config_dir = path_resolver.app_config_dir().unwrap();
 
@@ -37,6 +34,7 @@ fn main() {
     ::default()
     .invoke_handler(
       tauri::generate_handler![
+        commands::init_communication,
         commands::read_dir,
         commands::open_file,
         commands::create_entry,
@@ -44,7 +42,8 @@ fn main() {
         commands::star_entry,
         commands::unstar_entry,
         commands::paste,
-        commands::get_file_size
+        commands::get_file_size,
+        commands::open_vscode
       ]
     )
     .setup(|app| {
@@ -65,6 +64,12 @@ fn main() {
       }
 
       Ok(())
+    })
+    .on_page_load(|window, _| {
+      let app = window.app_handle();
+
+      let emitter = EventEmitter::new(&app);
+      emitter.start_emitting();
     })
     .manage(fs_manager)
     .run(tauri::generate_context!())
