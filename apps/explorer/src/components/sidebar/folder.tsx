@@ -1,4 +1,4 @@
-import { cn } from "@utils";
+import { capitalize, cn } from "@utils";
 import React, { ReactNode } from "react";
 
 type SidebarProps = {
@@ -9,7 +9,6 @@ type SidebarProps = {
 };
 
 const SidebarFolder: React.FC<SidebarProps> = ({ icon, label, onClick }) => {
-  console.log(label);
   return (
     <div
       className={cn(
@@ -17,12 +16,13 @@ const SidebarFolder: React.FC<SidebarProps> = ({ icon, label, onClick }) => {
         "flex items-center gap-2",
         "px-4 py-0.5",
         "cursor-pointer",
-        "hover:bg-[--gray-3]"
+        "hover:bg-[--gray-3]",
+        "truncate"
       )}
       onClick={onClick}
     >
       {icon}
-      {label}
+      {capitalize(label)}
     </div>
   );
 };

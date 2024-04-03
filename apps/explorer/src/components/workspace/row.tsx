@@ -2,6 +2,7 @@ import React from "react";
 import { Entry as EntryT } from "@types";
 import { Entry } from "./entry";
 import { ListChildComponentProps } from "react-window";
+import { EntryContextMenu } from "./entry/context-menu/context-menu";
 
 type RowProps = ListChildComponentProps<{
   entries: EntryT[];
@@ -16,12 +17,14 @@ const Row: React.FC<RowProps> = ({ index, style, data }) => {
   const entry = entries[index];
 
   return (
-    <Entry
-      {...entry}
-      style={style}
-      onClick={onClick(entry)}
-      onDoubleClick={onDoubleClick(entry)}
-    />
+    <EntryContextMenu>
+      <Entry
+        {...entry}
+        style={style}
+        onClick={onClick(entry)}
+        onDoubleClick={onDoubleClick(entry)}
+      />
+    </EntryContextMenu>
   );
 };
 

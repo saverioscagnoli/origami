@@ -104,15 +104,15 @@ impl FSManager {
     Ok(())
   }
 
-  pub fn create_symlink<P: AsRef<Path>, Q: AsRef<Path>>(
+  pub fn create_symlink(
     &self,
-    target_dir: P,
-    link_dir: Q,
-    name: String,
+    target_path: String,
+    link_dir: String,
     is_folder: bool
   ) -> io::Result<()> {
-    let target_path = target_dir.as_ref().join(&name);
-    let link_path = link_dir.as_ref().join(&name);
+    let name = Path::new(&target_path).file_name().unwrap();
+    let target_path = Path::new(&target_path).join(&name);
+    let link_path = Path::new(&link_dir).join(&name);
 
     #[cfg(windows)]
     {

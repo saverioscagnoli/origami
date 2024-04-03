@@ -11,7 +11,15 @@ const useNavigation = () => {
     entries.set(newEntries);
   };
 
-  return { changeDir };
+  const open = (entry: Entry) => async () => {
+    if (entry.is_folder) {
+      await changeDir(entry.path)();
+    } else {
+      await invoke("open_file", { path: entry.path });
+    }
+  };
+
+  return { changeDir, open };
 };
 
 export { useNavigation };

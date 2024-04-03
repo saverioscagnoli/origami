@@ -4,12 +4,10 @@ import { useCurrentDir } from "@hooks/use-current-dir";
 import { useNavigation } from "@hooks/use-navigation";
 import { useFlags } from "@hooks/use-flags";
 import { Entry as EntryT } from "@types";
-import { invoke } from "@tauri-apps/api";
 import React, { useMemo } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList } from "react-window";
 import { Row } from "./row";
-import { useClickOutside } from "@hooks/use-click-outside";
 
 type WorkspaceDims = {
   width: number;
@@ -18,10 +16,14 @@ type WorkspaceDims = {
 
 const Workspace = () => {
   const { entries, selected } = useCurrentDir();
-  const { changeDir } = useNavigation();
+  const { open } = useNavigation();
   const { showHidden } = useFlags();
 
-  const ref = useClickOutside(() => selected.set([]));
+  //const ref = useClickOutside(e => {
+  //if (e.button !== 2) {
+  //selected.set([]);
+  //}
+  //});
 
   const onClick =
     (entry: EntryT) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -47,14 +49,6 @@ const Workspace = () => {
       }
     };
 
-  const onDoubleClick = (entry: EntryT) => async () => {
-    if (entry.is_folder) {
-      await changeDir(entry.path)();
-    } else {
-      await invoke("open_file", { path: entry.path });
-    }
-  };
-
   const filteredEntries = useMemo(
     () => entries.get().filter(e => showHidden.get() || !e.is_hidden),
     [entries, showHidden]
@@ -66,11 +60,11 @@ const Workspace = () => {
         <AutoSizer>
           {({ height, width }: WorkspaceDims) => (
             <FixedSizeList
-              innerRef={ref}
+              //innerRef={ref}
               width={width}
               height={height}
               itemCount={filteredEntries.length}
-              itemData={{ entries: filteredEntries, onClick, onDoubleClick }}
+              itemData={{ entries: filteredEntries, onClick, onDoubleClick: open }}
               itemSize={24}
             >
               {Row}

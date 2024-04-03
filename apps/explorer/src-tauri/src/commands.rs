@@ -41,15 +41,12 @@ pub fn delete_entry(
 pub fn star_entry(
   app: tauri::AppHandle,
   fs_manager: State<FSManager>,
-  dir: String,
-  name: String,
+  path: String,
   is_folder: bool
 ) -> Result<(), String> {
-  let starred_dir = utils::get_starred_dir(&app);
+  let starred_dir = utils::get_starred_dir(&app).to_string_lossy().to_string();
 
-  fs_manager
-    .create_symlink(dir, starred_dir, name, is_folder)
-    .map_err(|e| e.to_string())
+  fs_manager.create_symlink(path, starred_dir, is_folder).map_err(|e| e.to_string())
 }
 
 #[tauri::command]

@@ -30,4 +30,8 @@ function formatSize(size: number): string {
   return `${size.toFixed(2)} ${units[unit]}`;
 }
 
-export { cn, createContextHook, formatSize };
+function capitalize(str: string) {
+  return str.at(0).toUpperCase() + str.slice(1);
+}
+
+export { cn, createContextHook, formatSize, capitalize };

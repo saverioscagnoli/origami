@@ -40,6 +40,12 @@ impl<'a> EventEmitter<'a> {
           continue;
         }
 
+        // Ignore system mount points
+        let mount_point = disk.mount_point().to_str().unwrap();
+        if mount_point == "/home" || mount_point == "/boot" {
+          continue;
+        }
+
         let total = (disk.total_space() as f64) / 1024.0 / 1024.0 / 1024.0;
         let free = (disk.available_space() as f64) / 1024.0 / 1024.0 / 1024.0;
 
@@ -47,7 +53,7 @@ impl<'a> EventEmitter<'a> {
           name: disk.name().to_str().unwrap().to_string(),
           total: f64::trunc(total * 100.0) / 100.0,
           free: f64::trunc(free * 100.0) / 100.0,
-          mount_point: disk.mount_point().to_str().unwrap().to_string(),
+          mount_point: mount_point.to_string(),
           is_removable: disk.is_removable(),
         });
       }

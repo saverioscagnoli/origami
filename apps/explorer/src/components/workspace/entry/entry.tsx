@@ -6,6 +6,7 @@ import { EntryFlagsIcons } from "./entry-flags-icons";
 import { EntryDate } from "./entry-date";
 import { EntrySize } from "./entry-size";
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { useFlags } from "@hooks/use-flags";
 
 type EntryProps = EntryT & {
   style: CSSProperties;
