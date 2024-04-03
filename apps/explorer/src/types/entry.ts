@@ -6,7 +6,7 @@ type Entry = {
   is_symlink: boolean;
   is_starred: boolean;
   last_modified: string;
-  size: string;
+  size: number;
 };
 
 export type { Entry };

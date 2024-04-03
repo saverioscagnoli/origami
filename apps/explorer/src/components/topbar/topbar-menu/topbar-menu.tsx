@@ -5,12 +5,9 @@ import { Back } from "./back";
 import { Forward } from "./forward";
 import { ShowHidden } from "./show-hidden";
 import { FindInFolder } from "./find-in-folder";
-import { useAccessor } from "@hooks/use-accessor";
 import { Theme } from "./theme";
 
 const TopbarMenu = () => {
-  const showHidden = useAccessor<boolean>(false);
-
   return (
     <Menubar>
       <Menubar.Menu>
@@ -23,7 +20,7 @@ const TopbarMenu = () => {
           <Forward />
           <Menubar.Separator />
           <Theme />
-          <ShowHidden showHidden={showHidden} />
+          <ShowHidden />
           <Menubar.Separator />
           <FindInFolder />
         </Menubar.Content>
