@@ -48,7 +48,7 @@ fn main() {
     .setup(|app| {
       let handle = app.handle();
 
-      init(&handle);
+     init(&handle);
 
       let window: tauri::Window = app.get_window("main").unwrap();
 

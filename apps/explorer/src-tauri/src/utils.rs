@@ -15,10 +15,21 @@ pub fn sort_dir(entries: &mut Vec<Entry>) {
   });
 }
 
+#[cfg(target_os = "windows")]
 pub fn check_vscode_install() -> Result<bool, String> {
   let output = Command::new("cmd")
     .args(["/C", "code -v"])
     .creation_flags(0x08000000)
+    .output()
+    .expect("failed to execute process");
+
+  Ok(output.status.success())
+}
+
+#[cfg(not(target_os = "windows"))]
+pub fn check_vscode_install() -> Result<bool, String> {
+  let output = Command::new("code")
+    .args(["-v"])
     .output()
     .expect("failed to execute process");
 

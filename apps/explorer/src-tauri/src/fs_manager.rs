@@ -1,9 +1,13 @@
-use std::{ fs::{ self }, io, iter::once, os::windows::ffi::OsStrExt, path::Path };
+use std::{ fs::{ self }, io, iter::once, path::Path };
 use chrono::{ DateTime, Utc };
 use fs_extra::dir::CopyOptions;
 use rayon::iter::{ ParallelBridge, ParallelIterator };
 use walkdir::WalkDir;
+
+#[cfg(windows)]
 use winapi::um::{ fileapi::GetFileAttributesW, winnt::FILE_ATTRIBUTE_HIDDEN };
+#[cfg(windows)]
+use std::os::windows::ffi::OsStrExt;
 
 use crate::structs::Entry;
 
@@ -33,7 +37,7 @@ impl FSManager {
         continue;
       }
 
-      let is_hidden = self.is_hidden(&path);
+      let is_hidden = self.is_hidden(path.to_string_lossy().to_string());
       let is_symlink = self.is_symlink(&path);
       let is_starred = self.exists(starred_dir.as_ref().join(entry.file_name()));
 
@@ -171,10 +175,10 @@ impl FSManager {
     fs::metadata(path).is_ok()
   }
 
-  pub fn is_hidden<P: AsRef<Path>>(&self, path: P) -> bool {
+  pub fn is_hidden(&self, path: String) -> bool {
     #[cfg(windows)]
     {
-      let path = path.as_ref();
+      let path = Path::new(&path);
       let wide_string: Vec<u16> = path
         .as_os_str()
         .encode_wide()
@@ -186,7 +190,7 @@ impl FSManager {
 
     #[cfg(unix)]
     {
-      path.file_name().map_or(false, |name| name.to_string_lossy().starts_with('.'))
+      Path::new(&path).file_name().unwrap().to_string_lossy().starts_with('.')
     }
   }
 
@@ -204,7 +208,7 @@ impl FSManager {
           .par_bridge()
           .filter_map(|entry| entry.metadata().ok())
           .filter(|metadata| !metadata.is_dir())
-          .map(|metadata| (metadata.len()))
+          .map(|metadata| metadata.len())
           .sum()
       } else {
         fs::metadata(&path).unwrap().len()
