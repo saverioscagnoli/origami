@@ -19,7 +19,10 @@ const EntryName: React.FC<EntryNameProps> = ({ name, is_folder }) => {
           fileIconMap.get(name.split(".").pop().toLowerCase()) ?? <FileIcon />
         )}
       </span>
-      <p className={cn("truncate")}>{name}</p>
+      <input
+        className={cn("bg-transparent", "truncate", "pointer-events-none")}
+        value={name}
+      />
     </span>
   );
 };

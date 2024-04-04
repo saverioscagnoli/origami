@@ -5,8 +5,9 @@ import { Entry } from "@types";
 
 const GlobalStatesProvider = useProvider(GlobalStatesContext, () => {
   const clipboardEntries = useAccessor<[Entry[], boolean] | null>(null);
+  const renaming = useAccessor<Entry | null>(null);
 
-  return { clipboardEntries };
+  return { clipboardEntries, renaming };
 });
 
 export { GlobalStatesProvider };

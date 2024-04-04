@@ -28,8 +28,9 @@ pub fn check_vscode_install() -> Result<bool, String> {
 
 #[cfg(not(target_os = "windows"))]
 pub fn check_vscode_install() -> Result<bool, String> {
-  let output = Command::new("code")
-    .args(["-v"])
+  let output = Command::new("sh")
+    .arg("-c")
+    .arg("code -v")
     .output()
     .expect("failed to execute process");
 
