@@ -6,6 +6,8 @@ import { Open } from "./open";
 import { Star } from "./star";
 import { Copy } from "./copy";
 import { Cut } from "./cut";
+import { Rename } from "./rename";
+import { Delete } from "./delete";
 
 type EntryContextMenuProps = ChildrenProps;
 
@@ -32,6 +34,11 @@ const EntryContextMenu: React.FC<EntryContextMenuProps> = ({ children }) => {
         {(canOpen || canStar) && <ContextMenu.Separator />}
         <Copy />
         <Cut />
+
+        <ContextMenu.Separator />
+
+        <Rename />
+        <Delete />
       </ContextMenu.Content>
     </ContextMenu>
   );
