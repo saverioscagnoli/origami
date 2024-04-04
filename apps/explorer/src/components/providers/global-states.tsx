@@ -6,8 +6,11 @@ import { Entry } from "@types";
 const GlobalStatesProvider = useProvider(GlobalStatesContext, () => {
   const clipboardEntries = useAccessor<[Entry[], boolean] | null>(null);
   const renaming = useAccessor<Entry | null>(null);
+  const searching = useAccessor<boolean>(false);
+  const searchQuery = useAccessor<string>("");
+  const creating = useAccessor<boolean>(false);
 
-  return { clipboardEntries, renaming };
+  return { clipboardEntries, renaming, searching, searchQuery, creating };
 });
 
 export { GlobalStatesProvider };

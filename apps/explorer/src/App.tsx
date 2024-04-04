@@ -3,6 +3,7 @@ import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { useFlags } from "@hooks/use-flags";
 import { useGlobalStates } from "@hooks/use-global-states";
 import { useJSEvent } from "@hooks/use-js-event";
 import { useNavigation } from "@hooks/use-navigation";
@@ -11,21 +12,60 @@ import { homeDir } from "@tauri-apps/api/path";
 import { cn } from "@utils";
 
 function App() {
-  const { changeDir } = useNavigation();
-  const { selected } = useCurrentDir();
-  const { renaming } = useGlobalStates();
+  const { changeDir, deleteEntries } = useNavigation();
+  const { entries, selected } = useCurrentDir();
+  const { renaming, searching, searchQuery, creating } = useGlobalStates();
+  const { showHidden } = useFlags();
 
   onMount(async () => {
     const home = await homeDir();
     changeDir(home)();
   });
 
-  useJSEvent("keydown", [renaming.get(), selected.get()], e => {
-    if (e.key === "F2") {
-      const entry = selected.get().at(0);
-      renaming.set(entry);
+  useJSEvent(
+    "keydown",
+    [renaming.get(), selected.get(), searching.get(), creating.get()],
+    async e => {
+      if (e.key === "F2") {
+        const entry = selected.get().at(0);
+        renaming.set(entry);
+
+        return;
+      } else if (e.key === "Delete") {
+        await deleteEntries();
+      }
+
+      if (e.ctrlKey) {
+        switch (e.key) {
+          case "f": {
+            searching.toggle();
+            e.preventDefault();
+            break;
+          }
+          case "h": {
+            showHidden.toggle();
+            e.preventDefault();
+            break;
+          }
+          case "a": {
+            if (!renaming.get() && !searching.get()) {
+              selected.set(entries.get());
+            }
+            break;
+          }
+        }
+      } else if (
+        /[a-zA-Z0-9-_ ]/.test(e.key) &&
+        e.key.length === 1 &&
+        !renaming.get() &&
+        !searching.get() &&
+        !creating.get()
+      ) {
+        searchQuery.set(e.key);
+        searching.set(true);
+      }
     }
-  });
+  );
 
   useJSEvent("contextmenu", [], e => {
     e.preventDefault();

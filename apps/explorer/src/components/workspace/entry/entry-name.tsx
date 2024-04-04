@@ -8,6 +8,8 @@ import { whenChanges } from "@life-cycle";
 import { Input } from "@components/tredici";
 import { LuFolder } from "react-icons/lu";
 import { useNavigation } from "@hooks/use-navigation";
+import { useCurrentDir } from "@hooks/use-current-dir";
+import { invoke } from "@tauri-apps/api";
 
 type EntryNameProps = {
   name: string;
@@ -15,8 +17,9 @@ type EntryNameProps = {
 };
 
 const EntryName: React.FC<EntryNameProps> = ({ name, is_folder }) => {
-  const { renaming } = useGlobalStates();
-  const { rename } = useNavigation();
+  const { dir, entries } = useCurrentDir();
+  const { renaming, creating } = useGlobalStates();
+  const { rename, reload } = useNavigation();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const inputValue = useAccessor<string>(name);
@@ -24,6 +27,14 @@ const EntryName: React.FC<EntryNameProps> = ({ name, is_folder }) => {
   whenChanges([name], () => inputValue.set(name));
 
   const isTarget = useMemo(() => renaming.get()?.name === name, [renaming.get()]);
+
+  whenChanges([creating.get()], () => {
+    if (creating.get() && name === "") {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 10);
+    }
+  });
 
   whenChanges([renaming.get()], () => {
     if (isTarget) {
@@ -39,14 +50,35 @@ const EntryName: React.FC<EntryNameProps> = ({ name, is_folder }) => {
 
   const onKeyDown: KeyboardEventHandler = async e => {
     if (e.key === "Enter") {
-      renaming.reset();
       inputValue.set(name);
 
-      await rename(inputValue.get());
+      if (creating.get()) {
+        creating.reset();
+        await invoke("create_entry", {
+          dir: dir.get(),
+          name: inputValue.get(),
+          isFolder: is_folder
+        });
+
+        await reload();
+      } else {
+        renaming.reset();
+        await rename(inputValue.get());
+      }
 
       setTimeout(() => {
         inputRef.current?.blur();
       }, 10);
+    }
+  };
+
+  const onBlur = () => {
+    if (creating.get()) {
+      entries.set(entries.get().slice(0, -1));
+      creating.reset();
+    } else {
+      renaming.reset();
+      inputValue.set(name);
     }
   };
 
@@ -75,10 +107,7 @@ const EntryName: React.FC<EntryNameProps> = ({ name, is_folder }) => {
         spellCheck={false}
         onValueChange={inputValue.set}
         onKeyDown={onKeyDown}
-        onBlur={() => {
-          renaming.reset();
-          inputValue.set(name);
-        }}
+        onBlur={onBlur}
         ref={inputRef}
       />
     </span>

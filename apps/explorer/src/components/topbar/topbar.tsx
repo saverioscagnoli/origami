@@ -9,14 +9,34 @@ import {
 import { appWindow } from "@tauri-apps/api/window";
 import { TopbarMenu } from "./topbar-menu";
 import { useCurrentDir } from "@hooks/use-current-dir";
-import { IconButton } from "@tredici";
+import { IconButton, Input } from "@tredici";
+import { useGlobalStates } from "@hooks/use-global-states";
+import { KeyboardEventHandler, useRef } from "react";
+import { whenChanges } from "@life-cycle";
 
 const Topbar = () => {
   const { dir } = useCurrentDir();
+  const { searching, searchQuery } = useGlobalStates();
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const minimize = () => appWindow.minimize();
   const toggleMaximize = () => appWindow.toggleMaximize();
   const close = () => appWindow.close();
+
+  whenChanges([searching.get()], () => {
+    if (searching.get()) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 10);
+    }
+  });
+
+  const onKeyDown: KeyboardEventHandler = e => {
+    if (e.key === "Enter") {
+      searching.toggle();
+    }
+  };
 
   return (
     <div
@@ -30,7 +50,25 @@ const Topbar = () => {
     >
       <span className={cn("flex items-center gap-4")}>
         <TopbarMenu />
-        <IconButton variant="ghost" size="sm" icon={<MagnifyingGlassIcon />} />
+        {searching.get() ? (
+          <Input
+            className={cn("!h-[22px]")}
+            size="sm"
+            spellCheck={false}
+            onKeyDown={onKeyDown}
+            onBlur={searching.toggle}
+            value={searchQuery.get()}
+            onValueChange={searchQuery.set}
+            ref={inputRef}
+          />
+        ) : (
+          <IconButton
+            variant="ghost"
+            size="sm"
+            icon={<MagnifyingGlassIcon />}
+            onClick={searching.toggle}
+          />
+        )}
       </span>
 
       <div

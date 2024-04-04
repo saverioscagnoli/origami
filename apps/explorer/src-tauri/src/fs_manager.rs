@@ -70,13 +70,13 @@ impl FSManager {
     entries
   }
 
-  pub fn create_entry<P: AsRef<Path>>(
+  pub fn create_entry(
     &self,
-    dir: P,
+    dir: String,
     name: String,
     is_folder: bool
   ) -> io::Result<()> {
-    let path = dir.as_ref().join(name);
+    let path = Path::new(&dir).join(&name);
 
     if is_folder {
       fs::create_dir_all(path)?;

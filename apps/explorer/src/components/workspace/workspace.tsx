@@ -10,10 +10,12 @@ import { Entry } from "./entry";
 import { EntryContextMenu } from "./entry/context-menu/context-menu";
 import { Header } from "./header";
 import { Spinner } from "@components/tredici";
+import { useGlobalStates } from "@hooks/use-global-states";
 
 const Workspace = () => {
   const { entries, selected } = useCurrentDir();
   const { open, changing } = useNavigation();
+  const { searchQuery } = useGlobalStates();
   const { showHidden } = useFlags();
 
   /*  const ref = useClickOutside<HTMLDivElement>(e => {
@@ -53,8 +55,15 @@ const Workspace = () => {
   };
 
   const filteredEntries = useMemo(
-    () => entries.get().filter(e => showHidden.get() || !e.is_hidden),
-    [entries, showHidden]
+    () =>
+      entries
+        .get()
+        .filter(
+          e =>
+            (showHidden.get() || !e.is_hidden) &&
+            e.name.toLowerCase().includes(searchQuery.get().toLowerCase())
+        ),
+    [entries, showHidden, searchQuery]
   );
 
   return (

@@ -7,14 +7,15 @@ import { useAccessor } from "./use-accessor";
 const useNavigation = () => {
   const changing = useAccessor<boolean>(false);
   const { dir, entries, selected } = useCurrentDir();
-  const { renaming } = useGlobalStates();
+  const { creating, renaming, searchQuery } = useGlobalStates();
 
   const changeDir = (path: string) => async () => {
     changing.set(true);
     let newEntries = await invoke<Entry[]>("read_dir", { path });
     dir.set(path);
     entries.set(newEntries);
-    selected.set([]);
+    selected.reset();
+    searchQuery.reset();
     changing.set(false);
   };
 
@@ -35,7 +36,33 @@ const useNavigation = () => {
     await reload();
   };
 
-  return { changeDir, open, reload, rename, changing };
+  const createEntry = (isFolder: boolean) => () => {
+    entries.set([
+      ...entries.get(),
+      {
+        name: "",
+        is_folder: isFolder,
+        is_hidden: false,
+        is_starred: false,
+        is_symlink: false,
+        last_modified: "",
+        path: "",
+        size: 0
+      }
+    ]);
+
+    creating.set(true);
+  };
+
+  const deleteEntries = async () => {
+    for (let entry of selected.get()) {
+      await invoke("delete_entry", { path: entry.path });
+    }
+
+    await reload();
+  };
+
+  return { changeDir, open, reload, rename, createEntry, deleteEntries, changing };
 };
 
 export { useNavigation };
