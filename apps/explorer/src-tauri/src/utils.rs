@@ -10,7 +10,7 @@ pub fn sort_dir(entries: &mut Vec<Entry>) {
     match (a.is_folder, b.is_folder) {
       (true, false) => Ordering::Less,
       (false, true) => Ordering::Greater,
-      _ => a.name.cmp(&b.name),
+      _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
     }
   });
 }

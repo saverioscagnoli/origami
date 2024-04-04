@@ -14,7 +14,7 @@ const Bottombar = () => {
         "fixed bottom-0",
         "flex items-center",
         "border-t border-t-[--gray-6]",
-        "z-30"
+        "z-30",
       )}
     >
       <p className={cn("px-6", "text-xs")}>{n} Items</p>

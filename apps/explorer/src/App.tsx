@@ -16,15 +16,19 @@ function App() {
   const { renaming } = useGlobalStates();
 
   onMount(async () => {
-    let home = await homeDir();
+    const home = await homeDir();
     changeDir(home)();
   });
 
-  useJSEvent("keydown", [renaming.get()], e => {
+  useJSEvent("keydown", [renaming.get(), selected.get()], e => {
     if (e.key === "F2") {
       const entry = selected.get().at(0);
       renaming.set(entry);
     }
+  });
+
+  useJSEvent("contextmenu", [], e => {
+    e.preventDefault();
   });
 
   return (

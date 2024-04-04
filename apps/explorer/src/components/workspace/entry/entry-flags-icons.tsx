@@ -14,7 +14,7 @@ const EntryFlagsIcons: React.FC<EntryFlagsIconsProps> = ({
   is_starred
 }) => {
   return (
-    <span className={cn("w-fit", "flex gap-2")}>
+    <span className={cn("flex gap-2")}>
       <span className={cn(is_hidden ? "visible" : "invisible")}>
         <EyeClosedIcon />
       </span>

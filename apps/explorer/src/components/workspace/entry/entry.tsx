@@ -1,6 +1,6 @@
 import { Entry as EntryT } from "@types";
 import { cn } from "@utils";
-import React, { CSSProperties, useMemo } from "react";
+import React, { useMemo } from "react";
 import { EntryName } from "./entry-name";
 import { EntryFlagsIcons } from "./entry-flags-icons";
 import { EntryDate } from "./entry-date";
@@ -9,7 +9,6 @@ import { useCurrentDir } from "@hooks/use-current-dir";
 import { useGlobalStates } from "@hooks/use-global-states";
 
 type EntryProps = EntryT & {
-  style: CSSProperties;
   onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onDoubleClick: () => void;
   onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -24,7 +23,6 @@ const Entry: React.FC<EntryProps> = ({
   is_starred,
   last_modified,
   size,
-  style,
   onClick,
   onDoubleClick,
   onContextMenu
@@ -49,16 +47,15 @@ const Entry: React.FC<EntryProps> = ({
   return (
     <div
       className={cn(
-        "w-[90%] h-6",
-        "flex items-center gap-4",
-        "px-4",
+        "w-full h-6",
+        "grid items-center grid-cols-4 gap-6",
+        "px-2",
         "text-sm",
         "cursor-default",
         !isSelected && "hover:bg-[--gray-3]",
         isSelected && "bg-[--gray-4]",
         isCutting && "opacity-60"
       )}
-      style={style}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}

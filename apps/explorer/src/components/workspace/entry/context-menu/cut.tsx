@@ -7,13 +7,19 @@ const Cut = () => {
   const { clipboardEntries } = useGlobalStates();
   const { selected } = useCurrentDir();
 
+  const [_, cutting] = clipboardEntries.get() ?? [null, false];
+
   const onCut = () => {
-    clipboardEntries.set([selected.get(), true]);
+    if (cutting) {
+      clipboardEntries.reset();
+    } else {
+      clipboardEntries.set([selected.get(), true]);
+    }
   };
 
   return (
     <ContextMenu.Item leftIcon={<ScissorsIcon />} onClick={onCut}>
-      Cut
+      {cutting ? "Stop Cutting" : "Cut"}
     </ContextMenu.Item>
   );
 };

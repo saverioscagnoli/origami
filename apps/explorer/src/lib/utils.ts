@@ -1,5 +1,5 @@
 import { clsx, ClassValue } from "clsx";
-import { Context, useContext } from "react";
+import { Context, Ref, useContext } from "react";
 import { twMerge } from "tailwind-merge";
 
 function cn(...args: ClassValue[]) {
@@ -34,4 +34,13 @@ function capitalize(str: string) {
   return str.at(0).toUpperCase() + str.slice(1);
 }
 
-export { cn, createContextHook, formatSize, capitalize };
+function mergeRefs<T>(...refs: Ref<T>[]) {
+  return (node: T) => {
+    for (const ref of refs) {
+      // @ts-ignore
+      ref.current = node;
+    }
+  };
+}
+
+export { cn, createContextHook, formatSize, capitalize, mergeRefs };

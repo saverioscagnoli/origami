@@ -6,7 +6,7 @@ type EntrySizeProps = {
 };
 
 const EntrySize: React.FC<EntrySizeProps> = ({ size }) => {
-  return <span className={cn("w-24", "text-[--gray-10]")}>{formatSize(size)}</span>;
+  return <span className={cn("text-[--gray-10]")}>{formatSize(size)}</span>;
 };
 
 export { EntrySize };

@@ -5,25 +5,22 @@ import { useNavigation } from "@hooks/use-navigation";
 import { useFlags } from "@hooks/use-flags";
 import { Entry as EntryT } from "@types";
 import React, { useMemo } from "react";
-import AutoSizer from "react-virtualized-auto-sizer";
-import { FixedSizeList } from "react-window";
-import { Row } from "./row";
-
-type WorkspaceDims = {
-  width: number;
-  height: number;
-};
+import { Virtuoso } from "react-virtuoso";
+import { Entry } from "./entry";
+import { EntryContextMenu } from "./entry/context-menu/context-menu";
+import { Header } from "./header";
+import { Spinner } from "@components/tredici";
 
 const Workspace = () => {
   const { entries, selected } = useCurrentDir();
-  const { open } = useNavigation();
+  const { open, changing } = useNavigation();
   const { showHidden } = useFlags();
 
-  //const ref = useClickOutside(e => {
-  //if (e.button !== 2) {
-  //selected.set([]);
-  //}
-  //});
+  /*  const ref = useClickOutside<HTMLDivElement>(e => {
+    if (e.button !== 2) {
+      selected.set([]);
+    }
+  }); */
 
   const onClick =
     (entry: EntryT) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -62,26 +59,29 @@ const Workspace = () => {
 
   return (
     <EmptySpaceContextMenu>
-      <div className={cn("w-full h-full", "overflow-auto")}>
-        <AutoSizer>
-          {({ height, width }: WorkspaceDims) => (
-            <FixedSizeList
-              //innerRef={ref}
-              width={width}
-              height={height}
-              itemCount={filteredEntries.length}
-              itemData={{
-                entries: filteredEntries,
-                onClick,
-                onDoubleClick: open,
-                onContextMenu
-              }}
-              itemSize={24}
-            >
-              {Row}
-            </FixedSizeList>
-          )}
-        </AutoSizer>
+      <div className={cn("w-full h-full")}>
+        <Header />
+        {changing.get() ? (
+          <div className={cn("w-full h-full", "grid place-items-center")}>
+            <Spinner size={40} style={{ animationDuration: "500ms" }} />
+          </div>
+        ) : (
+          <Virtuoso
+            className={cn("!w-full !h-[calc(100vh-5rem)]")}
+            data={filteredEntries}
+            totalCount={filteredEntries.length}
+            itemContent={(_, e) => (
+              <EntryContextMenu>
+                <Entry
+                  {...e}
+                  onClick={onClick(e)}
+                  onDoubleClick={open(e)}
+                  onContextMenu={onContextMenu(e)}
+                />
+              </EntryContextMenu>
+            )}
+          />
+        )}
       </div>
     </EmptySpaceContextMenu>
   );

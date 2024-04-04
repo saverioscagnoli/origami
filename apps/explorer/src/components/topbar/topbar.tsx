@@ -1,9 +1,15 @@
 import { cn } from "@utils";
 import { TopbarButton } from "./topbar-button";
-import { Cross1Icon, MinusIcon, SquareIcon } from "@radix-ui/react-icons";
+import {
+  Cross1Icon,
+  MagnifyingGlassIcon,
+  MinusIcon,
+  SquareIcon
+} from "@radix-ui/react-icons";
 import { appWindow } from "@tauri-apps/api/window";
 import { TopbarMenu } from "./topbar-menu";
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { IconButton } from "@tredici";
 
 const Topbar = () => {
   const { dir } = useCurrentDir();
@@ -22,7 +28,10 @@ const Topbar = () => {
         "z-30"
       )}
     >
-      <TopbarMenu />
+      <span className={cn("flex items-center gap-4")}>
+        <TopbarMenu />
+        <IconButton variant="ghost" size="sm" icon={<MagnifyingGlassIcon />} />
+      </span>
 
       <div
         className={cn(
