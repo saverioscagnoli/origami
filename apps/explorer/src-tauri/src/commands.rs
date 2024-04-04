@@ -82,10 +82,10 @@ pub fn open_file(path: String) {
 pub fn paste(
   fs_manager: State<FSManager>,
   source: String,
-  target: String,
+  target_dir: String,
   cutting: bool
 ) -> Result<(), String> {
-  fs_manager.paste(source, target, cutting).map_err(|e| e.to_string())
+  fs_manager.paste(source, target_dir, cutting).map_err(|e| e.to_string())
 }
 
 #[tauri::command]

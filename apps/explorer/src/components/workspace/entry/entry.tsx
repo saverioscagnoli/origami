@@ -6,6 +6,7 @@ import { EntryFlagsIcons } from "./entry-flags-icons";
 import { EntryDate } from "./entry-date";
 import { EntrySize } from "./entry-size";
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { useGlobalStates } from "@hooks/use-global-states";
 
 type EntryProps = EntryT & {
   style: CSSProperties;
@@ -29,10 +30,21 @@ const Entry: React.FC<EntryProps> = ({
   onContextMenu
 }) => {
   const { selected } = useCurrentDir();
+  const { clipboardEntries } = useGlobalStates();
+
   const isSelected = useMemo(
     () => selected.get().some(e => e.path === path),
     [selected, name]
   );
+
+  const isCutting = useMemo(() => {
+    if (clipboardEntries.get() === null) {
+      return false;
+    }
+
+    const [entries, cutting] = clipboardEntries.get();
+    return cutting && entries.some(e => e.path === path);
+  }, [clipboardEntries.get(), path]);
 
   return (
     <div
@@ -43,7 +55,8 @@ const Entry: React.FC<EntryProps> = ({
         "text-sm",
         "cursor-default",
         !isSelected && "hover:bg-[--gray-3]",
-        isSelected && "bg-[--gray-4]"
+        isSelected && "bg-[--gray-4]",
+        isCutting && "opacity-60"
       )}
       style={style}
       onClick={onClick}

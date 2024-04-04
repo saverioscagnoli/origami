@@ -129,14 +129,14 @@ impl FSManager {
     Ok(())
   }
 
-  pub fn paste<P: AsRef<Path>, Q: AsRef<Path>>(
+  pub fn paste(
     &self,
-    source: P,
-    target: Q,
+    source: String,
+    target_dir: String,
     cutting: bool
   ) -> io::Result<()> {
-    let source = source.as_ref();
-    let target = target.as_ref().join(source.file_name().unwrap());
+    let source = Path::new(&source);
+    let target = Path::new(&target_dir).join(source.file_name().unwrap());
 
     if cutting {
       fs::rename(source, target)?;

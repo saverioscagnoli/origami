@@ -4,11 +4,14 @@ import { ChildrenProps } from "@types";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { Open } from "./open";
 import { Star } from "./star";
+import { Copy } from "./copy";
+import { Cut } from "./cut";
 
 type EntryContextMenuProps = ChildrenProps;
 
 const EntryContextMenu: React.FC<EntryContextMenuProps> = ({ children }) => {
   const { selected } = useCurrentDir();
+
   const canOpen = useMemo(
     () => selected.get().length === 1 || !selected.get().some(e => e.is_folder),
     [selected.get()]
@@ -26,6 +29,9 @@ const EntryContextMenu: React.FC<EntryContextMenuProps> = ({ children }) => {
       <ContextMenu.Content>
         {canOpen && <Open />}
         {canStar && <Star />}
+        {(canOpen || canStar) && <ContextMenu.Separator />}
+        <Copy />
+        <Cut />
       </ContextMenu.Content>
     </ContextMenu>
   );
