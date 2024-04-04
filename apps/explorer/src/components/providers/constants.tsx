@@ -8,7 +8,6 @@ const ConstantsProvider = useProvider(ConstantsContext, () => {
 
   useEvent<ConstantsFromBackend>("send-constants", c => {
     isVscodeInstalled.set(c.is_vscode_installed);
-    console.log(c);
   });
 
   return { isVscodeInstalled };

@@ -43,6 +43,15 @@ pub fn create_entry(
 }
 
 #[tauri::command]
+pub fn rename_entry(
+  fs_manager: State<FSManager>,
+  path: String,
+  new_name: String
+) -> Result<(), String> {
+  fs_manager.rename_entry(path, new_name).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub fn delete_entry(
   fs_manager: State<FSManager>,
   path: String

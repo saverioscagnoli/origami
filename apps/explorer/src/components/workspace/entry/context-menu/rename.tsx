@@ -8,7 +8,7 @@ const Rename = () => {
   const { renaming } = useGlobalStates();
 
   const onRename = () => {
-    const entry = selected.get().at(-1);
+    const entry = selected.get().at(0);
     renaming.set(entry);
   };
 

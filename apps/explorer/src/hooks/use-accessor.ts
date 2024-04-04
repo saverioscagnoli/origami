@@ -6,20 +6,15 @@ const useAccessor = <T>(defaultValue: T): Accessor<T> => {
 
   const get = () => value;
   const set = setValue;
+  const reset = () => setValue(defaultValue);
 
   switch (typeof defaultValue) {
     case "boolean": {
       return {
         get,
         set,
+        reset,
         toggle: () => setValue(p => !p as T)
-      } as unknown as Accessor<T>;
-    }
-    case "string": {
-      return {
-        get,
-        set,
-        clear: () => setValue(defaultValue)
       } as unknown as Accessor<T>;
     }
     case "number": {
@@ -30,11 +25,11 @@ const useAccessor = <T>(defaultValue: T): Accessor<T> => {
         increment: (n: number) => setValue(p => p + n),
         // @ts-ignore
         decrement: (n: number) => setValue(p => p - n),
-        reset: () => setValue(defaultValue)
+        reset
       } as unknown as Accessor<T>;
     }
     default: {
-      return { get, set } as Accessor<T>;
+      return { get, set, reset } as Accessor<T>;
     }
   }
 };

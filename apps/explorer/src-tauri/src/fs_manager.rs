@@ -87,6 +87,15 @@ impl FSManager {
     Ok(())
   }
 
+  pub fn rename_entry(&self, path: String, new_name: String) -> io::Result<()> {
+    let path = Path::new(&path);
+    let new_path = path.with_file_name(new_name);
+
+    fs::rename(path, new_path)?;
+
+    Ok(())
+  }
+
   pub fn delete_entry(&self, path: String) -> io::Result<()> {
     let path = Path::new(&path);
 
@@ -102,7 +111,7 @@ impl FSManager {
   pub fn create_symlink(
     &self,
     target_path: String,
-    link_dir: String,
+    link_dir: String
   ) -> io::Result<()> {
     let name = Path::new(&target_path).file_name().unwrap();
     let link_path = Path::new(&link_dir).join(&name);

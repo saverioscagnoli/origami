@@ -1,9 +1,11 @@
 import { Entry } from "@types";
 import { invoke } from "@tauri-apps/api";
 import { useCurrentDir } from "./use-current-dir";
+import { useGlobalStates } from "./use-global-states";
 
 const useNavigation = () => {
   const { dir, entries, selected } = useCurrentDir();
+  const { renaming } = useGlobalStates();
 
   const changeDir = (path: string) => async () => {
     let newEntries = await invoke<Entry[]>("read_dir", { path });
@@ -24,7 +26,12 @@ const useNavigation = () => {
     await changeDir(dir.get())();
   };
 
-  return { changeDir, open, reload };
+  const rename = async (newName: string) => {
+    await invoke("rename_entry", { path: renaming.get().path, newName });
+    await reload();
+  };
+
+  return { changeDir, open, reload, rename };
 };
 
 export { useNavigation };

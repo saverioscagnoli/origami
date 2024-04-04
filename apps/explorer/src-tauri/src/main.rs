@@ -38,6 +38,7 @@ fn main() {
         commands::read_dir,
         commands::open_file,
         commands::create_entry,
+        commands::rename_entry,
         commands::delete_entry,
         commands::star_entry,
         commands::unstar_entry,
