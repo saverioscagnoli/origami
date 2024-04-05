@@ -12,9 +12,10 @@ import { homeDir } from "@tauri-apps/api/path";
 import { cn } from "@utils";
 
 function App() {
-  const { changeDir, deleteEntries, open } = useNavigation();
+  const { changeDir, deleteEntries, open, paste } = useNavigation();
   const { entries, selected } = useCurrentDir();
-  const { renaming, searching, searchQuery, creating } = useGlobalStates();
+  const { renaming, searching, searchQuery, creating, clipboardEntries } =
+    useGlobalStates();
   const { showHidden } = useFlags();
 
   onMount(async () => {
@@ -50,6 +51,28 @@ function App() {
           case "a": {
             if (!renaming.get() && !searching.get()) {
               selected.set(entries.get());
+            }
+            break;
+          }
+          case "c": {
+            if (!renaming.get() && !searching.get()) {
+              clipboardEntries.set([selected.get(), false]);
+            }
+            break;
+          }
+          case "x": {
+            if (!renaming.get() && !searching.get()) {
+              clipboardEntries.set([selected.get(), true]);
+            }
+            break;
+          }
+          case "v": {
+            if (
+              !renaming.get() &&
+              !searching.get() &&
+              clipboardEntries.get() !== null
+            ) {
+              await paste();
             }
             break;
           }

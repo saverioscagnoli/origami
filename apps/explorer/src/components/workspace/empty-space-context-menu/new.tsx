@@ -1,7 +1,7 @@
 import { useNavigation } from "@hooks/use-navigation";
 import { FilePlusIcon, PlusIcon } from "@radix-ui/react-icons";
 import { ContextMenu } from "@tredici";
-import { BsFolderFill } from "react-icons/bs";
+import { FolderIcon } from "@components/folder-icon";
 
 const New = () => {
   const { createEntry } = useNavigation();
@@ -13,7 +13,7 @@ const New = () => {
         <ContextMenu.Item leftIcon={<FilePlusIcon />} onClick={createEntry(false)}>
           File
         </ContextMenu.Item>
-        <ContextMenu.Item leftIcon={<BsFolderFill />} onClick={createEntry(true)}>
+        <ContextMenu.Item leftIcon={<FolderIcon />} onClick={createEntry(true)}>
           Folder
         </ContextMenu.Item>
       </ContextMenu.SubContent>

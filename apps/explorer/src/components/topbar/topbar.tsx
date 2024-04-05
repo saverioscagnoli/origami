@@ -1,6 +1,8 @@
 import { cn } from "@utils";
 import { TopbarButton } from "./topbar-button";
 import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
   Cross1Icon,
   MagnifyingGlassIcon,
   MinusIcon,
@@ -13,10 +15,12 @@ import { IconButton, Input } from "@tredici";
 import { useGlobalStates } from "@hooks/use-global-states";
 import { KeyboardEventHandler, useRef } from "react";
 import { whenChanges } from "@life-cycle";
+import { useHistory } from "@hooks/use-history";
 
 const Topbar = () => {
   const { entries, dir, selected } = useCurrentDir();
   const { searching, searchQuery } = useGlobalStates();
+  const { canGoBack, goBack, canGoForward, goForward } = useHistory();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -72,12 +76,28 @@ const Topbar = () => {
             ref={inputRef}
           />
         ) : (
-          <IconButton
-            variant="ghost"
-            size="sm"
-            icon={<MagnifyingGlassIcon />}
-            onClick={searching.toggle}
-          />
+          <>
+            <IconButton
+              variant="ghost"
+              size="sm"
+              icon={<ArrowLeftIcon />}
+              disabled={!canGoBack}
+              onClick={goBack}
+            />
+            <IconButton
+              variant="ghost"
+              size="sm"
+              icon={<ArrowRightIcon />}
+              disabled={!canGoForward}
+              onClick={goForward}
+            />
+            <IconButton
+              variant="ghost"
+              size="sm"
+              icon={<MagnifyingGlassIcon />}
+              onClick={searching.toggle}
+            />
+          </>
         )}
       </span>
 

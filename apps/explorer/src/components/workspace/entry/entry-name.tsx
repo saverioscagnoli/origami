@@ -6,10 +6,10 @@ import { useGlobalStates } from "@hooks/use-global-states";
 import { useAccessor } from "@hooks/use-accessor";
 import { whenChanges } from "@life-cycle";
 import { Input } from "@components/tredici";
-import { LuFolder } from "react-icons/lu";
 import { useNavigation } from "@hooks/use-navigation";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { invoke } from "@tauri-apps/api";
+import { FolderIcon } from "@components/folder-icon";
 
 type EntryNameProps = {
   name: string;
@@ -86,7 +86,7 @@ const EntryName: React.FC<EntryNameProps> = ({ name, is_folder }) => {
     <span className={cn("flex items-center gap-0.5")} draggable>
       <span className="min-w-4">
         {is_folder ? (
-          <LuFolder fill="var(--slate-12)" />
+          <FolderIcon />
         ) : (
           fileIconMap.get(inputValue.get().split(".").pop().toLowerCase()) ?? (
             <FileIcon />

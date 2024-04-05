@@ -7,7 +7,7 @@ import { useAccessor } from "./use-accessor";
 const useNavigation = () => {
   const changing = useAccessor<boolean>(false);
   const { dir, entries, selected } = useCurrentDir();
-  const { creating, renaming, searchQuery } = useGlobalStates();
+  const { creating, renaming, searchQuery, clipboardEntries } = useGlobalStates();
 
   const changeDir = (path: string) => async () => {
     changing.set(true);
@@ -62,7 +62,31 @@ const useNavigation = () => {
     await reload();
   };
 
-  return { changeDir, open, reload, rename, createEntry, deleteEntries, changing };
+  const paste = async () => {
+    clipboardEntries.set(null);
+    let [entries, cutting] = clipboardEntries.get();
+
+    for (let entry of entries) {
+      await invoke("paste", {
+        source: entry.path,
+        targetDir: dir.get(),
+        cutting
+      });
+    }
+
+    reload();
+  };
+
+  return {
+    changeDir,
+    open,
+    reload,
+    rename,
+    createEntry,
+    deleteEntries,
+    paste,
+    changing
+  };
 };
 
 export { useNavigation };
