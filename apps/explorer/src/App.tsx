@@ -12,7 +12,7 @@ import { homeDir } from "@tauri-apps/api/path";
 import { cn } from "@utils";
 
 function App() {
-  const { changeDir, deleteEntries } = useNavigation();
+  const { changeDir, deleteEntries, open } = useNavigation();
   const { entries, selected } = useCurrentDir();
   const { renaming, searching, searchQuery, creating } = useGlobalStates();
   const { showHidden } = useFlags();
@@ -63,6 +63,17 @@ function App() {
       ) {
         searchQuery.set(e.key);
         searching.set(true);
+      } else if (
+        e.key === "Enter" &&
+        !renaming.get() &&
+        !searching.get() &&
+        !creating.get()
+      ) {
+        if (selected.get().length === 1) {
+          const entry = selected.get().at(0);
+          await open(entry)();
+          //selected.set([entries.get().at(0)]);
+        }
       }
     }
   );

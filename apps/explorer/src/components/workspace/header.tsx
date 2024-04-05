@@ -7,11 +7,12 @@ const Header = () => {
     <div
       className={cn(
         "w-full h-6",
-        "grid items-center grid-cols-4 gap-4",
+        "grid items-center gap-4",
         "px-2",
         "border-b border-[--gray-6]",
         "text-sm text-[--gray-10]",
-        "shadow shadow-[--slate-4]"
+        "shadow shadow-[--slate-4]",
+        "grid-cols-[1.25fr,1fr,1fr,1fr]"
       )}
     >
       <span>Name</span>

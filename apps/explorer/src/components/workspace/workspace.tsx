@@ -79,10 +79,11 @@ const Workspace = () => {
             className={cn("!w-full !h-[calc(100vh-5rem)]")}
             data={filteredEntries}
             totalCount={filteredEntries.length}
-            itemContent={(_, e) => (
+            itemContent={(i, e) => (
               <EntryContextMenu>
                 <Entry
                   {...e}
+                  data-index={i}
                   onClick={onClick(e)}
                   onDoubleClick={open(e)}
                   onContextMenu={onContextMenu(e)}

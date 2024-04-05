@@ -15,7 +15,7 @@ import { KeyboardEventHandler, useRef } from "react";
 import { whenChanges } from "@life-cycle";
 
 const Topbar = () => {
-  const { dir } = useCurrentDir();
+  const { entries, dir, selected } = useCurrentDir();
   const { searching, searchQuery } = useGlobalStates();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -35,6 +35,16 @@ const Topbar = () => {
   const onKeyDown: KeyboardEventHandler = e => {
     if (e.key === "Enter") {
       searching.toggle();
+
+      const entry = entries
+        .get()
+        .find(e => e.name.toLowerCase().includes(searchQuery.get().toLowerCase()));
+
+      if (entry) {
+        setTimeout(() => {
+          selected.set([entry]);
+        }, 30);
+      }
     }
   };
 

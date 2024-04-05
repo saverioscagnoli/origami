@@ -2,11 +2,7 @@ import * as RxContextMenu from "@radix-ui/react-context-menu";
 import React, { ReactNode, createContext, forwardRef, useContext } from "react";
 import { cn } from "@utils";
 import { cva } from "class-variance-authority";
-import {
-  CheckIcon,
-  ChevronRightIcon,
-  DotFilledIcon
-} from "@radix-ui/react-icons";
+import { CheckIcon, ChevronRightIcon, DotFilledIcon } from "@radix-ui/react-icons";
 
 import "@radix-ui/colors/plum.css";
 import "@radix-ui/colors/plum-dark.css";
@@ -76,10 +72,7 @@ type ContextMenuProps = RxContextMenu.ContextMenuProps & {
   colorScheme?: ContextMenuColorScheme;
 };
 
-const ContextMenu: ContextMenuComponent = ({
-  colorScheme = "plum",
-  ...props
-}) => {
+const ContextMenu: ContextMenuComponent = ({ colorScheme = "plum", ...props }) => {
   return (
     <ColorSchemeContext.Provider value={colorScheme}>
       <RxContextMenu.Root {...props} />
@@ -106,6 +99,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
             "shadow-lg",
             "bg-[--slate-1]",
             "text-[--slate-12]",
+            "select-none",
             "context-menu-content",
             "z-40",
             className
@@ -167,10 +161,7 @@ const ContextMenuItem = forwardRef<HTMLDivElement, ContextMenuItemProps>(
             "relative",
             "rounded-sm",
             "focus:cursor-default",
-            [
-              "data-[disabled]:opacity-30",
-              "data-[disabled]:pointer-events-none"
-            ],
+            ["data-[disabled]:opacity-30", "data-[disabled]:pointer-events-none"],
             className
           ),
           colorScheme: colorScheme ?? useColorScheme()
@@ -185,12 +176,11 @@ const ContextMenuItem = forwardRef<HTMLDivElement, ContextMenuItemProps>(
   }
 );
 
-type ContextMenuCheckboxItemProps =
-  RxContextMenu.ContextMenuCheckboxItemProps & {
-    colorScheme?: ContextMenuColorScheme;
-    leftIcon?: ReactNode;
-    icon?: ReactNode;
-  };
+type ContextMenuCheckboxItemProps = RxContextMenu.ContextMenuCheckboxItemProps & {
+  colorScheme?: ContextMenuColorScheme;
+  leftIcon?: ReactNode;
+  icon?: ReactNode;
+};
 
 const ContextMenuCheckboxItem = forwardRef<
   HTMLDivElement,
@@ -245,10 +235,7 @@ type ContextMenuRadioItemProps = RxContextMenu.ContextMenuRadioItemProps & {
   icon?: ReactNode;
 };
 
-const ContextMenuRadioItem = forwardRef<
-  HTMLDivElement,
-  ContextMenuRadioItemProps
->(
+const ContextMenuRadioItem = forwardRef<HTMLDivElement, ContextMenuRadioItemProps>(
   (
     { className, children, colorScheme, icon = <DotFilledIcon />, ...props },
     ref
@@ -289,10 +276,7 @@ type ContextMenuSubTriggerProps = RxContextMenu.ContextMenuSubTriggerProps & {
   icon?: ReactNode;
 };
 
-const ContextMenuSubTrigger = forwardRef<
-  HTMLDivElement,
-  ContextMenuSubTriggerProps
->(
+const ContextMenuSubTrigger = forwardRef<HTMLDivElement, ContextMenuSubTriggerProps>(
   (
     {
       className,
@@ -330,46 +314,45 @@ const ContextMenuSubTrigger = forwardRef<
 
 type ContextMenuSubContentProps = RxContextMenu.ContextMenuSubContentProps;
 
-const ContextMenuSubContent = forwardRef<
-  HTMLDivElement,
-  ContextMenuSubContentProps
->(({ className, ...props }, ref) => {
-  return (
-    <RxContextMenu.Portal>
-      <RxContextMenu.SubContent
-        className={cn(
-          "min-w-fit h-fit",
-          "p-1",
-          "border border-[--gray-7]",
-          "rounded",
-          "shadow-lg",
-          "bg-[--slate-1]",
-          "text-[--slate-12]",
-          "z-40",
-          "context-menu-content",
-          className
-        )}
-        {...props}
-        ref={ref}
-      />
-    </RxContextMenu.Portal>
-  );
-});
+const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <RxContextMenu.Portal>
+        <RxContextMenu.SubContent
+          className={cn(
+            "min-w-fit h-fit",
+            "p-1",
+            "border border-[--gray-7]",
+            "rounded",
+            "shadow-lg",
+            "bg-[--slate-1]",
+            "text-[--slate-12]",
+            "z-40",
+            "context-menu-content",
+            "select-none",
+            className
+          )}
+          {...props}
+          ref={ref}
+        />
+      </RxContextMenu.Portal>
+    );
+  }
+);
 
 type ContextMenuSeparatorProps = RxContextMenu.ContextMenuSeparatorProps;
 
-const ContextMenuSeparator = forwardRef<
-  HTMLDivElement,
-  ContextMenuSeparatorProps
->(({ className, ...props }, ref) => {
-  return (
-    <RxContextMenu.Separator
-      className={cn("h-[1px] my-1", "bg-[--gray-7]", className)}
-      {...props}
-      ref={ref}
-    />
-  );
-});
+const ContextMenuSeparator = forwardRef<HTMLDivElement, ContextMenuSeparatorProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <RxContextMenu.Separator
+        className={cn("h-[1px] my-1", "bg-[--gray-7]", className)}
+        {...props}
+        ref={ref}
+      />
+    );
+  }
+);
 
 ContextMenu.Trigger = ContextMenuTrigger;
 ContextMenu.Content = ContextMenuContent;
