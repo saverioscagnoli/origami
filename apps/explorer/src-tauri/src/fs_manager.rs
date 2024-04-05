@@ -1,19 +1,15 @@
-use std::{ fs::{ self }, io, iter::once, os::windows::ffi::OsStrExt, path::Path };
+use std::{ fs::{ self }, io, iter::once, path::Path };
 use chrono::{ DateTime, Utc };
-use serde::{ Deserialize, Serialize };
-use winapi::um::{ fileapi::GetFileAttributesW, winnt::FILE_ATTRIBUTE_HIDDEN };
+use fs_extra::dir::CopyOptions;
+use rayon::iter::{ ParallelBridge, ParallelIterator };
+use walkdir::WalkDir;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Entry {
-  name: String,
-  path: String,
-  is_folder: bool,
-  is_hidden: bool,
-  is_symlink: bool,
-  is_starred: bool,
-  last_modified: String,
-  size: String,
-}
+#[cfg(windows)]
+use winapi::um::{ fileapi::GetFileAttributesW, winnt::FILE_ATTRIBUTE_HIDDEN };
+#[cfg(windows)]
+use std::os::windows::ffi::OsStrExt;
+
+use crate::structs::Entry;
 
 pub struct FSManager {}
 
@@ -22,7 +18,11 @@ impl FSManager {
     Self {}
   }
 
-  pub fn read_dir<P: AsRef<Path>, Q: AsRef<Path>>(&self, path: P, starred_dir: Q) -> Vec<Entry> {
+  pub async fn read_dir<P: AsRef<Path>, Q: AsRef<Path>>(
+    &self,
+    path: P,
+    starred_dir: Q
+  ) -> Vec<Entry> {
     let path = path.as_ref();
     let mut entries: Vec<Entry> = Vec::new();
 
@@ -37,7 +37,7 @@ impl FSManager {
         continue;
       }
 
-      let is_hidden = self.is_hidden(&path);
+      let is_hidden = self.is_hidden(path.to_string_lossy().to_string());
       let is_symlink = self.is_symlink(&path);
       let is_starred = self.exists(starred_dir.as_ref().join(entry.file_name()));
 
@@ -47,7 +47,13 @@ impl FSManager {
         .format("%d/%m/%Y %H:%M")
         .to_string();
 
-      let size = self.get_file_size(&path);
+      let size = {
+        if is_folder {
+          0
+        } else {
+          self.get_file_size(path.to_string_lossy().to_string()).await
+        }
+      };
 
       entries.push(Entry {
         name,
@@ -64,13 +70,13 @@ impl FSManager {
     entries
   }
 
-  pub fn create_entry<P: AsRef<Path>>(
+  pub fn create_entry(
     &self,
-    dir: P,
+    dir: String,
     name: String,
     is_folder: bool
   ) -> io::Result<()> {
-    let path = dir.as_ref().join(name);
+    let path = Path::new(&dir).join(&name);
 
     if is_folder {
       fs::create_dir_all(path)?;
@@ -81,15 +87,19 @@ impl FSManager {
     Ok(())
   }
 
-  pub fn delete_entry<P: AsRef<Path>>(
-    &self,
-    dir: P,
-    name: String,
-    is_folder: bool
-  ) -> io::Result<()> {
-    let path = dir.as_ref().join(name);
+  pub fn rename_entry(&self, path: String, new_name: String) -> io::Result<()> {
+    let path = Path::new(&path);
+    let new_path = path.with_file_name(new_name);
 
-    if is_folder {
+    fs::rename(path, new_path)?;
+
+    Ok(())
+  }
+
+  pub fn delete_entry(&self, path: String) -> io::Result<()> {
+    let path = Path::new(&path);
+
+    if path.is_dir() {
       fs::remove_dir_all(path)?;
     } else {
       fs::remove_file(path)?;
@@ -98,50 +108,58 @@ impl FSManager {
     Ok(())
   }
 
-  pub fn create_symlink<P: AsRef<Path>, Q: AsRef<Path>>(
+  pub fn create_symlink(
     &self,
-    target_dir: P,
-    link_dir: Q,
-    name: String,
-    is_folder: bool
+    target_path: String,
+    link_dir: String
   ) -> io::Result<()> {
-    let target_path = target_dir.as_ref().join(&name);
-    let link_path = link_dir.as_ref().join(&name);
+    let name = Path::new(&target_path).file_name().unwrap();
+    let link_path = Path::new(&link_dir).join(&name);
+
+    let is_folder = Path::new(&target_path).is_dir();
 
     #[cfg(windows)]
     {
       if is_folder {
         use std::os::windows::fs::symlink_dir;
-        symlink_dir(target_path, link_path)?;
+        symlink_dir(&target_path, link_path)?;
       } else {
         use std::os::windows::fs::symlink_file;
-        symlink_file(target_path, link_path)?;
+        symlink_file(&target_path, link_path)?;
       }
     }
 
     #[cfg(unix)]
     {
       use std::os::unix::fs::symlink;
-      symlink(target_path, link_path)?;
+      symlink(&target_path, link_path)?;
     }
 
     Ok(())
   }
 
-  pub fn paste<P: AsRef<Path>, Q: AsRef<Path>>(
+  pub fn paste(
     &self,
-    source: P,
-    target: Q,
+    source: String,
+    target_dir: String,
     cutting: bool
   ) -> io::Result<()> {
-    let source = source.as_ref();
-    let target = target.as_ref().join(source.file_name().unwrap());
+    let source = Path::new(&source);
+    let target = Path::new(&target_dir).join(source.file_name().unwrap());
 
     if cutting {
       fs::rename(source, target)?;
     } else {
       if source.is_dir() {
-        fs::copy(source, target)?;
+        let mut options = CopyOptions::new();
+        options.overwrite = true;
+        options.copy_inside = true;
+
+        fs_extra::dir
+          ::copy(source, target, &options)
+          .map_err(|e|
+            std::io::Error::new(std::io::ErrorKind::Other, e.to_string())
+          )?;
       } else {
         fs::copy(source, target)?;
       }
@@ -161,18 +179,22 @@ impl FSManager {
     fs::metadata(path).is_ok()
   }
 
-  pub fn is_hidden<P: AsRef<Path>>(&self, path: P) -> bool {
+  pub fn is_hidden(&self, path: String) -> bool {
     #[cfg(windows)]
     {
-      let path = path.as_ref();
-      let wide_string: Vec<u16> = path.as_os_str().encode_wide().chain(once(0)).collect();
+      let path = Path::new(&path);
+      let wide_string: Vec<u16> = path
+        .as_os_str()
+        .encode_wide()
+        .chain(once(0))
+        .collect();
       let attributes = unsafe { GetFileAttributesW(wide_string.as_ptr()) };
       (attributes & FILE_ATTRIBUTE_HIDDEN) != 0
     }
 
     #[cfg(unix)]
     {
-      path.file_name().map_or(false, |name| name.to_string_lossy().starts_with('.'))
+      Path::new(&path).file_name().unwrap().to_string_lossy().starts_with('.')
     }
   }
 
@@ -180,20 +202,21 @@ impl FSManager {
     fs::symlink_metadata(&path).unwrap().file_type().is_symlink()
   }
 
-  pub fn get_file_size<P: AsRef<Path>>(&self, path: P) -> String {
-    let size: f64;
-
-    if path.as_ref().is_dir() {
-      size = 0.0;
-    } else {
-      size = (fs::metadata(&path).unwrap().len() as f64) / 1024.0;
-    }
-
-    let size = match size {
-      size if size < 1.0 => format!("{:.2} B", size * 1024.0),
-      size if size < 1024.0 => format!("{:.2} KB", size),
-      size if size >= 1024.0 * 1024.0 => format!("{:.2} GB", size / 1024.0 / 1024.0),
-      _ => format!("{:.2} MB", size / 1024.0),
+  pub async fn get_file_size(&self, path: String) -> u64 {
+    let is_folder = Path::new(&path).is_dir();
+    let size = {
+      if is_folder {
+        WalkDir::new(path)
+          .into_iter()
+          .filter_map(|entry| entry.ok())
+          .par_bridge()
+          .filter_map(|entry| entry.metadata().ok())
+          .filter(|metadata| !metadata.is_dir())
+          .map(|metadata| metadata.len())
+          .sum()
+      } else {
+        fs::metadata(&path).unwrap().len()
+      }
     };
 
     size

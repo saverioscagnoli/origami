@@ -1,22 +1,24 @@
-import { useDirectory } from "@hooks/use-directory";
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { cn } from "@utils";
+import { useMemo } from "react";
+import { SelectedSize } from "./selected-size";
 
 const Bottombar = () => {
-  const { entries } = useDirectory();
-  const items = entries.get();
+  const { entries } = useCurrentDir();
+  const n = useMemo(() => entries.get().length, [entries.get()]);
 
   return (
     <div
       className={cn(
         "w-full h-6",
+        "fixed bottom-0",
         "flex items-center",
-        "fixed bottom-0 left-0",
-        "bg-[--slate-1]",
         "border-t border-t-[--gray-6]",
-        "z-30"
+        "z-30",
       )}
     >
-      <p className={cn("px-6", "text-xs")}>{items.length} Items</p>
+      <p className={cn("px-6", "text-xs")}>{n} Items</p>
+      <SelectedSize />
     </div>
   );
 };

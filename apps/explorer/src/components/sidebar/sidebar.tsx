@@ -1,12 +1,12 @@
 import { cn } from "@utils";
-import { SidebarFolders } from "./sidebar-folders";
-import { SidebarDevices } from "./sidebar-devices";
+import { Devices } from "./devices";
+import { SidebarFolders } from "./folders";
 
 const Sidebar = () => {
   return (
     <div className={cn("w-1/4 h-full", "border-r border-r-[--gray-6]")}>
       <SidebarFolders />
-      <SidebarDevices />
+      <Devices />
     </div>
   );
 };

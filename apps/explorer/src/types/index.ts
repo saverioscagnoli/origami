@@ -1,3 +1,4 @@
-export * from "./directory";
-export * from "./misc";
+export * from "./entry";
+export * from "./accessor";
 export * from "./disk";
+export * from "./props";
