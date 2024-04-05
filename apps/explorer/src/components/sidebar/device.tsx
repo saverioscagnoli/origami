@@ -23,6 +23,7 @@ const Device: React.FC<DeviceProps> = ({
   return (
     <div
       className={cn(
+        "w-full",
         "flex flex-col gap-2",
         "px-4 py-2.5",
         "hover:bg-[--gray-3]",
@@ -32,11 +33,11 @@ const Device: React.FC<DeviceProps> = ({
       onClick={onClick}
     >
       <div className={cn("flex justify-between items-center")}>
-        <span className={cn("flex items-center gap-2")}>
+        <span className={cn("w-full", "flex items-center gap-2")}>
           {is_removable ? <LuUsb /> : <BackpackIcon />}
-          <p className={cn("text-sm")}>{mount_point}</p>
+          <p className={cn("w-1/2", "text-sm", "truncate")}>{mount_point}</p>
         </span>
-        <p className={cn("text-sm")}>{total} GB</p>
+        <p className={cn("text-sm", "whitespace-nowrap")}>{total} GB</p>
       </div>
       <Progress className={cn("w-full")} max={total} value={total - free} />
     </div>

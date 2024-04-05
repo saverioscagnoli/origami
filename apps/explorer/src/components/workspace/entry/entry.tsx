@@ -7,6 +7,8 @@ import { EntryDate } from "./entry-date";
 import { EntrySize } from "./entry-size";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { useGlobalStates } from "@hooks/use-global-states";
+import { useDrag } from "react-dnd";
+import { invoke } from "@tauri-apps/api";
 
 type EntryProps = EntryT & {
   onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -48,8 +50,11 @@ const Entry = forwardRef<HTMLDivElement, EntryProps>(
       return cutting && entries.some(e => e.path === path);
     }, [clipboardEntries.get(), path]);
 
+    const [coll, dragRef] = useDrag(() => ({ type: "entry", item: { name } }));
+
     return (
       <div
+       
         className={cn(
           "w-full h-6",
           "grid items-center gap-6",
@@ -61,10 +66,10 @@ const Entry = forwardRef<HTMLDivElement, EntryProps>(
           isCutting && "opacity-60",
           "grid-cols-[1.25fr,1fr,1fr,1fr]"
         )}
+        onDragStart={async () => await invoke("start_dragging")}
         onClick={onClick}
         onDoubleClick={onDoubleClick}
         onContextMenu={onContextMenu}
-        ref={ref}
       >
         <EntryName name={name} is_folder={is_folder} />
         <EntryFlagsIcons

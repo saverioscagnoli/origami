@@ -1,4 +1,5 @@
-use tauri::State;
+use drag::start_drag;
+use tauri::{ Manager, State };
 
 use crate::{
   event_emitter::EventEmitter,
@@ -7,7 +8,7 @@ use crate::{
   utils,
 };
 
-use std::process::Command;
+use std::{ fs, process::Command };
 
 #[tauri::command]
 pub async fn init_communication(app: tauri::AppHandle) {
@@ -124,4 +125,23 @@ pub fn open_vscode(path: String) {
     .arg(format!("code {path}", path = path).as_str())
     .output()
     .expect("failed to execute process");
+}
+
+#[tauri::command]
+pub fn start_dragging(app: tauri::AppHandle) {
+  let window = app.get_window("main").unwrap();
+
+  println!("start_dragging");
+  start_drag(
+    #[cfg(target_os = "linux")] &window.gtk_window().unwrap(),
+    #[cfg(not(target_os = "linux"))] &window,
+    drag::DragItem::Files(
+      vec![fs::canonicalize("/home/svscagn/Pictures/saber.png").unwrap()]
+    ),
+    drag::Image::File("/home/svscagn/Pictures/saber.png".into()),
+    |drop, cursor| {
+      println!("drop: {:?}, cursor: {:?}", drop, cursor);
+    },
+    drag::Options::default()
+  ).unwrap();
 }

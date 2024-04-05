@@ -7,9 +7,10 @@ mod commands;
 mod utils;
 
 use std::{ env, fs };
+use drag::start_drag;
 use event_emitter::EventEmitter;
 use fs_manager::FSManager;
-use tauri::Manager;
+use tauri::{ Manager, WindowBuilder, WindowUrl };
 
 #[cfg(any(windows, target_os = "macos"))]
 use window_shadows::set_shadow;
@@ -24,7 +25,7 @@ fn init(app: &tauri::AppHandle) {
     fs::create_dir_all(&starred_dir).unwrap();
   }
 
-  //let config_file = config_dir.join("config.json");
+  //let config_file = config_dir.join("configx.json");
 }
 
 fn main() {
@@ -44,7 +45,8 @@ fn main() {
         commands::unstar_entry,
         commands::paste,
         commands::get_file_size,
-        commands::open_vscode
+        commands::open_vscode,
+        commands::start_dragging
       ]
     )
     .setup(|app| {

@@ -4,13 +4,15 @@ import { useCurrentDir } from "@hooks/use-current-dir";
 import { useNavigation } from "@hooks/use-navigation";
 import { useFlags } from "@hooks/use-flags";
 import { Entry as EntryT } from "@types";
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { Entry } from "./entry";
 import { EntryContextMenu } from "./entry/context-menu/context-menu";
 import { Header } from "./header";
 import { Spinner } from "@components/tredici";
 import { useGlobalStates } from "@hooks/use-global-states";
+import { useDrop } from "react-dnd";
+import { onMount } from "@life-cycle";
 
 const Workspace = () => {
   const { entries, selected } = useCurrentDir();
@@ -66,9 +68,22 @@ const Workspace = () => {
     [entries, showHidden, searchQuery]
   );
 
+  const ref = useRef<HTMLDivElement>(null);
+
+  onMount(() => {
+    ref.current?.addEventListener("drop", e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const files = e.dataTransfer?.files;
+      if (files) {
+        console.log(files);
+      }
+    });
+  });
+
   return (
     <EmptySpaceContextMenu>
-      <div className={cn("w-full h-full")}>
+      <div className={cn("w-full h-full")} ref={ref}>
         <Header />
         {changing.get() ? (
           <div className={cn("w-full h-full", "grid place-items-center")}>
