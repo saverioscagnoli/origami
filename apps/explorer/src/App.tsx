@@ -9,14 +9,15 @@ import { useGlobalStates } from "@hooks/use-global-states";
 import { useJSEvent } from "@hooks/use-js-event";
 import { useNavigation } from "@hooks/use-navigation";
 import { onMount } from "@life-cycle";
+import { invoke } from "@tauri-apps/api";
 import { homeDir } from "@tauri-apps/api/path";
 import { cn } from "@utils";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 function App() {
-  const { changeDir, deleteEntries, open, paste } = useNavigation();
-  const { entries, selected } = useCurrentDir();
+  const { changeDir, deleteEntries, open, paste, reload } = useNavigation();
+  const { dir, entries, selected } = useCurrentDir();
   const { renaming, searching, searchQuery, creating, clipboardEntries } =
     useGlobalStates();
   const { showHidden } = useFlags();
@@ -26,9 +27,13 @@ function App() {
     changeDir(home)();
   });
 
-  useEvent("tauri://file-drop", e => {
-    console.log("file-drop", e);
-  });
+  useEvent<string[]>("tauri://file-drop", async p => {
+    for (let path of p) {
+      await invoke("move_entry", { path, newDir: dir.get() });
+    }
+
+    await reload();
+  }, [dir.get()]);
 
   useJSEvent(
     "keydown",

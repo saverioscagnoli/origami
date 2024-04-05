@@ -7,13 +7,9 @@ mod commands;
 mod utils;
 
 use std::{ env, fs };
-use drag::start_drag;
 use event_emitter::EventEmitter;
 use fs_manager::FSManager;
-use tauri::{ Manager, WindowBuilder, WindowUrl };
-
-#[cfg(any(windows, target_os = "macos"))]
-use window_shadows::set_shadow;
+use tauri::Manager;
 
 fn init(app: &tauri::AppHandle) {
   let path_resolver = app.path_resolver();
@@ -33,6 +29,7 @@ fn main() {
 
   tauri::Builder
     ::default()
+    .plugin(tauri_plugin_drag::init())
     .invoke_handler(
       tauri::generate_handler![
         commands::init_communication,
@@ -40,13 +37,15 @@ fn main() {
         commands::open_file,
         commands::create_entry,
         commands::rename_entry,
+        commands::move_entry,
         commands::delete_entry,
         commands::star_entry,
         commands::unstar_entry,
         commands::paste,
         commands::get_file_size,
         commands::open_vscode,
-        commands::start_dragging
+        commands::start_dragging,
+        commands::create_new_window
       ]
     )
     .setup(|app| {
@@ -58,6 +57,7 @@ fn main() {
 
       #[cfg(any(windows, target_os = "macos"))]
       {
+        use window_shadows::set_shadow;
         set_shadow(&window, true).unwrap();
       }
 

@@ -87,11 +87,8 @@ impl FSManager {
     Ok(())
   }
 
-  pub fn rename_entry(&self, path: String, new_name: String) -> io::Result<()> {
-    let path = Path::new(&path);
-    let new_path = path.with_file_name(new_name);
-
-    fs::rename(path, new_path)?;
+  pub fn rename_entry(&self, old_path: String, new_path: String) -> io::Result<()> {
+    fs::rename(old_path, new_path)?;
 
     Ok(())
   }

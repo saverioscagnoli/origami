@@ -1,5 +1,5 @@
 use drag::start_drag;
-use tauri::{ Manager, State };
+use tauri::{ Manager, State, WindowBuilder, WindowUrl };
 
 use crate::{
   event_emitter::EventEmitter,
@@ -8,7 +8,7 @@ use crate::{
   utils,
 };
 
-use std::{ fs, process::Command };
+use std::{ fs, path::Path, process::Command };
 
 #[tauri::command]
 pub async fn init_communication(app: tauri::AppHandle) {
@@ -49,7 +49,30 @@ pub fn rename_entry(
   path: String,
   new_name: String
 ) -> Result<(), String> {
-  fs_manager.rename_entry(path, new_name).map_err(|e| e.to_string())
+  let new_path = Path::new(&path)
+    .with_file_name(new_name)
+    .to_string_lossy()
+    .to_string();
+
+  fs_manager.rename_entry(path, new_path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn move_entry(
+  fs_manager: State<FSManager>,
+  path: String,
+  new_dir: String
+) -> Result<(), String> {
+  println!("newdir: {}", new_dir);
+  let new_path = Path::new(&new_dir)
+    .join(Path::new(&path).file_name().unwrap())
+    .to_string_lossy()
+    .to_string();
+
+  println!("path: {}", path);
+  println!("new_path: {}", new_path);
+
+  fs_manager.rename_entry(path, new_path).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -128,20 +151,37 @@ pub fn open_vscode(path: String) {
 }
 
 #[tauri::command]
-pub fn start_dragging(app: tauri::AppHandle) {
-  let window = app.get_window("main").unwrap();
+pub fn start_dragging(app: tauri::AppHandle, path: String) {
+  let window = app.get_focused_window().unwrap();
 
   println!("start_dragging");
+
   start_drag(
     #[cfg(target_os = "linux")] &window.gtk_window().unwrap(),
     #[cfg(not(target_os = "linux"))] &window,
-    drag::DragItem::Files(
-      vec![fs::canonicalize("/home/svscagn/Pictures/saber.png").unwrap()]
-    ),
-    drag::Image::File("/home/svscagn/Pictures/saber.png".into()),
+    drag::DragItem::Files(vec![fs::canonicalize(&path).unwrap()]),
+    drag::Image::File(path.into()),
     |drop, cursor| {
       println!("drop: {:?}, cursor: {:?}", drop, cursor);
     },
     drag::Options::default()
   ).unwrap();
+}
+
+#[tauri::command]
+pub async fn create_new_window(app: tauri::AppHandle) {
+  let windows = app.windows().len();
+  let label = format!("main-{}", windows + 1);
+
+  let window = WindowBuilder::new(&app, label, WindowUrl::App("index.html".into()))
+    .decorations(false)
+    .title("Explorer".to_string())
+    .build()
+    .unwrap();
+
+  #[cfg(any(windows, target_os = "macos"))]
+  {
+    use window_shadows::set_shadow;
+    set_shadow(&window, true).unwrap();
+  }
 }

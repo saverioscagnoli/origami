@@ -682,6 +682,7 @@ dependencies = [
  "gtk",
  "objc",
  "raw-window-handle",
+ "serde",
  "thiserror",
  "windows 0.52.0",
 ]
@@ -775,6 +776,7 @@ dependencies = [
  "sysinfo",
  "tauri",
  "tauri-build",
+ "tauri-plugin-drag",
  "walkdir",
  "winapi",
  "window-shadows",
@@ -2985,6 +2987,20 @@ dependencies = [
  "syn 1.0.109",
  "tauri-codegen",
  "tauri-utils",
+]
+
+[[package]]
+name = "tauri-plugin-drag"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be169bc028a0f4d49ba4bbc126966c126dadd14d1a82fcc6fd6d3a7e3003cd26"
+dependencies = [
+ "base64 0.21.7",
+ "drag",
+ "serde",
+ "serde_json",
+ "tauri",
+ "thiserror",
 ]
 
 [[package]]

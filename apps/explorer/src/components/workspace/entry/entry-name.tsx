@@ -83,7 +83,7 @@ const EntryName: React.FC<EntryNameProps> = ({ name, is_folder }) => {
   };
 
   return (
-    <span className={cn("flex items-center gap-0.5")} draggable>
+    <span className={cn("flex items-center gap-0.5")}>
       <span className="min-w-4">
         {is_folder ? (
           <FolderIcon />

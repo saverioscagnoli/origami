@@ -6,6 +6,7 @@ import { Forward } from "./forward";
 import { ShowHidden } from "./show-hidden";
 import { FindInFolder } from "./find-in-folder";
 import { Theme } from "./theme";
+import { NewWindow } from "./new-window";
 
 const TopbarMenu = () => {
   return (
@@ -13,6 +14,8 @@ const TopbarMenu = () => {
       <Menubar.Menu>
         <Menubar.Trigger>Menu</Menubar.Trigger>
         <Menubar.Content sideOffset={10} onCloseAutoFocus={e => e.preventDefault()}>
+          <NewWindow />
+          <Menubar.Separator />
           <NewFile />
           <NewFolder />
           <Menubar.Separator />
