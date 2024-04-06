@@ -9,8 +9,9 @@ const GlobalStatesProvider = useProvider(GlobalStatesContext, () => {
   const searching = useAccessor<boolean>(false);
   const searchQuery = useAccessor<string>("");
   const creating = useAccessor<boolean>(false);
+  const dragging = useAccessor<boolean>(false);
 
-  return { clipboardEntries, renaming, searching, searchQuery, creating };
+  return { clipboardEntries, renaming, searching, searchQuery, creating, dragging };
 });
 
 export { GlobalStatesProvider };

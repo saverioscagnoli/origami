@@ -1,9 +1,9 @@
 import { whenChanges } from "@life-cycle";
-import { listen } from "@tauri-apps/api/event";
+import { EventName, listen } from "@tauri-apps/api/event";
 import { DependencyList } from "react";
 
 const useEvent = <T>(
-  event: string,
+  event: EventName,
   cb: (payload: T) => void,
   deps: DependencyList = []
 ) => {

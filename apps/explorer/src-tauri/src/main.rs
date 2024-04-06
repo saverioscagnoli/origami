@@ -44,7 +44,6 @@ fn main() {
         commands::paste,
         commands::get_file_size,
         commands::open_vscode,
-        commands::start_dragging,
         commands::create_new_window
       ]
     )

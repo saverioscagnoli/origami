@@ -11,8 +11,6 @@ import { EntryContextMenu } from "./entry/context-menu/context-menu";
 import { Header } from "./header";
 import { Spinner } from "@components/tredici";
 import { useGlobalStates } from "@hooks/use-global-states";
-import { useDrop } from "react-dnd";
-import { onMount } from "@life-cycle";
 
 const Workspace = () => {
   const { entries, selected } = useCurrentDir();
@@ -69,17 +67,6 @@ const Workspace = () => {
   );
 
   const ref = useRef<HTMLDivElement>(null);
-
-  onMount(() => {
-    ref.current?.addEventListener("drop", e => {
-      e.preventDefault();
-      e.stopPropagation();
-      const files = e.dataTransfer?.files;
-      if (files) {
-        console.log(files);
-      }
-    });
-  });
 
   return (
     <EmptySpaceContextMenu>

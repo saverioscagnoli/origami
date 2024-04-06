@@ -41,3 +41,9 @@ body {
 *:hover::-webkit-scrollbar-thumb {
   visibility: visible;
 }
+
+
+
+[data-tauri-drag-region]:active {
+  cursor: move;
+}

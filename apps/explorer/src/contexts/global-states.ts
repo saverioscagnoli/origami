@@ -8,6 +8,7 @@ type GlobalStatesContextValue = {
   searching: Accessor<boolean>;
   searchQuery: Accessor<string>;
   creating: Accessor<boolean>;
+  dragging: Accessor<boolean>;
 };
 
 const GlobalStatesContext = createContext<GlobalStatesContextValue | null>(null);

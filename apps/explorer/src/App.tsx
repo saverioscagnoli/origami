@@ -18,7 +18,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 function App() {
   const { changeDir, deleteEntries, open, paste, reload } = useNavigation();
   const { dir, entries, selected } = useCurrentDir();
-  const { renaming, searching, searchQuery, creating, clipboardEntries } =
+  const { renaming, searching, searchQuery, creating, clipboardEntries, dragging } =
     useGlobalStates();
   const { showHidden } = useFlags();
 
@@ -27,13 +27,30 @@ function App() {
     changeDir(home)();
   });
 
-  useEvent<string[]>("tauri://file-drop", async p => {
-    for (let path of p) {
-      await invoke("move_entry", { path, newDir: dir.get() });
-    }
+  useJSEvent("dragover", [], e => {
+    e.preventDefault();
+  });
 
-    await reload();
-  }, [dir.get()]);
+  useJSEvent("drop", [], e => {
+    e.preventDefault();
+    console.log(e.dataTransfer.files[0].webkitRelativePath);
+  });
+
+  useEvent<string[]>(
+    "tauri://file-drop",
+    async p => {
+      for (let path of p) {
+        await invoke("move_entry", { path, newDir: dir.get() });
+      }
+
+      await reload();
+    },
+    [dir.get()]
+  );
+
+  useEvent<string[]>("tauri://file-drop-hover", p => {
+    dragging.set(true);
+  });
 
   useJSEvent(
     "keydown",

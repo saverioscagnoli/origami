@@ -7,9 +7,6 @@ import { EntryDate } from "./entry-date";
 import { EntrySize } from "./entry-size";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { useGlobalStates } from "@hooks/use-global-states";
-import { useDrag } from "react-dnd";
-import { invoke } from "@tauri-apps/api";
-
 import { startDrag } from "@crabnebula/tauri-plugin-drag";
 
 type EntryProps = EntryT & {
@@ -32,7 +29,7 @@ const Entry: React.FC<EntryProps> = ({
   onContextMenu
 }) => {
   const { selected } = useCurrentDir();
-  const { clipboardEntries } = useGlobalStates();
+  const { clipboardEntries, dragging } = useGlobalStates();
 
   const isSelected = useMemo(
     () => selected.get().some(e => e.path === path),
@@ -63,12 +60,19 @@ const Entry: React.FC<EntryProps> = ({
       )}
       onDragStart={event => {
         event.preventDefault();
-        // Prevent the default drag ghost image from appearing
-        const img = new Image();
-        event.dataTransfer.setDragImage(img, 0, 0);
-
-        // Start your custom drag operation
-        startDrag({ item: [path], icon: "file" });
+        let ext = name.split(".").pop().toLowerCase();
+        dragging.set(true);
+        /* startDrag(
+          {
+            item: [path],
+            icon: ["jpg", "png", "jpeg", "webp", "svg", "gif"].includes(ext)
+              ? path
+              : "file"
+          },
+          _ => {
+            dragging.set(false);
+          }
+        ); */
       }}
       onClick={onClick}
       onDoubleClick={onDoubleClick}

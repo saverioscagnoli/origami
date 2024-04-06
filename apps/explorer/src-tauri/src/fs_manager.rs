@@ -1,11 +1,23 @@
-use std::{ fs::{ self }, io, iter::once, path::Path };
+use std::{
+  ffi::OsStr,
+  fs::{ self },
+  io,
+  iter::once,
+  path::Path,
+  process::Command,
+  ptr::null_mut,
+};
 use chrono::{ DateTime, Utc };
 use fs_extra::dir::CopyOptions;
 use rayon::iter::{ ParallelBridge, ParallelIterator };
 use walkdir::WalkDir;
 
 #[cfg(windows)]
-use winapi::um::{ fileapi::GetFileAttributesW, winnt::FILE_ATTRIBUTE_HIDDEN };
+use winapi::um::{
+  fileapi::GetFileAttributesW,
+  winnt::FILE_ATTRIBUTE_HIDDEN,
+  winbase::CreateHardLinkW,
+};
 #[cfg(windows)]
 use std::os::windows::ffi::OsStrExt;
 
@@ -38,7 +50,7 @@ impl FSManager {
       }
 
       let is_hidden = self.is_hidden(path.to_string_lossy().to_string());
-      let is_symlink = self.is_symlink(&path);
+      let is_symlink = self.is_symlink(path.to_string_lossy().to_string());
       let is_starred = self.exists(starred_dir.as_ref().join(entry.file_name()));
 
       let last_modified = fs::metadata(&path).unwrap().modified().unwrap();
@@ -118,11 +130,39 @@ impl FSManager {
     #[cfg(windows)]
     {
       if is_folder {
-        use std::os::windows::fs::symlink_dir;
-        symlink_dir(&target_path, link_path)?;
+        // Create a junction
+        Command::new("cmd")
+          .args(
+            &[
+              "/C",
+              "mklink",
+              "/J",
+              link_path.to_str().unwrap(),
+              target_path.as_str(),
+            ]
+          )
+          .output()?;
       } else {
-        use std::os::windows::fs::symlink_file;
-        symlink_file(&target_path, link_path)?;
+        let existing_filename: Vec<u16> = OsStr::new(&target_path)
+          .encode_wide()
+          .chain(once(0))
+          .collect();
+        let new_filename: Vec<u16> = OsStr::new(&link_path)
+          .encode_wide()
+          .chain(once(0))
+          .collect();
+
+        let result = unsafe {
+          CreateHardLinkW(
+            new_filename.as_ptr(),
+            existing_filename.as_ptr(),
+            null_mut()
+          )
+        };
+
+        if result == 0 {
+          return Err(io::Error::last_os_error());
+        }
       }
     }
 
@@ -195,8 +235,21 @@ impl FSManager {
     }
   }
 
-  pub fn is_symlink<P: AsRef<Path>>(&self, path: P) -> bool {
-    fs::symlink_metadata(&path).unwrap().file_type().is_symlink()
+  pub fn is_symlink(&self, path: String) -> bool {
+    #[cfg(windows)]
+    {
+      let path = Path::new(&path);
+      if path.is_dir() {
+        fs::symlink_metadata(&path).unwrap().file_type().is_symlink()
+      } else {
+        false
+      }
+    }
+
+    #[cfg(unix)]
+    {
+      fs::symlink_metadata(&path).unwrap().file_type().is_symlink()
+    }
   }
 
   pub async fn get_file_size(&self, path: String) -> u64 {
