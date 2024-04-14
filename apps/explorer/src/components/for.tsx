@@ -5,7 +5,7 @@ type ForProps<T> = {
   children: (item: T, index: number) => ReactNode;
 };
 
-const For = <T,>({ of, children }: ForProps<T>): ReactNode => {
+const For = <T,>({ of, children }: ForProps<T>) => {
   return <>{of.map(children)}</>;
 };
 
