@@ -10,11 +10,11 @@ import "./styles.css";
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <SettingsProvider>
     <CurrentDirProvider>
-      <NavigationProvider>
-        <GlobalStatesProvider>
+      <GlobalStatesProvider>
+        <NavigationProvider>
           <App />
-        </GlobalStatesProvider>
-      </NavigationProvider>
+        </NavigationProvider>
+      </GlobalStatesProvider>
     </CurrentDirProvider>
   </SettingsProvider>
 );

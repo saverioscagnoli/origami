@@ -1,5 +1,6 @@
 import { NavigationContext } from "@contexts/navigation";
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { useGlobalStates } from "@hooks/use-global-states";
 import { createContextProvider } from "@lib/utils";
 import { invoke } from "@tauri-apps/api/core";
 import { Command } from "@typings/command";
@@ -7,6 +8,7 @@ import { Command } from "@typings/command";
 // @ts-ignore
 const NavigationProvider = createContextProvider(NavigationContext, () => {
   const { dir, selected } = useCurrentDir();
+  const { cutting, copying } = useGlobalStates();
 
   const cd = (path: string) => () => {
     selected.reset();
@@ -32,8 +34,7 @@ const NavigationProvider = createContextProvider(NavigationContext, () => {
       promises.push(invoke(Command.StarEntry, { path }));
     }
 
-    Promise.all(promises);
-    reload();
+    Promise.all(promises).then(() => reload());
   };
 
   const unstarEntries = () => {
@@ -43,8 +44,41 @@ const NavigationProvider = createContextProvider(NavigationContext, () => {
       promises.push(invoke(Command.UnstarEntry, { name }));
     }
 
-    Promise.all(promises);
-    reload();
+    Promise.all(promises).then(() => reload());
+  };
+
+  const cutEntries = () => {
+    const promises = [];
+
+    for (const [path, { name }] of cutting().getKeyValues()) {
+      promises.push(
+        invoke(Command.CutEntry, { oldPath: path, newDir: dir(), newName: name })
+      );
+    }
+
+    Promise.all(promises).then(() => {
+      cutting.reset();
+      reload();
+    });
+  };
+
+  const copyEntries = () => {
+    const promises = [];
+
+    for (const [path, { name }] of copying().getKeyValues()) {
+      promises.push(
+        invoke(Command.CopyEntry, { oldPath: path, newDir: dir(), newName: name })
+      );
+    }
+
+    Promise.all(promises).then(() => {
+      copying.reset();
+      reload();
+    });
+  };
+
+  const renameEntry = (path: string, newName: string) => {
+    invoke(Command.RenameEntry, { oldPath: path, newName }).then(() => reload());
   };
 
   const deleteEntries = () => {
@@ -58,11 +92,20 @@ const NavigationProvider = createContextProvider(NavigationContext, () => {
       }
     }
 
-    Promise.all(promises);
-    reload();
+    Promise.all(promises).then(() => reload());
   };
 
-  return { cd, openFile, reload, starEntries, unstarEntries, deleteEntries };
+  return {
+    cd,
+    openFile,
+    reload,
+    starEntries,
+    unstarEntries,
+    cutEntries,
+    copyEntries,
+    renameEntry,
+    deleteEntries
+  };
 });
 
 export { NavigationProvider };

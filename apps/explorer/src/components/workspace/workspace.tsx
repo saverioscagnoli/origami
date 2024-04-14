@@ -14,8 +14,8 @@ import { useGlobalStates } from "@hooks/use-global-states";
 const Workspace = () => {
   const { entries, selected } = useCurrentDir();
   const { showHidden, showCheckboxes } = useSettings();
-  const { cd, openFile } = useNavigation();
-  const { renaming } = useGlobalStates();
+  const { cd, openFile, renameEntry } = useNavigation();
+  const { renaming, cutting } = useGlobalStates();
 
   const filteredEntries = useMemo(
     () =>
@@ -31,6 +31,7 @@ const Workspace = () => {
   );
 
   const isSelected = (path: string) => selected().has(path);
+  const isCutting = (path: string) => cutting()?.has(path);
   const isRenaming = (name: string) => renaming()[1]?.name === name;
 
   const stopRenaming = () => renaming.reset();
@@ -55,6 +56,11 @@ const Workspace = () => {
     }
   };
 
+  const renameDispatcher = (path: string) => (newName: string) => {
+    renameEntry(path, newName);
+    stopRenaming();
+  };
+
   return (
     <div className={cn("w-full h-full", "overflow-auto")}>
       <EmptySpaceContextMenu>
@@ -67,7 +73,9 @@ const Workspace = () => {
               key={path}
               {...e}
               isSelected={isSelected(path)}
+              isCutting={isCutting(path)}
               isRenaming={isRenaming(e.name)}
+              rename={renameDispatcher(path)}
               stopRenaming={stopRenaming}
               addSelected={addSelected(path, e)}
               removeSelected={removeSelected(path)}

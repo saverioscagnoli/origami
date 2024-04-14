@@ -1,4 +1,6 @@
-class EntryMap<K, V> extends Map<K, V> {
+import { DirEntry } from "@typings/dir-entry";
+
+class EntryMap<K = string, V = DirEntry> extends Map<K, V> {
   public constructor(map?: Iterable<readonly [K, V]>) {
     super(map)
   }

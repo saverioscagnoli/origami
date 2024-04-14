@@ -55,6 +55,51 @@ pub async fn unstar_entry<'a>(
 }
 
 #[tauri::command]
+pub async fn cut_entry<'a>(
+  api: State<'a, Api>,
+  old_path: String,
+  new_dir: String,
+  new_name: String
+) -> Result<(), String> {
+  let new_path = Path::new(&new_dir).join(&new_name);
+
+  match api.cut_or_copy(&old_path, &new_path, true) {
+    Ok(_) => Ok(()),
+    Err(e) => Err(e.to_string()),
+  }
+}
+
+#[tauri::command]
+pub async fn copy_entry<'a>(
+  api: State<'a, Api>,
+  old_path: String,
+  new_dir: String,
+  new_name: String
+) -> Result<(), String> {
+  println!("old_path: {}", old_path);
+  let new_path = Path::new(&new_dir).join(&new_name);
+
+  match api.cut_or_copy(&old_path, &new_path, false) {
+    Ok(_) => Ok(()),
+    Err(e) => Err(e.to_string()),
+  }
+}
+
+#[tauri::command]
+pub async fn rename_entry<'a>(
+  api: State<'a, Api>,
+  old_path: String,
+  new_name: String
+) -> Result<(), String> {
+  let new_path = Path::new(&old_path).with_file_name(&new_name);
+
+  match api.rename_entry(&old_path, &new_path) {
+    Ok(_) => Ok(()),
+    Err(e) => Err(e.to_string()),
+  }
+}
+
+#[tauri::command]
 pub async fn delete_entry<'a>(
   api: State<'a, Api>,
   path: String

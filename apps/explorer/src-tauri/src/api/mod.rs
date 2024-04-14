@@ -1,4 +1,4 @@
-use std::{ collections::HashMap, fs, io, path::{ Path, PathBuf } };
+use std::{ collections::HashMap, fs, io, path::{ Path, PathBuf }, process::Command };
 use serde::{ Deserialize, Serialize };
 
 pub mod commands;
@@ -72,6 +72,37 @@ impl Api {
     }
 
     Ok(entries)
+  }
+
+  pub fn cut_or_copy<P, Q>(
+    &self,
+    old_path: P,
+    new_path: Q,
+    cutting: bool
+  )
+    -> Result<(), io::Error>
+    where P: AsRef<Path>, Q: AsRef<Path>
+  {
+    let old_path = old_path.as_ref();
+    let new_path = new_path.as_ref();
+
+    if cutting {
+      self.rename_entry(&old_path, &new_path)
+    } else {
+      match fs::copy(&old_path, &new_path) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e),
+      }
+    }
+  }
+
+  pub fn rename_entry<P, Q>(&self, old_path: P, new_path: Q) -> Result<(), io::Error>
+    where P: AsRef<Path>, Q: AsRef<Path>
+  {
+    let path = old_path.as_ref();
+    let new_path = new_path.as_ref();
+
+    fs::rename(path, new_path)
   }
 
   pub fn delete_entry<P>(&self, path: P) -> Result<(), io::Error>
@@ -171,7 +202,7 @@ impl Api {
       use std::{ iter::once, os::windows::ffi::OsStrExt, ffi::OsStr, ptr::null_mut };
       use winapi::um::winbase::CreateHardLinkW;
 
-      let is_elevated = utils::is_elevated().unwrap_or(false);
+      let is_elevated = false; // utils::is_elevated().unwrap_or(false);
 
       // Create symlink if it can, otherwise create junction for folders and hard link for files
 
@@ -189,7 +220,7 @@ impl Api {
                 &[
                   "/C",
                   "mklink",
-                  "/D",
+                  "/J",
                   link_path.to_str().unwrap(),
                   target_path.to_str().unwrap(),
                 ]

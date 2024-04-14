@@ -8,7 +8,9 @@ import { EntryCheckbox } from "./checkbox";
 type EntryProps = DirEntry & {
   showCheckboxes: boolean;
   isSelected: boolean;
+  isCutting: boolean;
   isRenaming: boolean;
+  rename: (newName: string) => void;
   stopRenaming: () => void;
   addSelected: () => void;
   removeSelected: () => void;
@@ -20,7 +22,9 @@ type EntryProps = DirEntry & {
 const Entry: FC<EntryProps> = ({
   showCheckboxes,
   isSelected,
+  isCutting,
   isRenaming,
+  rename,
   stopRenaming,
   addSelected,
   removeSelected,
@@ -45,6 +49,7 @@ const Entry: FC<EntryProps> = ({
         "px-1",
         "text-sm",
         "group",
+        isCutting && "opacity-60",
         !isSelected && "hover:bg-[--gray-3]",
         isSelected && "bg-[--gray-4]"
       )}
@@ -66,6 +71,7 @@ const Entry: FC<EntryProps> = ({
           name={e.name}
           isDir={e.isDir}
           isRenaming={isRenaming}
+          rename={rename}
           stopRenaming={stopRenaming}
         />
       </span>

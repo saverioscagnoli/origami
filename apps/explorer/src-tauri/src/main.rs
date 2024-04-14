@@ -18,6 +18,9 @@ fn main() {
         api::commands::open_file,
         api::commands::star_entry,
         api::commands::unstar_entry,
+        api::commands::cut_entry,
+        api::commands::copy_entry,
+        api::commands::rename_entry,
         api::commands::delete_entry,
         event_emitter::commands::init_emitter
       ]

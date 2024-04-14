@@ -4,6 +4,9 @@ enum Command {
   OpenFile = "open_file",
   StarEntry = "star_entry",
   UnstarEntry = "unstar_entry",
+  CutEntry = "cut_entry",
+  CopyEntry = "copy_entry",
+  RenameEntry = "rename_entry",
   DeleteEntry = "delete_entry"
 }
 
