@@ -1,37 +1,28 @@
-import { Accessor } from "@types";
+import { Accessor } from "@typings/accessor";
 import { useState } from "react";
 
-const useAccessor = <T>(defaultValue: T): Accessor<T> => {
-  const [value, setValue] = useState<T>(defaultValue);
+function useAccessor<T>(defaultValue: T): Accessor<T> {
+  const [state, setState] = useState<T>(defaultValue);
 
-  const get = () => value;
-  const set = setValue;
-  const reset = () => setValue(defaultValue);
+  const accessor: any = () => state;
+  accessor.set = setState;
+  accessor.reset = () => setState(defaultValue);
 
-  switch (typeof defaultValue) {
+  switch (typeof state) {
     case "boolean": {
-      return {
-        get,
-        set,
-        reset,
-        toggle: () => setValue(p => !p as T)
-      } as unknown as Accessor<T>;
+      accessor.toggle = () => setState(p => !p as T);
+      accessor.on = () => setState(true as T);
+      accessor.off = () => setState(false as T);
+      break;
     }
     case "number": {
-      return {
-        get,
-        set,
-        // @ts-ignore
-        increment: (n: number) => setValue(p => p + n),
-        // @ts-ignore
-        decrement: (n: number) => setValue(p => p - n),
-        reset
-      } as unknown as Accessor<T>;
-    }
-    default: {
-      return { get, set, reset } as Accessor<T>;
+      accessor.inc = (n = 1) => setState(p => ((p as number) + n) as T);
+      accessor.dec = (n = 1) => setState(p => ((p as number) - n) as T);
+      break;
     }
   }
-};
+
+  return accessor as Accessor<T>;
+}
 
 export { useAccessor };

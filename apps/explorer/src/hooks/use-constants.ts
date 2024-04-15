@@ -1,5 +1,5 @@
 import { ConstantsContext } from "@contexts/constants";
-import { createContextHook } from "@utils";
+import { createContextHook } from "@lib/utils";
 
 const useConstants = createContextHook(ConstantsContext, "Constants");
 

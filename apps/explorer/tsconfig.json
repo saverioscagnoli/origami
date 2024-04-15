@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -21,17 +21,14 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    "baseUrl": "./src",
+    "baseUrl": "src",
     "paths": {
-      "@utils": ["lib/utils.ts"],
-      "@life-cycle": ["lib/life-cycle.ts"],
-      "@file-icons": ["lib/file-icons.ts"],
-      "@contexts/*": ["contexts/*"],
-      "@hooks/*": ["hooks/*"],
+      "@lib/*": ["lib/*"],
       "@components/*": ["components/*"],
-      "@providers/*": ["components/providers/*"],
-      "@tredici": ["components/tredici/index.ts"],
-      "@types": ["types/index.ts"]
+      "@providers/*": ["providers/*"],
+      "@hooks/*": ["hooks/*"],
+      "@contexts/*": ["contexts/*"],
+      "@typings/*": ["typings/*"]
     }
   },
   "include": ["src"],

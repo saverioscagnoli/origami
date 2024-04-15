@@ -1,15 +1,11 @@
-import { Accessor } from "@types";
+import { Accessor } from "@typings/accessor";
 import { createContext } from "react";
 
-type Constants = {
+type ConstantsContextValue = {
   isVscodeInstalled: Accessor<boolean>;
+  isWindowsTerminalInstalled: Accessor<boolean>;
 };
 
-type ConstantsFromBackend = {
-  is_vscode_installed: boolean;
-};
-
-const ConstantsContext = createContext<Constants | null>(null);
+const ConstantsContext = createContext<ConstantsContextValue | null>(null);
 
 export { ConstantsContext };
-export type { Constants, ConstantsFromBackend };

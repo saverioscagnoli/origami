@@ -1,47 +1,67 @@
-use std::{ cmp::Ordering, path::PathBuf, process::Command };
+use std::{ os::windows::process::CommandExt, process::Command };
 
-#[cfg(target_os = "windows")]
-use std::os::windows::process::CommandExt;
+use serde::Serialize;
+use tauri::{ AppHandle, Event, Manager };
 
-use crate::structs::Entry;
+use crate::enums::{ EventFromFrontend, EventToFrontend };
 
-pub fn sort_dir(entries: &mut Vec<Entry>) {
-  entries.sort_by(|a, b| {
-    match (a.is_folder, b.is_folder) {
-      (true, false) => Ordering::Less,
-      (false, true) => Ordering::Greater,
-      _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
-    }
-  });
+pub fn once<F>(app: &AppHandle, evt: EventFromFrontend, handler: F)
+  where F: FnOnce(Event) + Send + 'static
+{
+  app.once(EventFromFrontend::as_str(&evt), handler);
 }
 
-#[cfg(target_os = "windows")]
-pub fn check_vscode_install() -> Result<bool, String> {
-  let output = Command::new("cmd")
-    .args(["/C", "code -v"])
-    .creation_flags(0x08000000)
-    .output()
-    .expect("failed to execute process");
-
-  Ok(output.status.success())
+pub fn emit<P>(
+  app: &AppHandle,
+  evt: EventToFrontend,
+  payload: P
+) -> Result<(), String>
+  where P: Serialize + Clone
+{
+  match app.emit(EventToFrontend::as_str(&evt), payload) {
+    Ok(_) => Ok(()),
+    Err(e) => Err(e.to_string()),
+  }
 }
 
-#[cfg(not(target_os = "windows"))]
-pub fn check_vscode_install() -> Result<bool, String> {
-  let output = Command::new("sh")
-    .arg("-c")
-    .arg("code -v")
-    .output()
-    .expect("failed to execute process");
-
-  Ok(output.status.success())
+pub fn listen<F>(app: &AppHandle, evt: EventFromFrontend, handler: F)
+  where F: Fn(Event) + Send + 'static
+{
+  app.listen(EventFromFrontend::as_str(&evt), handler);
 }
 
-pub fn get_starred_dir(app: &tauri::AppHandle) -> PathBuf {
-  let path_resolver = app.path_resolver();
+pub fn check_vscode_install() -> bool {
+  #[cfg(target_os = "windows")]
+  {
+    Command::new("cmd")
+      .arg("/C")
+      .arg("code --version")
+      .creation_flags(0x00000008)
+      .output()
+      .is_ok()
+  }
 
-  let config_dir = path_resolver.app_config_dir().unwrap();
-  let starred_dir = config_dir.join("starred");
+  #[cfg(not(target_os = "windows"))]
+  {
+    Command::new("sh").arg("-c").arg("code --version").output().is_ok()
+  }
+}
 
-  starred_dir
+#[tauri::command]
+pub fn check_windows_terminal_install() -> bool {
+  #[cfg(target_os = "windows")]
+  {
+    let output = Command::new("powershell")
+      .arg("/C")
+      .creation_flags(0x00000008)
+      .arg("wt -v")
+      .output();
+
+    output.is_ok()
+  }
+
+  #[cfg(not(target_os = "windows"))]
+  {
+    false
+  }
 }

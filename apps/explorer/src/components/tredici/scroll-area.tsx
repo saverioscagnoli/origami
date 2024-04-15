@@ -1,5 +1,5 @@
 import * as RxScrollArea from "@radix-ui/react-scroll-area";
-import { cn } from "@utils";
+import { cn } from "@lib/utils";
 import { cva } from "class-variance-authority";
 import { ForwardRefExoticComponent, RefAttributes, forwardRef } from "react";
 
@@ -40,6 +40,7 @@ type ScrollAreaScrollbarColorScheme =
 type ScrollAreaComponent = ForwardRefExoticComponent<
   ScrollAreaProps & RefAttributes<HTMLDivElement>
 > & {
+  Viewport: typeof RxScrollArea.Viewport;
   Scrollbar: typeof ScrollAreaScrollbar;
   Corner: typeof ScrollAreaCorner;
 };
@@ -54,14 +55,15 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         {...props}
         ref={ref}
       >
-        <RxScrollArea.Viewport
-          className={cn("w-full h-full", "rounded-[inherit]")}
-          children={children}
-        />
+        {children}
       </RxScrollArea.Root>
     );
   }
 ) as ScrollAreaComponent;
+
+type ScrollAreaViewportProps = RxScrollArea.ScrollAreaViewportProps;
+
+ScrollArea.Viewport = RxScrollArea.Viewport;
 
 const scrollAreaThumbVariants = cva(
   [
@@ -102,34 +104,31 @@ type ScrollAreaScrollbarProps = RxScrollArea.ScrollAreaScrollbarProps & {
   colorScheme?: ScrollAreaScrollbarColorScheme;
 };
 
-const ScrollAreaScrollbar = forwardRef<
-  HTMLDivElement,
-  ScrollAreaScrollbarProps
->(({ className, colorScheme = "plum", ...props }, ref) => {
-  return (
-    <RxScrollArea.Scrollbar
-      className={cn(
-        "flex",
-        "select-none",
-        "touch-none",
-        "p-[3px]",
-        "bg-transparent",
-        [
-          "data-[orientation='vertical']:w-3",
-          "data-[orientation='horizontal']:flex-col",
-          "data-[orientation='horizontal']:h-3"
-        ],
-        className
-      )}
-      {...props}
-      ref={ref}
-    >
-      <RxScrollArea.Thumb
-        className={scrollAreaThumbVariants({ colorScheme })}
-      />
-    </RxScrollArea.Scrollbar>
-  );
-});
+const ScrollAreaScrollbar = forwardRef<HTMLDivElement, ScrollAreaScrollbarProps>(
+  ({ className, colorScheme = "plum", ...props }, ref) => {
+    return (
+      <RxScrollArea.Scrollbar
+        className={cn(
+          "flex",
+          "select-none",
+          "touch-none",
+          "p-[3px]",
+          "bg-transparent",
+          [
+            "data-[orientation='vertical']:w-3",
+            "data-[orientation='horizontal']:flex-col",
+            "data-[orientation='horizontal']:h-3"
+          ],
+          className
+        )}
+        {...props}
+        ref={ref}
+      >
+        <RxScrollArea.Thumb className={scrollAreaThumbVariants({ colorScheme })} />
+      </RxScrollArea.Scrollbar>
+    );
+  }
+);
 
 type ScrollAreaCornerProps = RxScrollArea.ScrollAreaCornerProps;
 
@@ -144,6 +143,7 @@ export { ScrollArea };
 export type {
   ScrollAreaScrollbarColorScheme,
   ScrollAreaProps,
+  ScrollAreaViewportProps,
   ScrollAreaScrollbarProps,
   ScrollAreaCornerProps
 };

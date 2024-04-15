@@ -1,6 +1,5 @@
 {
   "name": "origami",
-  "repository": "https://github.com/saverioscagnoli/origami",
   "license": "MIT",
   "private": true,
   "workspaces": [
