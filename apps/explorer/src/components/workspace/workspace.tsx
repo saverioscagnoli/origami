@@ -10,11 +10,11 @@ import { EmptySpaceContextMenu } from "./empty-space";
 import { SelectedEntriesContextMenu } from "./selected";
 import { EntryMap } from "@lib/entry-map";
 import { useGlobalStates } from "@hooks/use-global-states";
-import { ScrollArea } from "@components/tredici";
+import { Progress, ScrollArea } from "@components/tredici";
 import { useAccessor } from "@hooks/use-accessor";
 
 const Workspace = () => {
-  const { entries, selected } = useCurrentDir();
+  const { entries, selected, changing } = useCurrentDir();
   const { showHidden, showCheckboxes } = useSettings();
   const { cd, openFile, createEntry, renameEntry } = useNavigation();
   const { renaming, cutting } = useGlobalStates();
@@ -49,6 +49,8 @@ const Workspace = () => {
     entries.set(newEntries);
   };
 
+  console.log(changing());
+
   const stopRenaming = () => renaming.reset();
 
   const addSelected = (path: string, e: DirEntry) => () => {
@@ -80,36 +82,45 @@ const Workspace = () => {
     <EmptySpaceContextMenu>
       <ScrollArea className={cn("w-full h-full")}>
         <ScrollArea.Viewport
-          className={cn("w-full h-full", "rounded-[inherit]")}
+          className={cn(
+            "w-full h-full",
+            "rounded-[inherit]",
+            changing() && "grid place-items-center"
+          )}
           ref={scrollRef.set}
         >
-          <Virtuoso
-            data={filteredEntries}
-            totalCount={filteredEntries.length}
-            fixedItemHeight={24}
-            customScrollParent={scrollRef() ?? undefined}
-            itemContent={(_, [path, entry]) => (
-              <Entry
-                key={path}
-                {...entry}
-                path={path}
-                isSelected={isSelected(path)}
-                isCutting={isCutting(path)}
-                isRenaming={isRenaming(entry.name)}
-                create={create}
-                stopCreating={stopCreating}
-                rename={renameDispatcher(path)}
-                stopRenaming={stopRenaming}
-                addSelected={addSelected(path, entry)}
-                removeSelected={removeSelected(path)}
-                replaceSelected={replaceSelected(path, entry)}
-                showCheckboxes={showCheckboxes()}
-                onDoubleClick={entry.isDir ? cd(path) : openFile([path])}
-                onContextMenu={onContextMenu(path, entry)}
-              />
-            )}
-            components={{ List }}
-          />
+          {changing() ? (
+            <Progress indefinite />
+          ) : (
+            <Virtuoso
+              data={filteredEntries}
+              totalCount={filteredEntries.length}
+              fixedItemHeight={24}
+              customScrollParent={scrollRef() ?? undefined}
+              overscan={700}
+              itemContent={(_, [path, entry]) => (
+                <Entry
+                  key={path}
+                  {...entry}
+                  path={path}
+                  isSelected={isSelected(path)}
+                  isCutting={isCutting(path)}
+                  isRenaming={isRenaming(entry.name)}
+                  create={create}
+                  stopCreating={stopCreating}
+                  rename={renameDispatcher(path)}
+                  stopRenaming={stopRenaming}
+                  addSelected={addSelected(path, entry)}
+                  removeSelected={removeSelected(path)}
+                  replaceSelected={replaceSelected(path, entry)}
+                  showCheckboxes={showCheckboxes()}
+                  onDoubleClick={entry.isDir ? cd(path) : openFile([path])}
+                  onContextMenu={onContextMenu(path, entry)}
+                />
+              )}
+              components={{ List }}
+            />
+          )}
           <ScrollArea.Scrollbar />
         </ScrollArea.Viewport>
       </ScrollArea>

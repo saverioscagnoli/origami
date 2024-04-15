@@ -6,6 +6,7 @@ type CurrentDirContextValue = {
   dir: Accessor<string>;
   entries: Accessor<EntryMap>;
   selected: Accessor<EntryMap>;
+  changing: Accessor<boolean>;
 };
 
 const CurrentDirContext = createContext<CurrentDirContextValue | null>(null);

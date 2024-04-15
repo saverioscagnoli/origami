@@ -9,6 +9,7 @@ import { DirEntry } from "@typings/dir-entry";
 import { EventFromBackend, EventToBackend } from "@typings/events";
 import { EntryMap } from "./entry-map";
 import { useEffect } from "react";
+import { useConstants } from "@hooks/use-constants";
 
 function setupFrontendEvents() {
   useDocumentEvent("contextmenu", e => e.preventDefault());
@@ -16,7 +17,7 @@ function setupFrontendEvents() {
 }
 
 function setupTauriEvents() {
-  const { dir, entries } = useCurrentDir();
+  const { dir, entries, changing } = useCurrentDir();
 
   type ActualPayload = [{ [key: string]: DirEntry }, string];
   type FinalPayload = [EntryMap<string, DirEntry>, string];
@@ -26,6 +27,7 @@ function setupTauriEvents() {
     ([newEntries, newDir]) => {
       dir.set(newDir);
       entries.set(newEntries);
+      changing.off();
     },
     {
       mutate: ([entries, dir]) => [new EntryMap(Object.entries(entries)), dir]
@@ -34,6 +36,7 @@ function setupTauriEvents() {
 
   useTauriEvent<[string, string]>(EventFromBackend.DirListedFail, p => {
     const [path, msg] = p;
+    changing.off();
     alert(`Error listing directory ${path}: ${msg}`);
   });
 
@@ -43,6 +46,16 @@ function setupTauriEvents() {
     document.head.appendChild(style);
 
     console.log("CSS module(s) loaded");
+  });
+
+  type ConstantsPayload = {
+    isVscodeInstalled: boolean;
+  };
+
+  const { isVscodeInstalled } = useConstants();
+
+  useTauriEvent<ConstantsPayload>(EventFromBackend.SendConstants, p => {
+    isVscodeInstalled.set(p.isVscodeInstalled);
   });
 
   useEffect(() => {

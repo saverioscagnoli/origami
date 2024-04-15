@@ -26,7 +26,8 @@ fn main() {
         api::commands::rename_entry,
         api::commands::delete_entry,
         size::commands::calc_size,
-        event_emitter::commands::init_emitter
+        event_emitter::commands::init_emitter,
+        event_emitter::commands::open_in_vscode
       ]
     )
     .setup(|app| {
@@ -35,6 +36,8 @@ fn main() {
       let config_dir = path.app_config_dir()?;
 
       let api = Api::new(config_dir);
+
+      println!("API initialized {}", utils::check_vscode_install());
 
       api.init();
 

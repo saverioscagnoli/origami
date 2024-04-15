@@ -8,8 +8,9 @@ const CurrentDirProvider = createContextProvider(CurrentDirContext, () => {
   const dir = useAccessor<string>("");
   const entries = useAccessor<EntryMap<string, DirEntry>>(new EntryMap());
   const selected = useAccessor<EntryMap<string, DirEntry>>(new EntryMap());
+  const changing = useAccessor<boolean>(false);
 
-  return { dir, entries, selected };
+  return { dir, entries, selected, changing };
 });
 
 export { CurrentDirProvider };

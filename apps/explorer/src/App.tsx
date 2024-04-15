@@ -12,8 +12,6 @@ function App() {
 
   setupFunctions();
 
-  console.log("App render");
-
   return (
     <div className={cn("w-screen h-screen", "select-none")}>
       <Topbar />

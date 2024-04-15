@@ -6,13 +6,16 @@ import { NavigationProvider } from "@providers/navigation";
 import { GlobalStatesProvider } from "@providers/global-states";
 
 import "./styles.css";
+import { ConstantsProvider } from "@providers/constants";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <SettingsProvider>
     <CurrentDirProvider>
       <GlobalStatesProvider>
         <NavigationProvider>
-          <App />
+          <ConstantsProvider>
+            <App />
+          </ConstantsProvider>
         </NavigationProvider>
       </GlobalStatesProvider>
     </CurrentDirProvider>

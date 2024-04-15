@@ -2,7 +2,8 @@ enum EventFromBackend {
   DirListed = "dir-listed",
   DirListedFail = "dir-listed-fail",
   SendDisks = "send-disks",
-  CssModule = "css-module"
+  CssModule = "css-module",
+  SendConstants = "send-constants"
 }
 
 enum EventToBackend {

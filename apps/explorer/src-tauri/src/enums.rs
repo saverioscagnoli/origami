@@ -17,6 +17,7 @@ pub enum EventToFrontend {
   DirListed(bool),
   SendDisks,
   CssModule,
+  SendConstants,
 }
 
 impl EventToFrontend {
@@ -26,6 +27,7 @@ impl EventToFrontend {
       Self::DirListed(false) => "dir-listed-fail",
       Self::SendDisks => "send-disks",
       Self::CssModule => "css-module",
+      Self::SendConstants => "send-constants",
     }
   }
 }

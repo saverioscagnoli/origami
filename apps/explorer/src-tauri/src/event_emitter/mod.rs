@@ -3,7 +3,10 @@ use serde::{ Deserialize, Serialize };
 use tauri::{ AppHandle, Manager };
 use std::sync::{ Arc, atomic::{ AtomicBool, Ordering } };
 
-use crate::{ enums::{ EventFromFrontend, EventToFrontend }, utils::{ emit, once } };
+use crate::{
+  enums::{ EventFromFrontend, EventToFrontend },
+  utils::{ self, emit, once },
+};
 
 pub mod commands;
 
@@ -15,6 +18,12 @@ struct Disk {
   free: f64,
   mount_point: String,
   is_removable: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ConstantsPayload {
+  is_vscode_installed: bool,
 }
 
 pub struct EventEmitter<'a> {
@@ -35,6 +44,7 @@ impl<'a> EventEmitter<'a> {
     let should_stop = Arc::clone(&self.should_stop);
 
     self.load_css_modules()?;
+    self.emit_constants()?;
 
     once(&app, EventFromFrontend::StopEmittingDisks, {
       let should_stop = Arc::clone(&should_stop);
@@ -99,6 +109,18 @@ impl<'a> EventEmitter<'a> {
     }
 
     Ok(())
+  }
+
+  fn emit_constants(&self) -> Result<(), String> {
+    let is_vscode_installed = utils::check_vscode_install();
+
+    emit(
+      &self.app,
+      EventToFrontend::SendConstants,
+      &(ConstantsPayload {
+        is_vscode_installed,
+      })
+    )
   }
 
   fn emit_disks(&self) -> Result<(), String> {

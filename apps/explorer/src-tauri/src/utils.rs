@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use serde::Serialize;
 use tauri::{ AppHandle, Event, Manager };
 
@@ -26,4 +28,16 @@ pub fn listen<F>(app: &AppHandle, evt: EventFromFrontend, handler: F)
   where F: Fn(Event) + Send + 'static
 {
   app.listen(EventFromFrontend::as_str(&evt), handler);
+}
+
+pub fn check_vscode_install() -> bool {
+  #[cfg(target_os = "windows")]
+  {
+    Command::new("cmd").arg("/C").arg("code --version").output().is_ok()
+  }
+
+  #[cfg(not(target_os = "windows"))]
+  {
+    Command::new("sh").arg("-c").arg("code --version").output().is_ok()
+  }
 }

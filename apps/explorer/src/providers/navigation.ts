@@ -7,11 +7,12 @@ import { Command } from "@typings/command";
 
 // @ts-ignore
 const NavigationProvider = createContextProvider(NavigationContext, () => {
-  const { dir, selected } = useCurrentDir();
+  const { dir, selected, changing } = useCurrentDir();
   const { cutting, copying } = useGlobalStates();
 
   const cd = (path: string) => () => {
     selected.reset();
+    changing.on();
     invoke(Command.RequestDirListing, { path });
   };
 
