@@ -102,6 +102,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
             "context-menu-content",
             className
           )}
+          onContextMenu={e => e.preventDefault()}
           {...props}
           ref={ref}
         />

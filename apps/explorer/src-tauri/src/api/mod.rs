@@ -1,4 +1,5 @@
 use std::{ collections::HashMap, fs, io, path::{ Path, PathBuf }, process::Command };
+use chrono::{ DateTime, Utc };
 use serde::{ Deserialize, Serialize };
 
 pub mod commands;
@@ -11,6 +12,7 @@ pub struct DirEntry {
   is_hidden: bool,
   is_symlink: bool,
   is_starred: bool,
+  last_modified: String,
   size: u64,
 }
 
@@ -49,6 +51,7 @@ impl Api {
       let is_hidden = self.hidden(&path)?;
       let is_symlink = self.symlink(&path)?;
       let is_starred = self.starred_dir.join(&name).exists();
+      let last_modified = self.last_modified(&path)?;
 
       let size = match is_dir {
         true => 0,
@@ -67,6 +70,7 @@ impl Api {
         is_hidden,
         is_symlink,
         is_starred,
+        last_modified,
         size,
       });
     }
@@ -93,6 +97,18 @@ impl Api {
         Ok(_) => Ok(()),
         Err(e) => Err(e),
       }
+    }
+  }
+
+  pub fn create_entry<P>(&self, path: P, is_dir: bool) -> Result<(), io::Error>
+    where P: AsRef<Path>
+  {
+    let path = path.as_ref();
+
+    if is_dir {
+      fs::create_dir_all(&path)
+    } else {
+      fs::File::create(&path).map(|_| ())
     }
   }
 
@@ -181,6 +197,20 @@ impl Api {
         }
       }
     }
+  }
+
+  fn last_modified<P>(&self, path: P) -> Result<String, io::Error>
+    where P: AsRef<Path>
+  {
+    let path = path.as_ref();
+
+    let time = fs::metadata(&path)?.modified()?;
+    let date: String = DateTime::<Utc>
+      ::from(time)
+      .format("%d/%m/%Y %H:%M")
+      .to_string();
+
+    Ok(date)
   }
 
   pub fn create_symlink<P, Q>(

@@ -77,6 +77,10 @@ const NavigationProvider = createContextProvider(NavigationContext, () => {
     });
   };
 
+  const createEntry = (name: string, isDir: boolean) => {
+    invoke(Command.CreateEntry, { dir: dir(), name, isDir }).then(() => reload());
+  };
+
   const renameEntry = (path: string, newName: string) => {
     invoke(Command.RenameEntry, { oldPath: path, newName }).then(() => reload());
   };
@@ -103,6 +107,7 @@ const NavigationProvider = createContextProvider(NavigationContext, () => {
     unstarEntries,
     cutEntries,
     copyEntries,
+    createEntry,
     renameEntry,
     deleteEntries
   };

@@ -86,6 +86,21 @@ pub async fn copy_entry<'a>(
 }
 
 #[tauri::command]
+pub async fn create_entry<'a>(
+  api: State<'a, Api>,
+  dir: String,
+  name: String,
+  is_dir: bool
+) -> Result<(), String> {
+  let path = Path::new(&dir).join(&name);
+
+  match api.create_entry(&path, is_dir) {
+    Ok(_) => Ok(()),
+    Err(e) => Err(e.to_string()),
+  }
+}
+
+#[tauri::command]
 pub async fn rename_entry<'a>(
   api: State<'a, Api>,
   old_path: String,

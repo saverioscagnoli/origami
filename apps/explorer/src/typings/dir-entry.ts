@@ -4,6 +4,7 @@ type DirEntry = {
   isHidden: boolean;
   isSymlink: boolean;
   isStarred: boolean;
+  lastModified: string;
   size: number;
 };
 

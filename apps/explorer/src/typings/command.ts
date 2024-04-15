@@ -6,6 +6,7 @@ enum Command {
   UnstarEntry = "unstar_entry",
   CutEntry = "cut_entry",
   CopyEntry = "copy_entry",
+  CreateEntry = "create_entry",
   RenameEntry = "rename_entry",
   DeleteEntry = "delete_entry",
   CalcSize = "calc_size"

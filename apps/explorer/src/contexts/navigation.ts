@@ -9,6 +9,7 @@ type NavigationContextValue = {
   cutEntries: () => void;
   copyEntries: () => void;
   deleteEntries: () => void;
+  createEntry: (name: string, isDir: boolean) => void;
   renameEntry: (path: string, newName: string) => void;
 };
 

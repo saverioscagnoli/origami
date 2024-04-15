@@ -8,7 +8,7 @@ import { NewMenuItem } from "./new";
 const EmptySpaceContextMenu: FC<ChildrenProps> = ({ children }) => {
   return (
     <ContextMenu>
-      <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
+      <ContextMenu.Trigger asChild>{children}</ContextMenu.Trigger>
       <ContextMenu.Content>
         <ReloadMenuItem />
         <ContextMenu.Separator />

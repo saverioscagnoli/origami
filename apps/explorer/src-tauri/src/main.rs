@@ -22,6 +22,7 @@ fn main() {
         api::commands::unstar_entry,
         api::commands::cut_entry,
         api::commands::copy_entry,
+        api::commands::create_entry,
         api::commands::rename_entry,
         api::commands::delete_entry,
         size::commands::calc_size,

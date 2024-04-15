@@ -4,12 +4,17 @@ import { EntryName } from "./name";
 import { DirEntry } from "@typings/dir-entry";
 import { EntryFlags } from "./flags";
 import { EntryCheckbox } from "./checkbox";
+import { EntryLastModified } from "./last-modified";
+import { EntrySize } from "./size";
 
 type EntryProps = DirEntry & {
+  path: string;
   showCheckboxes: boolean;
   isSelected: boolean;
   isCutting: boolean;
   isRenaming: boolean;
+  create: (name: string, isDir: boolean) => void;
+  stopCreating: () => void;
   rename: (newName: string) => void;
   stopRenaming: () => void;
   addSelected: () => void;
@@ -20,10 +25,13 @@ type EntryProps = DirEntry & {
 };
 
 const Entry: FC<EntryProps> = ({
+  path,
   showCheckboxes,
   isSelected,
   isCutting,
   isRenaming,
+  create,
+  stopCreating,
   rename,
   stopRenaming,
   addSelected,
@@ -68,9 +76,12 @@ const Entry: FC<EntryProps> = ({
           />
         )}
         <EntryName
+          path={path}
           name={e.name}
           isDir={e.isDir}
           isRenaming={isRenaming}
+          create={create}
+          stopCreating={stopCreating}
           rename={rename}
           stopRenaming={stopRenaming}
         />
@@ -80,6 +91,8 @@ const Entry: FC<EntryProps> = ({
         isSymlink={e.isSymlink}
         isStarred={e.isStarred}
       />
+      <EntryLastModified lastModified={e.lastModified} />
+      <EntrySize isDir={e.isDir} size={e.size} />
     </div>
   );
 };

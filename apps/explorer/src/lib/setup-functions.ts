@@ -19,13 +19,16 @@ function setupFunctions() {
     invoke(Command.InitEmitter);
   }, []);
 
-  const { selected } = useCurrentDir();
+  const { dir, entries, selected } = useCurrentDir();
   const { cutting, copying, renaming } = useGlobalStates();
 
   useHotkey(
     [Modifier.Ctrl],
     "x",
-    () => {
+    e => {
+      e.preventDefault();
+      e.stopPropagation();
+
       cutting.set(selected());
       copying.reset();
     },
@@ -35,7 +38,10 @@ function setupFunctions() {
   useHotkey(
     [Modifier.Ctrl],
     "c",
-    () => {
+    e => {
+      e.preventDefault();
+      e.stopPropagation();
+
       copying.set(selected());
       cutting.reset();
     },
@@ -45,7 +51,10 @@ function setupFunctions() {
   useHotkey(
     [Modifier.Ctrl],
     "v",
-    () => {
+    e => {
+      e.preventDefault();
+      e.stopPropagation();
+
       if (cutting() !== null) {
         cutEntries();
       } else if (copying() !== null) {
@@ -56,24 +65,56 @@ function setupFunctions() {
   );
 
   useHotkey(
+    [Modifier.Ctrl],
+    "a",
+    e => {
+      if (renaming().every(v => v === null)) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        selected.set(entries());
+      }
+    },
+    [dir(), selected(), renaming()]
+  );
+
+  useHotkey(
     [],
     "F2",
-    () => {
+    e => {
+      e.preventDefault();
+      e.stopPropagation();
+
       const [path, name] = selected().getKeyValues()[0];
       renaming.set([path, name]);
     },
     [selected()]
   );
 
-  useHotkey([], "Delete", () => deleteEntries(), [selected()]);
+  useHotkey(
+    [],
+    "Delete",
+    e => {
+      e.preventDefault();
+      e.stopPropagation();
+      deleteEntries();
+    },
+    [selected()]
+  );
 
   const { showHidden, showCheckboxes } = useSettings();
 
-  useHotkey([Modifier.Ctrl], "h", () => {
+  useHotkey([Modifier.Ctrl], "h", e => {
+    e.preventDefault();
+    e.stopPropagation();
+
     showHidden.toggle();
   });
 
-  useHotkey([Modifier.Ctrl], "j", () => {
+  useHotkey([Modifier.Ctrl], "j", e => {
+    e.preventDefault();
+    e.stopPropagation();
+
     showCheckboxes.toggle();
   });
 }

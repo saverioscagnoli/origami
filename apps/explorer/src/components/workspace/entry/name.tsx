@@ -7,27 +7,36 @@ import {
   FC,
   KeyboardEventHandler,
   useEffect,
+  useMemo,
   useRef,
   useState
 } from "react";
 
 type EntryNameProps = {
+  path: string;
   name: string;
   isDir: boolean;
   isRenaming: boolean;
+  create: (name: string, isDir: boolean) => void;
+  stopCreating: () => void;
   rename: (newName: string) => void;
   stopRenaming: () => void;
 };
 
 const EntryName: FC<EntryNameProps> = ({
+  path,
   name,
   isDir,
   isRenaming,
+  create,
+  stopCreating,
   rename,
   stopRenaming
 }) => {
   const [fileName, setFileName] = useState<string>(name);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const isCreating = useMemo(() => isRenaming && path === "", [isRenaming]);
 
   useEffect(() => {
     if (isRenaming) {
@@ -54,14 +63,22 @@ const EntryName: FC<EntryNameProps> = ({
   const onBlur = () => {
     inputRef.current?.blur();
     setFileName(name);
-    stopRenaming();
+    if (isCreating) {
+      stopCreating();
+    } else {
+      stopRenaming();
+    }
   };
 
   const onKeyDown: KeyboardEventHandler<HTMLInputElement> = e => {
     if (e.key === "Enter") {
       e.preventDefault();
       inputRef.current?.blur();
-      rename(fileName);
+      if (isCreating) {
+        create(fileName, isDir);
+      } else {
+        rename(fileName);
+      }
     }
   };
 

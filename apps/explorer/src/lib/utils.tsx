@@ -19,6 +19,7 @@ import {
   ReaderIcon,
   StarFilledIcon
 } from "@radix-ui/react-icons";
+import { DirEntry } from "@typings/dir-entry";
 
 function cn(...args: ClassValue[]) {
   return twMerge(clsx(...args));
@@ -98,10 +99,23 @@ function formatBytes(bytes: number, decimals: number = 2): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
+function createDummyEntry(isDir: boolean): DirEntry {
+  return {
+    name: "",
+    isDir,
+    isHidden: false,
+    isStarred: false,
+    isSymlink: false,
+    lastModified: "",
+    size: 0
+  };
+}
+
 export {
   cn,
   createContextHook,
   createContextProvider,
   resolveBasicDirs,
-  formatBytes
+  formatBytes,
+  createDummyEntry
 };

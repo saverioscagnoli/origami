@@ -12,7 +12,6 @@ function useHotkey(
     "keydown",
     e => {
       if (mods.every(mod => e[mod]) && e.key.toLowerCase() === key.toLowerCase()) {
-        e.preventDefault();
         e.stopPropagation();
 
         cb(e);
