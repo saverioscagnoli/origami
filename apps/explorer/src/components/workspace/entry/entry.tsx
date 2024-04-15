@@ -20,6 +20,7 @@ type EntryProps = DirEntry & {
   addSelected: () => void;
   removeSelected: () => void;
   replaceSelected: () => void;
+  selectAllBetween: () => void;
   onDoubleClick: () => void;
   onContextMenu: () => void;
 };
@@ -37,6 +38,7 @@ const Entry: FC<EntryProps> = ({
   addSelected,
   removeSelected,
   replaceSelected,
+  selectAllBetween,
   onDoubleClick,
   onContextMenu,
   ...e
@@ -44,6 +46,8 @@ const Entry: FC<EntryProps> = ({
   const onClick: MouseEventHandler<HTMLDivElement> = e => {
     if (e.ctrlKey) {
       addSelected();
+    } else if (e.shiftKey) {
+      selectAllBetween();
     } else {
       replaceSelected();
     }
@@ -65,6 +69,10 @@ const Entry: FC<EntryProps> = ({
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
       draggable
+      onDragStart={e=> {
+        e.dataTransfer.setData("text/plain", path);
+      
+      }}
     >
       <span className={cn("flex items-center gap-1")}>
         {showCheckboxes && (

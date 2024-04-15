@@ -50,16 +50,18 @@ function setupTauriEvents() {
 
   type ConstantsPayload = {
     isVscodeInstalled: boolean;
+    isWindowsTerminalInstalled: boolean;
   };
 
-  const { isVscodeInstalled } = useConstants();
+  const { isVscodeInstalled, isWindowsTerminalInstalled } = useConstants();
 
   useTauriEvent<ConstantsPayload>(EventFromBackend.SendConstants, p => {
     isVscodeInstalled.set(p.isVscodeInstalled);
+    isWindowsTerminalInstalled.set(p.isWindowsTerminalInstalled);
   });
 
   useEffect(() => {
-    emit(EventToBackend.StopEmittingDisks);
+    emit(EventToBackend.StopCalculatingSize);
   }, [dir()]);
 }
 

@@ -24,6 +24,7 @@ struct Disk {
 #[serde(rename_all = "camelCase")]
 struct ConstantsPayload {
   is_vscode_installed: bool,
+  is_windows_terminal_installed: bool,
 }
 
 pub struct EventEmitter<'a> {
@@ -113,12 +114,14 @@ impl<'a> EventEmitter<'a> {
 
   fn emit_constants(&self) -> Result<(), String> {
     let is_vscode_installed = utils::check_vscode_install();
+    let is_windows_terminal_installed = utils::check_windows_terminal_install();
 
     emit(
       &self.app,
       EventToFrontend::SendConstants,
       &(ConstantsPayload {
         is_vscode_installed,
+        is_windows_terminal_installed,
       })
     )
   }

@@ -18,6 +18,16 @@ const SidebarFolder: FC<SidebarFolderProps> = ({ icon, name, onClick }) => {
         "hover:bg-[--gray-3]",
         "truncate"
       )}
+      onDragOver={e => {
+        e.preventDefault(); // Prevent default behavior
+        console.log("drag over");
+      }}
+      onDrop={e => {
+        console.log("drop"); // Handle drop event
+      }}
+      onDragEnter={e => {
+        console.log("drag enter");
+      }}
       onClick={onClick}
     >
       <span>{icon}</span>

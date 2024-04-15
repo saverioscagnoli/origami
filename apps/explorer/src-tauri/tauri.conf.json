@@ -14,7 +14,8 @@
         "title": "explorer",
         "width": 800,
         "height": 608,
-        "decorations": false
+        "decorations": false,
+        "dragDropEnabled": false
       }
     ],
     "security": {

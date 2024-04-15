@@ -10,7 +10,8 @@ enum Command {
   RenameEntry = "rename_entry",
   DeleteEntry = "delete_entry",
   CalcSize = "calc_size",
-  OpenInVscode = "open_in_vscode"
+  OpenInVscode = "open_in_vscode",
+  OpenInWindowsTerminal = "open_in_windows_terminal"
 }
 
 export { Command };

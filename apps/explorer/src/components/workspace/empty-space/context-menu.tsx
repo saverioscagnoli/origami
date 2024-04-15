@@ -6,9 +6,10 @@ import { PasteMenuItem } from "./paste";
 import { NewMenuItem } from "./new";
 import { useConstants } from "@hooks/use-constants";
 import { OpenInVscodeMenuItem } from "./open-in-vscode";
+import { OpenInWindowsTerminalMenuItem } from "./open-in-windows-terminal";
 
 const EmptySpaceContextMenu: FC<ChildrenProps> = ({ children }) => {
-  const { isVscodeInstalled } = useConstants();
+  const { isVscodeInstalled, isWindowsTerminalInstalled } = useConstants();
 
   return (
     <ContextMenu>
@@ -17,6 +18,7 @@ const EmptySpaceContextMenu: FC<ChildrenProps> = ({ children }) => {
         <ReloadMenuItem />
         <ContextMenu.Separator />
         {isVscodeInstalled() && <OpenInVscodeMenuItem />}
+        {isWindowsTerminalInstalled() && <OpenInWindowsTerminalMenuItem />}
         <PasteMenuItem />
         <ContextMenu.Separator />
         <NewMenuItem />
