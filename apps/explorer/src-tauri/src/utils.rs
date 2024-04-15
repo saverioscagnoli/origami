@@ -21,3 +21,9 @@ pub fn once<F>(app: &AppHandle, evt: EventFromFrontend, handler: F)
 {
   app.once(EventFromFrontend::as_str(&evt), handler);
 }
+
+pub fn listen<F>(app: &AppHandle, evt: EventFromFrontend, handler: F)
+  where F: Fn(Event) + Send + 'static
+{
+  app.listen(EventFromFrontend::as_str(&evt), handler);
+}

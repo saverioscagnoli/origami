@@ -8,6 +8,7 @@ import { emit } from "@tauri-apps/api/event";
 import { DirEntry } from "@typings/dir-entry";
 import { EventFromBackend, EventToBackend } from "@typings/events";
 import { EntryMap } from "./entry-map";
+import { useEffect } from "react";
 
 function setupFrontendEvents() {
   useDocumentEvent("contextmenu", e => e.preventDefault());
@@ -43,6 +44,10 @@ function setupTauriEvents() {
 
     console.log("CSS module(s) loaded");
   });
+
+  useEffect(() => {
+    emit(EventToBackend.StopEmittingDisks);
+  }, [dir()]);
 }
 
 export { setupFrontendEvents, setupTauriEvents };

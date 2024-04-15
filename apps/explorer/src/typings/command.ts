@@ -7,7 +7,8 @@ enum Command {
   CutEntry = "cut_entry",
   CopyEntry = "copy_entry",
   RenameEntry = "rename_entry",
-  DeleteEntry = "delete_entry"
+  DeleteEntry = "delete_entry",
+  CalcSize = "calc_size"
 }
 
 export { Command };

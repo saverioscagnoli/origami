@@ -6,7 +6,8 @@ enum EventFromBackend {
 }
 
 enum EventToBackend {
-  StopEmittingDisks = "stop-emitting-disks"
+  StopEmittingDisks = "stop-emitting-disks",
+  StopCalculatingSize = "stop-calculating-size"
 }
 
 export { EventFromBackend, EventToBackend };

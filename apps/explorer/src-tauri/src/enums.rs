@@ -1,12 +1,14 @@
 #[derive(Debug)]
 pub enum EventFromFrontend {
   StopEmittingDisks,
+  StopCalculatingSize,
 }
 
 impl EventFromFrontend {
   pub fn as_str(&self) -> &str {
     match self {
       Self::StopEmittingDisks => "stop-emitting-disks",
+      Self::StopCalculatingSize => "stop-calculating-size",
     }
   }
 }

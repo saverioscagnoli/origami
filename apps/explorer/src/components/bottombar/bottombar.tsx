@@ -1,5 +1,6 @@
 import { cn } from "@lib/utils";
 import { BottombarItemCount } from "./item-count";
+import { BottombarItemSize } from "./item-size";
 
 const Bottombar = () => {
   return (
@@ -14,6 +15,7 @@ const Bottombar = () => {
       )}
     >
       <BottombarItemCount />
+      <BottombarItemSize />
     </div>
   );
 };

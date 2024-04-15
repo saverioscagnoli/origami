@@ -2,12 +2,14 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use api::Api;
+use size::SizeCalculator;
 use tauri::Manager;
 
 mod api;
 mod event_emitter;
 mod enums;
 mod utils;
+mod size;
 
 fn main() {
   tauri::Builder
@@ -22,6 +24,7 @@ fn main() {
         api::commands::copy_entry,
         api::commands::rename_entry,
         api::commands::delete_entry,
+        size::commands::calc_size,
         event_emitter::commands::init_emitter
       ]
     )
@@ -34,7 +37,14 @@ fn main() {
 
       api.init();
 
+      let app_clone = handle.clone();
+
+      let size_calculator = SizeCalculator::new(app_clone);
+
+      size_calculator.listen();
+
       app.manage(api);
+      app.manage(size_calculator);
 
       Ok(())
     })

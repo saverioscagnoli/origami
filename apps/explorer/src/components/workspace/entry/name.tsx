@@ -1,4 +1,5 @@
 import { FolderIcon } from "@components/folder-icon";
+import { fileIconMap } from "@lib/file-icon-map";
 import { cn } from "@lib/utils";
 import { FileIcon } from "@radix-ui/react-icons";
 import {
@@ -66,7 +67,13 @@ const EntryName: FC<EntryNameProps> = ({
 
   return (
     <span className={cn("flex items-center gap-1.5")}>
-      <span className={cn("min-w-4")}>{isDir ? <FolderIcon /> : <FileIcon />}</span>
+      <span className={cn("min-w-4")}>
+        {isDir ? (
+          <FolderIcon />
+        ) : (
+          fileIconMap.get(fileName.split(".").pop().toLowerCase()) ?? <FileIcon />
+        )}
+      </span>
       <input
         className={cn(
           "bg-transparent",
