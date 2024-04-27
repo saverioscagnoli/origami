@@ -1,14 +1,9 @@
-
 {
   "editor.formatOnSave": true,
-  "editor.formatOnPaste": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "css.lint.unknownAtRules": "ignore",
-  "rust-analyzer.linkedProjects": [
-    "apps/explorer/src-tauri/Cargo.toml",
-    "./apps/explorer/src-tauri/Cargo.toml"
-  ],
   "[rust]": {
     "editor.defaultFormatter": "jinxdash.prettier-rust"
-  }
+  },
+  "css.lint.unknownAtRules": "ignore",
+  "rust-analyzer.linkedProjects": ["src-tauri/Cargo.toml"]
 }
