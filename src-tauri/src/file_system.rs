@@ -9,6 +9,12 @@ use crate::{
   utils::emit,
 };
 
+#[derive(Serialize)]
+struct Data {
+  entries: Vec<DirEntry>,
+  path: String,
+}
+
 #[tauri::command]
 pub async fn list_dir(
   app: AppHandle,
@@ -80,26 +86,18 @@ pub async fn list_dir(
       emit(
         &app,
         EventToFrontend::ListDir,
-        &(Payload::<Vec<DirEntry>> {
+        &(Payload::<Data> {
           op_id: op_id.clone(),
-          data: Some(entries.clone()),
+          data: Some(Data { entries: entries.clone(), path: "".to_string() }),
           error: None,
           is_finished: false,
         })
       );
 
       println!("emitted: {:?}", i);
-
-      entries.clear();
     }
 
     entries.push(entry);
-  }
-
-  #[derive(Serialize)]
-  struct Data {
-    entries: Vec<DirEntry>,
-    path: String,
   }
 
   emit(

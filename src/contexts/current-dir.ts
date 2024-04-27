@@ -38,7 +38,7 @@ const CurrentDirProvider = createContextProvider(CurrentDirContext, () => {
     dir.set(data.path);
     entries.set(data.entries);
 
-    console.log(isFinished)
+    console.log("dasfsfd");
 
     if (isFinished) {
       operations.updateStatus(opId, OperationStatus.Success);
