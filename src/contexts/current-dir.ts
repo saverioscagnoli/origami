@@ -35,10 +35,8 @@ const CurrentDirProvider = createContextProvider(CurrentDirContext, () => {
       throw new Error("Not implemented");
     }
 
-    dir.set(data.path);
     entries.set(data.entries);
-
-    console.log("dasfsfd");
+    dir.set(data.path);
 
     if (isFinished) {
       operations.updateStatus(opId, OperationStatus.Success);

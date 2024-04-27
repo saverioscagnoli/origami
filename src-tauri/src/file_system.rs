@@ -35,8 +35,7 @@ pub async fn list_dir(
     return Err(());
   }
 
-  let mut dir = dir.unwrap();
-  let mut i = 0;
+  let mut dir: tokio::fs::ReadDir = dir.unwrap();
 
   while
     let Some(entry) = (match dir.next_entry().await {
@@ -80,21 +79,20 @@ pub async fn list_dir(
       size,
     };
 
-    i += 1;
-
-    if i % LIST_DIR_BULK_SIZE == 0 {
+    if entries.len() % LIST_DIR_BULK_SIZE == 0 {
       emit(
         &app,
         EventToFrontend::ListDir,
         &(Payload::<Data> {
           op_id: op_id.clone(),
-          data: Some(Data { entries: entries.clone(), path: "".to_string() }),
+          data: Some(Data {
+            entries: entries.clone(),
+            path: "Changing...".to_string(),
+          }),
           error: None,
           is_finished: false,
         })
       );
-
-      println!("emitted: {:?}", i);
     }
 
     entries.push(entry);

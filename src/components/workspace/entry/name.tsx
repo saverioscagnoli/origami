@@ -21,7 +21,6 @@ const EntryName: FC<EntryNameProps> = ({ name, path, isDir }) => {
       <input
         className={cn(
           "bg-transparent",
-          "text-base",
           "outline-none",
           "rounded",
           "selection:bg-[--plum-6]",

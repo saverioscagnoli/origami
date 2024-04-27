@@ -1,13 +1,30 @@
 import { useCurrentDir } from "@contexts/current-dir";
 import { cn } from "@lib/utils";
-import List from "rc-virtual-list";
 import { Entry } from "./entry";
-import { useMemo } from "react";
+import {
+  ComponentPropsWithoutRef,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useRef
+} from "react";
 import { useSettings } from "@contexts/settings";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { useAccessor } from "@hooks/use-accessor";
+import { ScrollArea } from "@components/tredici";
 
 const Workspace = () => {
-  const { entries } = useCurrentDir();
+  const { dir, entries } = useCurrentDir();
   const { showHidden } = useSettings();
+
+  const scrollRef = useAccessor<HTMLDivElement | null>(null);
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
+
+  useEffect(() => {
+    if (virtuosoRef.current) {
+      virtuosoRef.current.scrollToIndex({ index: 0, behavior: "smooth" });
+    }
+  }, [dir()]);
 
   const filtered = useMemo(
     () =>
@@ -20,15 +37,34 @@ const Workspace = () => {
         }),
     [entries(), showHidden()]
   );
+
   return (
     <div className={cn("w-full h-full", "overflow-auto")}>
-      <List fullHeight itemHeight={24} data={filtered} itemKey="path">
-        {entry => {
-          return <Entry {...entry} />;
-        }}
-      </List>
+      <ScrollArea className={cn("w-full h-full")} id="workspace">
+        <ScrollArea.Viewport
+          className={cn("w-full h-full", "rounded-[inherit]")}
+          ref={scrollRef.set}
+        >
+          <Virtuoso
+            data={filtered}
+            totalCount={filtered.length}
+            fixedItemHeight={24}
+            customScrollParent={scrollRef() ?? undefined}
+            ref={virtuosoRef}
+            itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
+            components={{ List }}
+          />
+          <ScrollArea.Scrollbar className={cn("mr-1")} />
+        </ScrollArea.Viewport>
+      </ScrollArea>
     </div>
   );
 };
+
+const List = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>(
+  (props, ref) => {
+    return <div {...props} ref={ref} />;
+  }
+);
 
 export { Workspace };

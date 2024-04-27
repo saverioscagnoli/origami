@@ -1,4 +1,5 @@
 import { cn } from "@lib/utils";
+import { BottombarItemCount } from "./item-count";
 
 const Bottombar = () => {
   return (
@@ -11,7 +12,9 @@ const Bottombar = () => {
         "px-6",
         "border-t border-t-[--gray-6]"
       )}
-    ></div>
+    >
+      <BottombarItemCount />
+    </div>
   );
 };
 

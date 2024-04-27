@@ -1,1 +1,1 @@
-pub const LIST_DIR_BULK_SIZE: usize = 500;
+pub const LIST_DIR_BULK_SIZE: usize = 1000;
