@@ -24,6 +24,8 @@ async fn main() {
     ::from_env(env_logger::Env::default().default_filter_or("info"))
     .init();
 
+  tauri::async_runtime::set(tokio::runtime::Handle::current());
+
   tauri::Builder
     ::default()
     .plugin(tauri_plugin_shell::init())
@@ -57,20 +59,28 @@ async fn start_watching<'a>(
   let (watcher, rx) = create_watcher().unwrap();
 
   let watcher_mutex = Arc::new(Mutex::new(watcher));
-  let rx_mutex = Arc::new(Mutex::new(rx));
 
   let event_pool = Arc::clone(&event_pool);
+  let rx_mutex = Arc::new(tokio::sync::Mutex::new(rx));
+
+  let app_clone = app.clone();
 
   listen::<WatchPayload>(event_pool, &app, EventFromFrontend::DirChanged, move |p| {
     let mut watcher = watcher_mutex.lock().unwrap();
-    let mut rx = rx_mutex.lock().unwrap();
 
-    match unwatch(&mut watcher, &p.old_path) {
-      Ok(_) => log::info!("unwatched: {:?}", &p.old_path),
-      Err(e) => log::error!("failed to unwatch: {:?}", e),
+    let rx_mutex = Arc::clone(&rx_mutex);
+
+    if &p.old_path != "" {
+      match unwatch(&mut watcher, &p.old_path) {
+        Ok(_) => log::info!("unwatched: {:?}", &p.old_path),
+        Err(e) => log::error!("failed to unwatch: {:?}", e),
+      }
     }
 
-    let _ = watch(&mut watcher, &mut rx, &p.new_path);
+    match watch(&app_clone, &mut watcher, rx_mutex, &p.new_path) {
+      Ok(_) => log::info!("watched: {:?}", &p.new_path),
+      Err(e) => log::error!("failed to watch: {:?}", e),
+    }
   });
 
   Ok(())

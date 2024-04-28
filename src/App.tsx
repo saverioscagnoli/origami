@@ -14,7 +14,7 @@ import { setupHotkeys } from "@lib/hotkeys";
 function App() {
   useEffect(() => {
     invoke(Command.StartWatching).then(() =>
-      operations.push(OperationType.ListDir, { path: "C:\\" })
+      operations.push(OperationType.ListDir, { path: "/" })
     );
   }, []);
 

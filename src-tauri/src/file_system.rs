@@ -38,7 +38,7 @@ pub async fn list_dir(
   let mut dir: tokio::fs::ReadDir = dir.unwrap();
 
   while
-    let Some(entry) = (match dir.next_entry().await {
+    let Some(entry) = match dir.next_entry().await {
       Ok(entry) => entry,
       Err(e) => {
         emit(&app, EventToFrontend::ListDir, Payload::<()> {
@@ -49,7 +49,7 @@ pub async fn list_dir(
         });
         return Ok(());
       }
-    })
+    }
   {
     let path = entry.path();
     let name = entry.file_name();
@@ -57,15 +57,7 @@ pub async fn list_dir(
     let is_hidden = name.to_string_lossy().starts_with(".");
     let is_symlink = path.symlink_metadata().unwrap().file_type().is_symlink();
     let is_starred = false;
-    let last_modified = path
-      .metadata()
-      .unwrap()
-      .modified()
-      .unwrap()
-      .elapsed()
-      .unwrap()
-      .as_secs()
-      .to_string();
+    let last_modified = " ".to_string();
     let size = if is_dir { 0 } else { path.metadata().unwrap().len() };
 
     let entry = DirEntry {

@@ -1,8 +1,8 @@
 use std::sync::{ Arc, Mutex };
 use serde::Serialize;
-use tauri::{AppHandle, Manager};
+use tauri::{ AppHandle, Manager };
 
-use crate::events::{EventFromFrontend, EventToFrontend};
+use crate::events::{ EventFromFrontend, EventToFrontend };
 
 pub fn listen<P>(
   event_pool: Arc<Mutex<Vec<tauri::EventId>>>,
@@ -20,12 +20,13 @@ pub fn listen<P>(
     }
   });
 
-  if let Ok(mut event_pool) = event_pool.lock() {
-    event_pool.push(id);
+  if let Ok(mut pool) = event_pool.lock() {
+    pool.push(id);
   }
 }
 
-
-pub fn emit<P>(app: &AppHandle, evt: EventToFrontend, payload: P) where P: Serialize + Clone {
+pub fn emit<P>(app: &AppHandle, evt: EventToFrontend, payload: P)
+  where P: Serialize + Clone
+{
   let _ = app.emit(EventToFrontend::as_str(&evt), payload);
 }

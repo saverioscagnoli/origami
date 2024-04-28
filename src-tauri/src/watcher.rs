@@ -1,8 +1,17 @@
-use std::path::Path;
+use std::{ path::Path, sync::Arc };
 
-use notify::{ Config, RecommendedWatcher, RecursiveMode, Watcher };
-use tauri::async_runtime::Receiver;
-use tokio::sync::mpsc::channel;
+use notify::{
+  event::{ CreateKind, ModifyKind, RemoveKind, RenameMode },
+  Config,
+  EventKind,
+  RecommendedWatcher,
+  RecursiveMode,
+  Watcher,
+};
+use tauri::{ async_runtime::Receiver, AppHandle };
+use tokio::sync::{ Mutex, mpsc::channel };
+
+use crate::{ events::EventToFrontend, utils::emit };
 
 pub fn create_watcher() -> notify::Result<
   (RecommendedWatcher, Receiver<notify::Result<notify::Event>>)
@@ -18,28 +27,51 @@ pub fn create_watcher() -> notify::Result<
   Ok((watcher, rx))
 }
 
-pub async fn watch<P: AsRef<Path>>(
+pub fn watch<P: AsRef<Path>>(
+  app: &AppHandle,
   watcher: &mut RecommendedWatcher,
-  rx: &mut Receiver<notify::Result<notify::Event>>,
+  rx: Arc<Mutex<Receiver<notify::Result<notify::Event>>>>,
   path: P
 ) -> notify::Result<()> {
-  watcher.watch(path.as_ref(), RecursiveMode::Recursive)?;
+  watcher.watch(path.as_ref(), RecursiveMode::NonRecursive)?;
 
-  while let Some(res) = rx.recv().await {
-    match res {
-      Ok(event) => {
-        log::info!("event: {:?}", event);
-      }
-      Err(e) => {
-        log::error!("watch error: {:?}", e);
+  let rx_clone = Arc::clone(&rx);
+
+  let app = app.clone();
+
+  tokio::spawn(async move {
+    let mut rx = rx_clone.lock().await;
+
+    while let Some(res) = rx.recv().await {
+      match res {
+        Ok(event) => {
+          match event.kind {
+            | EventKind::Create(CreateKind::Folder)
+            | EventKind::Create(CreateKind::File)
+            | EventKind::Remove(RemoveKind::Folder)
+            | EventKind::Remove(RemoveKind::File)
+            | EventKind::Modify(ModifyKind::Name(RenameMode::To))
+            | EventKind::Modify(ModifyKind::Name(RenameMode::From)) => {
+              emit(&app, EventToFrontend::Watch, "");
+            }
+
+            _ => {}
+          }
+        }
+        Err(e) => {
+          log::error!("watch error: {:?}", e);
+        }
       }
     }
-  }
+  });
 
   Ok(())
 }
 
-pub fn unwatch<P: AsRef<Path>>(watcher: &mut RecommendedWatcher, path: P) -> notify::Result<()> {
+pub fn unwatch<P: AsRef<Path>>(
+  watcher: &mut RecommendedWatcher,
+  path: P
+) -> notify::Result<()> {
   let path = path.as_ref();
   watcher.unwatch(path)
 }

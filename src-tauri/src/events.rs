@@ -12,7 +12,8 @@ impl EventFromFrontend {
 
 pub enum EventToFrontend {
   ListDir,
-  OpenFile
+  OpenFile,
+  Watch
 }
 
 impl EventToFrontend {
@@ -20,6 +21,7 @@ impl EventToFrontend {
     match self {
       EventToFrontend::ListDir => "list_dir",
       EventToFrontend::OpenFile => "open_file",
+      EventToFrontend::Watch => "watch",
     }
   }
 }

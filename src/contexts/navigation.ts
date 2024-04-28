@@ -18,6 +18,20 @@ const useNavigation = createContextHook(NavigationContext, "Navigation");
 const NavigationProvider = createContextProvider(NavigationContext, () => {
   const { dir } = useCurrentDir();
 
+  const cd = (path: string) => () => {
+    operations.push(OperationType.ListDir, { path });
+  };
+
+  const reload = () => {
+    operations.push(OperationType.ListDir, { path: dir() });
+  };
+
+  const openFiles = (paths: string[]) => () => {
+    for (const path of paths) {
+      operations.push(OperationType.OpenFile, { path });
+    }
+  };
+
   useTauriEvent(OperationType.OpenFile, payload => {
     const { opId, data, error, isFinished } = payload;
 
@@ -35,19 +49,11 @@ const NavigationProvider = createContextProvider(NavigationContext, () => {
     }
   });
 
-  return {
-    cd: path => () => {
-      operations.push(OperationType.ListDir, { path });
-    },
-    reload: () => {
-      operations.push(OperationType.ListDir, { path: dir() });
-    },
-    openFiles: paths => () => {
-      for (const path of paths) {
-        operations.push(OperationType.OpenFile, { path });
-      }
-    }
-  };
+  useTauriEvent("watch", () => {
+    reload();
+  }, [dir()]);
+
+  return { cd, reload, openFiles };
 });
 
 export { useNavigation, NavigationProvider };
