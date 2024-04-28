@@ -22,11 +22,11 @@ const Workspace = () => {
   const scrollRef = useAccessor<HTMLDivElement | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
-  useEffect(() => {
-    if (virtuosoRef.current) {
-      virtuosoRef.current.scrollToIndex({ index: 0, behavior: "smooth" });
-    }
-  }, [dir()]);
+  // useEffect(() => {
+  //   if (virtuosoRef.current) {
+  //     virtuosoRef.current.scrollToIndex({ index: 0, behavior: "smooth" });
+  //   }
+  // }, [dir()]);
 
   const filtered = useMemo(
     () =>

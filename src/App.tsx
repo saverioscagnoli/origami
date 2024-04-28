@@ -11,16 +11,23 @@ import { OperationType } from "@lib/operations";
 import { operations } from "main";
 import { setupHotkeys } from "@lib/hotkeys";
 import { homeDir } from "@tauri-apps/api/path";
+import { useTauriEvent } from "@util-hooks/use-tauri-event";
+import { emit } from "@tauri-apps/api/event";
+import { EventToBackend } from "@typings/events";
 
 function App() {
   useEffect(() => {
     invoke(Command.StartWatching)
+      .then(() => invoke(Command.StartDisks))
       .then(() => homeDir())
       .then(home => operations.push(OperationType.ListDir, { path: home }));
   }, []);
 
   useEvent("contextmenu", e => e.preventDefault());
-  useEvent(window, "beforeunload", () => invoke(Command.StopAll));
+
+  useEvent(window, "beforeunload", () => {
+    emit(EventToBackend.BeforeUnload).then(() => invoke(Command.StopAll));
+  });
 
   setupHotkeys();
 

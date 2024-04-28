@@ -1,6 +1,7 @@
 enum Command {
   StartWatching = "start_watching",
-  StopAll = "stop_all"
+  StartDisks = "emit_disks",
+  StopAll = "stop_all",
 }
 
 export { Command };

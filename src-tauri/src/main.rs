@@ -8,10 +8,12 @@ mod payloads;
 mod structs;
 mod file_system;
 mod consts;
+mod disks;
 
+use disks::emit_disks;
 use events::EventFromFrontend;
 use payloads::WatchPayload;
-use std::sync::{ Arc, Mutex };
+use std::{ sync::{ Arc, Mutex }, thread::JoinHandle };
 use tauri::{ AppHandle, Manager, State };
 use utils::listen;
 use watcher::{ create_watcher, unwatch, watch };
@@ -30,7 +32,13 @@ async fn main() {
     ::default()
     .plugin(tauri_plugin_shell::init())
     .invoke_handler(
-      tauri::generate_handler![start_watching, list_dir, open_file, stop_all]
+      tauri::generate_handler![
+        start_watching,
+        emit_disks,
+        list_dir,
+        open_file,
+        stop_all
+      ]
     )
     .setup(|app| {
       let event_pool: Arc<Mutex<Vec<tauri::EventId>>> = Arc::new(
