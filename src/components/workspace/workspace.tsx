@@ -12,6 +12,8 @@ import { useSettings } from "@contexts/settings";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useAccessor } from "@hooks/use-accessor";
 import { ScrollArea } from "@components/tredici";
+import { EmptySpaceContextMenu } from "./empty-space";
+import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
   const { dir, entries } = useCurrentDir();
@@ -39,7 +41,7 @@ const Workspace = () => {
   );
 
   return (
-    <div className={cn("w-full h-full", "overflow-auto")}>
+    <EmptySpaceContextMenu>
       <ScrollArea className={cn("w-full h-full")} id="workspace">
         <ScrollArea.Viewport
           className={cn("w-full h-full", "rounded-[inherit]")}
@@ -57,13 +59,17 @@ const Workspace = () => {
           <ScrollArea.Scrollbar className={cn("mr-1")} />
         </ScrollArea.Viewport>
       </ScrollArea>
-    </div>
+    </EmptySpaceContextMenu>
   );
 };
 
 const List = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>(
   (props, ref) => {
-    return <div {...props} ref={ref} />;
+    return (
+      <SelectedEntriesContextMenu>
+        <div {...props} ref={ref} />
+      </SelectedEntriesContextMenu>
+    );
   }
 );
 

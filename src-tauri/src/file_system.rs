@@ -1,3 +1,6 @@
+use std::path::Path;
+
+use chrono::{ DateTime, Utc };
 use serde::Serialize;
 use tauri::AppHandle;
 
@@ -38,7 +41,7 @@ pub async fn list_dir(
   let mut dir: tokio::fs::ReadDir = dir.unwrap();
 
   while
-    let Some(entry) = match dir.next_entry().await {
+    let Some(entry) = (match dir.next_entry().await {
       Ok(entry) => entry,
       Err(e) => {
         emit(&app, EventToFrontend::ListDir, Payload::<()> {
@@ -49,16 +52,24 @@ pub async fn list_dir(
         });
         return Ok(());
       }
-    }
+    })
   {
     let path = entry.path();
     let name = entry.file_name();
     let is_dir = path.is_dir();
-    let is_hidden = name.to_string_lossy().starts_with(".");
-    let is_symlink = path.symlink_metadata().unwrap().file_type().is_symlink();
+    let is_hidden = is_hidden(&path).unwrap_or(false);
+    let is_symlink = is_symlink(&path).await.unwrap_or(false);
     let is_starred = false;
-    let last_modified = " ".to_string();
-    let size = if is_dir { 0 } else { path.metadata().unwrap().len() };
+    let last_modified = last_modified(&path).await.unwrap_or("Unknown".to_string());
+
+    let size = if is_dir {
+      0
+    } else {
+      match tokio::fs::metadata(&path).await {
+        Ok(metadata) => metadata.len(),
+        Err(_) => 0,
+      }
+    };
 
     let entry = DirEntry {
       path: path.to_string_lossy().to_string(),
@@ -102,6 +113,65 @@ pub async fn list_dir(
   );
 
   Ok(())
+}
+
+fn is_hidden(path: impl AsRef<Path>) -> Option<bool> {
+  let path = path.as_ref();
+
+  #[cfg(target_os = "windows")]
+  {
+    use std::os::windows::fs::MetadataExt;
+
+    const FILE_ATTRIBUTE_HIDDEN: u32 = 0x00000002;
+
+    let metadata = match path.metadata() {
+      Ok(metadata) => metadata,
+      Err(_) => {
+        return None;
+      }
+    };
+
+    let is_hidden = (metadata.file_attributes() & FILE_ATTRIBUTE_HIDDEN) != 0;
+
+    Some(is_hidden)
+  }
+
+  #[cfg(not(target_os = "windows"))]
+  {
+    let name = match path.file_name() {
+      Some(name) => name,
+      None => {
+        return None;
+      }
+    };
+
+    Some(name.to_string_lossy().starts_with('.'))
+  }
+}
+
+async fn is_symlink(path: impl AsRef<Path>) -> Option<bool> {
+  let path = path.as_ref();
+
+  let metadata = match tokio::fs::symlink_metadata(&path).await {
+    Ok(metadata) => metadata,
+    Err(_) => {
+      return None;
+    }
+  };
+
+  Some(metadata.file_type().is_symlink())
+}
+
+async fn last_modified(path: impl AsRef<Path>) -> Result<String, tokio::io::Error> {
+  let path = path.as_ref();
+
+  let time = tokio::fs::metadata(&path).await?.modified()?;
+  let date: String = DateTime::<Utc>
+    ::from(time)
+    .format("%d/%m/%Y %H:%M")
+    .to_string();
+
+  Ok(date)
 }
 
 #[tauri::command]

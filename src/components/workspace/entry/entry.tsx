@@ -6,6 +6,9 @@ import { FC, MouseEventHandler, forwardRef, useMemo } from "react";
 import { EntryCheckbox } from "./checkbox";
 import { EntryName } from "./name";
 import { useNavigation } from "@contexts/navigation";
+import { EntryFlags } from "./flags";
+import { EntryLastModified } from "./last-modified";
+import { EntrySize } from "./size";
 
 const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
   const { selected } = useCurrentDir();
@@ -84,7 +87,6 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
-      ref={ref}
     >
       <span className={cn("flex items-center gap-1.5")}>
         {showCheckboxes() && (
@@ -92,6 +94,9 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
         )}
         <EntryName name={name} path={path} isDir={isDir} />
       </span>
+      <EntryFlags isHidden={isHidden} isSymlink={isSymlink} isStarred={isStarred} />
+      <EntryLastModified lastModified={lastModified} />
+      <EntrySize isDir={isDir} size={size} />
     </div>
   );
 });

@@ -10,12 +10,13 @@ import { Command } from "@typings/command";
 import { OperationType } from "@lib/operations";
 import { operations } from "main";
 import { setupHotkeys } from "@lib/hotkeys";
+import { homeDir } from "@tauri-apps/api/path";
 
 function App() {
   useEffect(() => {
-    invoke(Command.StartWatching).then(() =>
-      operations.push(OperationType.ListDir, { path: "/" })
-    );
+    invoke(Command.StartWatching)
+      .then(() => homeDir())
+      .then(home => operations.push(OperationType.ListDir, { path: home }));
   }, []);
 
   useEvent("contextmenu", e => e.preventDefault());

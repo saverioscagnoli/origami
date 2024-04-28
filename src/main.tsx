@@ -6,6 +6,7 @@ import { SettingsProvider } from "@contexts/settings";
 
 import "./styles.css";
 import { NavigationProvider } from "@contexts/navigation";
+import { GlobalStatesProvider } from "@contexts/global-states";
 
 const operations = Callstack.build();
 
@@ -13,7 +14,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <SettingsProvider>
     <CurrentDirProvider>
       <NavigationProvider>
-        <App />
+        <GlobalStatesProvider>
+          <App />
+        </GlobalStatesProvider>
       </NavigationProvider>
     </CurrentDirProvider>
   </SettingsProvider>
