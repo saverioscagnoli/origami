@@ -18,6 +18,11 @@ pub fn get_disks() -> Vec<Disk> {
   for disk in sys_disks.list() {
     let name = disk.name().to_string_lossy().to_string();
     let mount_point = disk.mount_point().to_string_lossy().to_string();
+
+    if mount_point.starts_with("/boot") || mount_point == "/home" {
+      continue;
+    }
+
     let file_system = disk.file_system().to_string_lossy().to_string();
     let total_space = disk.total_space();
     let free_space = disk.available_space();

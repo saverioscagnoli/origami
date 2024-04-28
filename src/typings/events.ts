@@ -1,4 +1,5 @@
 enum EventToBackend {
+  DirChanged = "dir_changed",
   BeforeUnload = "before_unload"
 }
 

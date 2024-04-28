@@ -7,6 +7,7 @@ import { emit } from "@tauri-apps/api/event";
 import { Accessor } from "@typings/accessor";
 import { Command } from "@typings/command";
 import { DirEntry } from "@typings/dir-entry";
+import { EventToBackend } from "@typings/events";
 import { operations } from "main";
 import { createContext, useEffect } from "react";
 
@@ -44,8 +45,11 @@ const CurrentDirProvider = createContextProvider(CurrentDirContext, () => {
 
       if (isFinished) {
         operations.updateStatus(opId, OperationStatus.Success);
-        emit("dir_changed", { oldPath: dir(), newPath: data.path });
-        dir.set(data.path);
+        if (data.path !== dir()) {
+          dir.set(data.path);
+
+          emit(EventToBackend.DirChanged, { oldPath: dir(), newPath: data.path });
+        }
       }
     },
     [dir()]

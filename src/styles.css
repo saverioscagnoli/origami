@@ -16,7 +16,7 @@
 body {
   font-family: "DM Sans", sans-serif;
   font-optical-sizing: auto;
-  font-weight: normal;
+  font-weight: 500;
   font-style: normal;
   background-color: var(--slate-1);
   color: var(--slate-12);

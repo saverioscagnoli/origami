@@ -48,6 +48,10 @@ pub fn watch<P: AsRef<Path>>(
           match event.kind {
             | EventKind::Create(CreateKind::Folder)
             | EventKind::Create(CreateKind::File)
+            // Linux
+            | EventKind::Remove(RemoveKind::Folder)
+            | EventKind::Remove(RemoveKind::File)
+            // Windows
             | EventKind::Remove(RemoveKind::Any)
             | EventKind::Modify(ModifyKind::Name(RenameMode::To))
             | EventKind::Modify(ModifyKind::Name(RenameMode::From)) => {

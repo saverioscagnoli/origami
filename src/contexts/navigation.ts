@@ -76,8 +76,6 @@ const NavigationProvider = createContextProvider(NavigationContext, () => {
       throw new Error("Not implemented");
     }
 
-    console.log(data);
-
     if (isFinished) {
       operations.updateStatus(opId, OperationStatus.Success);
     }
