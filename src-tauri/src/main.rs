@@ -13,12 +13,14 @@ mod disks;
 use disks::emit_disks;
 use events::EventFromFrontend;
 use payloads::WatchPayload;
-use std::{ sync::{ Arc, Mutex }, thread::JoinHandle };
+use std::sync::{ Arc, Mutex } ;
 use tauri::{ AppHandle, Manager, State };
 use utils::listen;
 use watcher::{ create_watcher, unwatch, watch };
 
-use file_system::{ list_dir, open_file };
+use file_system::{ list_dir, open_file, delete_entry };
+
+
 
 #[tokio::main]
 async fn main() {
@@ -37,6 +39,7 @@ async fn main() {
         emit_disks,
         list_dir,
         open_file,
+        delete_entry,
         stop_all
       ]
     )

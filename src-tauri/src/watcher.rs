@@ -48,8 +48,7 @@ pub fn watch<P: AsRef<Path>>(
           match event.kind {
             | EventKind::Create(CreateKind::Folder)
             | EventKind::Create(CreateKind::File)
-            | EventKind::Remove(RemoveKind::Folder)
-            | EventKind::Remove(RemoveKind::File)
+            | EventKind::Remove(RemoveKind::Any)
             | EventKind::Modify(ModifyKind::Name(RenameMode::To))
             | EventKind::Modify(ModifyKind::Name(RenameMode::From)) => {
               emit(&app, EventToFrontend::Watch, "");

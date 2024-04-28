@@ -9,6 +9,7 @@ type NavigationContextValue = {
   cd: (path: string) => () => void;
   reload: () => void;
   openFiles: (paths: string[]) => () => void;
+  deleteEntries: () => void;
 };
 
 const NavigationContext = createContext<NavigationContextValue | null>(null);
@@ -16,7 +17,7 @@ const NavigationContext = createContext<NavigationContextValue | null>(null);
 const useNavigation = createContextHook(NavigationContext, "Navigation");
 
 const NavigationProvider = createContextProvider(NavigationContext, () => {
-  const { dir } = useCurrentDir();
+  const { dir, selected } = useCurrentDir();
 
   const cd = (path: string) => () => {
     operations.push(OperationType.ListDir, { path });
@@ -49,11 +50,40 @@ const NavigationProvider = createContextProvider(NavigationContext, () => {
     }
   });
 
-  useTauriEvent("watch", () => {
-    reload();
-  }, [dir()]);
+  useTauriEvent(
+    "watch",
+    () => {
+      reload();
+    },
+    [dir()]
+  );
 
-  return { cd, reload, openFiles };
+  const deleteEntries = () => {
+    for (const { path } of selected()) {
+      operations.push(OperationType.DeleteEntry, { path });
+    }
+  };
+
+  useTauriEvent(OperationType.DeleteEntry, payload => {
+    const { opId, data, error, isFinished } = payload;
+
+    if (error) {
+      operations.updateStatus(opId, OperationStatus.Error);
+      alert(error);
+    }
+
+    if (!data) {
+      throw new Error("Not implemented");
+    }
+
+    console.log(data);
+
+    if (isFinished) {
+      operations.updateStatus(opId, OperationStatus.Success);
+    }
+  });
+
+  return { cd, reload, openFiles, deleteEntries };
 });
 
 export { useNavigation, NavigationProvider };

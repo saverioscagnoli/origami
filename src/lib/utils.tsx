@@ -86,6 +86,10 @@ async function resolveBasicDirs() {
   return dirMap;
 }
 
+function percentage(part: number, total: number, decimals: number = 0): string {
+  return parseFloat(((part / total) * 100).toFixed(decimals)) + "%";
+}
+
 function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) return "0 Bytes";
 
@@ -103,5 +107,6 @@ export {
   createContextHook,
   createContextProvider,
   resolveBasicDirs,
+  percentage,
   formatBytes
 };

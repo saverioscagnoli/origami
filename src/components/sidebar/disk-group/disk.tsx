@@ -1,4 +1,4 @@
-import { cn, formatBytes } from "@lib/utils";
+import { cn, formatBytes, percentage } from "@lib/utils";
 import { BackpackIcon } from "@radix-ui/react-icons";
 import { FC } from "react";
 import { Disk as TDisk } from "@typings/disk";
@@ -25,9 +25,18 @@ const Disk: FC<TDisk> = ({ totalSpace, freeSpace, mountPoint, isRemovable }) => 
           <span>{isRemovable ? <UsbIcon size={15} /> : <BackpackIcon />}</span>
           <p className={cn("w-1/2", "truncate")}>{mountPoint}</p>
         </span>
-        <p className={cn("text-sm")}>{formatBytes(totalSpace, 0)}</p>
+        <div className={cn("flex gap-1")}>
+          <p className={cn("lg:block hidden text-sm")}>
+            ({percentage(totalSpace - freeSpace, totalSpace)})
+          </p>
+          <p className={cn("text-sm")}>{formatBytes(totalSpace, 0)}</p>
+        </div>
       </div>
-      <Progress className={cn("w-full xl:h-[7px]", "sm:rounded-sm")} max={totalSpace} value={totalSpace - freeSpace} />
+      <Progress
+        className={cn("w-full xl:h-[7px]", "sm:rounded-sm")}
+        max={totalSpace}
+        value={totalSpace - freeSpace}
+      />
     </div>
   );
 };

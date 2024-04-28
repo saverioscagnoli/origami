@@ -2,12 +2,14 @@ import { invoke } from "@tauri-apps/api/core";
 
 enum OperationType {
   ListDir = "list_dir",
-  OpenFile = "open_file"
+  OpenFile = "open_file",
+  DeleteEntry = "delete_entry"
 }
 
 type ArgsMap = {
   [OperationType.ListDir]: { path: string };
   [OperationType.OpenFile]: { path: string };
+  [OperationType.DeleteEntry]: { path: string };
 };
 
 enum OperationStatus {

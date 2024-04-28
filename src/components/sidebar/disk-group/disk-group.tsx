@@ -15,7 +15,7 @@ const DiskGroup = () => {
 
   return (
     <div className={cn("flex flex-col gap-1")}>
-      <p className={cn("px-2", "text-sm")}>Device(s)</p>
+      <p className={cn("px-2", "text-sm")}>Devices</p>
       <For
         of={disks().sort((a, b) => {
           if (a.mountPoint < b.mountPoint) return -1;

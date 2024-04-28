@@ -1,7 +1,14 @@
 import { Menubar } from "@components/tredici";
+import { useCurrentDir } from "@contexts/current-dir";
 
 const SelectAllMenuItem = () => {
-  return <Menubar.Item>Select All</Menubar.Item>;
+  const { entries, selected } = useCurrentDir();
+
+  const selectAll = () => {
+    selected.set(entries());
+  };
+
+  return <Menubar.Item onClick={selectAll}>Select All</Menubar.Item>;
 };
 
 export { SelectAllMenuItem };

@@ -8,6 +8,7 @@ import { buildMappedTauriEventHook } from "@util-hooks/use-tauri-event";
 type OperationMap = {
   [OperationType.ListDir]: Payload<{ entries: DirEntry[]; path: string }>;
   [OperationType.OpenFile]: Payload<{ path: string }>;
+  [OperationType.DeleteEntry]: Payload<{ path: string }>;
   [EventFromBackend.SendDisks]: Disk[];
 };
 

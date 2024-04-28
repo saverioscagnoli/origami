@@ -1,8 +1,4 @@
-use std::{
-  sync::atomic::{ AtomicBool, Ordering },
-  thread::{ self, JoinHandle },
-  time::Duration,
-};
+use std::{ sync::atomic::{ AtomicBool, Ordering }, thread, time::Duration };
 
 use sysinfo::Disks;
 use tauri::{ AppHandle, State };

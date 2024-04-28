@@ -41,7 +41,8 @@ pub async fn list_dir(
   let mut dir: tokio::fs::ReadDir = dir.unwrap();
 
   while
-    let Some(entry) = (match dir.next_entry().await {
+    // prettier-ignore
+    let Some(entry) = match dir.next_entry().await {
       Ok(entry) => entry,
       Err(e) => {
         emit(&app, EventToFrontend::ListDir, Payload::<()> {
@@ -52,7 +53,7 @@ pub async fn list_dir(
         });
         return Ok(());
       }
-    })
+    }
   {
     let path = entry.path();
     let name = entry.file_name();
@@ -193,4 +194,39 @@ pub fn open_file(app: AppHandle, path: String, op_id: String) {
         is_finished: true,
       }),
   }
+}
+
+#[tauri::command]
+pub async fn delete_entry(
+  app: AppHandle,
+  path: String,
+  op_id: String
+) -> Result<(), String> {
+  let path_buf = Path::new(&path);
+
+  let result = if path_buf.is_dir() {
+    tokio::fs::remove_dir_all(&path).await
+  } else {
+    tokio::fs::remove_file(&path).await
+  };
+
+  match result {
+    Ok(_) =>
+      emit(&app, EventToFrontend::DeleteEntry, Payload::<String> {
+        op_id,
+        data: Some(path),
+        error: None,
+        is_finished: true,
+      }),
+
+    Err(e) =>
+      emit(&app, EventToFrontend::DeleteEntry, Payload::<()> {
+        op_id,
+        data: None,
+        error: Some(e.to_string()),
+        is_finished: true,
+      }),
+  }
+
+  Ok(())
 }
