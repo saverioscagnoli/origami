@@ -10,17 +10,16 @@ mod file_system;
 mod consts;
 mod disks;
 
+use consts::STARRED_DIR_NAME;
 use disks::emit_disks;
 use events::EventFromFrontend;
 use payloads::WatchPayload;
-use std::sync::{ Arc, Mutex } ;
+use std::sync::{ Arc, Mutex };
 use tauri::{ AppHandle, Manager, State };
 use utils::listen;
 use watcher::{ create_watcher, unwatch, watch };
 
 use file_system::{ list_dir, open_file, delete_entry };
-
-
 
 #[tokio::main]
 async fn main() {
@@ -44,6 +43,10 @@ async fn main() {
       ]
     )
     .setup(|app| {
+      let handle = app.handle();
+
+      init(handle);
+
       let event_pool: Arc<Mutex<Vec<tauri::EventId>>> = Arc::new(
         Mutex::new(Vec::new())
       );
@@ -60,6 +63,15 @@ async fn main() {
     })
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
+}
+
+fn init(app: &AppHandle) {
+  let path = app.path();
+  let starred_dir = path.app_config_dir().unwrap().join(STARRED_DIR_NAME);
+
+  if !starred_dir.exists() {
+    std::fs::create_dir_all(&starred_dir).unwrap();
+  }
 }
 
 #[tauri::command]

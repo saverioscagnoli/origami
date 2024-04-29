@@ -2,6 +2,7 @@ import { Menubar } from "@components/tredici";
 import { TopbarFileMenu } from "./file";
 import { TopbarEditMenu } from "./edit";
 import { TopbarViewMenu } from "./view";
+import { TopbarGoMenu } from "./go";
 
 const TopbarMenu = () => {
   return (
@@ -9,6 +10,7 @@ const TopbarMenu = () => {
       <TopbarFileMenu />
       <TopbarEditMenu />
       <TopbarViewMenu />
+      <TopbarGoMenu />
     </Menubar>
   );
 };

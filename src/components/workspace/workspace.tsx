@@ -9,7 +9,7 @@ import {
   useRef
 } from "react";
 import { useSettings } from "@contexts/settings";
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { Virtuoso, VirtuosoGrid, VirtuosoHandle } from "react-virtuoso";
 import { useAccessor } from "@hooks/use-accessor";
 import { ScrollArea } from "@components/tredici";
 import { EmptySpaceContextMenu } from "./empty-space";
@@ -17,7 +17,7 @@ import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
   const { dir, entries } = useCurrentDir();
-  const { showHidden } = useSettings();
+  const { showHidden, viewType } = useSettings();
 
   const scrollRef = useAccessor<HTMLDivElement | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -47,15 +47,26 @@ const Workspace = () => {
           className={cn("w-full h-full", "rounded-[inherit]")}
           ref={scrollRef.set}
         >
-          <Virtuoso
-            data={filtered}
-            totalCount={filtered.length}
-            fixedItemHeight={24}
-            customScrollParent={scrollRef() ?? undefined}
-            ref={virtuosoRef}
-            itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
-            components={{ List }}
-          />
+          {viewType() === "list" ? (
+            <Virtuoso
+              data={filtered}
+              totalCount={filtered.length}
+              fixedItemHeight={24}
+              customScrollParent={scrollRef() ?? undefined}
+              ref={virtuosoRef}
+              itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
+              components={listComponents}
+            />
+          ) : (
+            <VirtuosoGrid
+              data={filtered}
+              totalCount={filtered.length}
+              customScrollParent={scrollRef() ?? undefined}
+              ref={virtuosoRef}
+              itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
+              components={gridComponents}
+            />
+          )}
           <ScrollArea.Scrollbar className={cn("mr-1")} />
         </ScrollArea.Viewport>
       </ScrollArea>
@@ -63,14 +74,37 @@ const Workspace = () => {
   );
 };
 
-const List = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>(
-  (props, ref) => {
+const listComponents = {
+  List: forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>((props, ref) => {
     return (
       <SelectedEntriesContextMenu>
         <div {...props} ref={ref} />
       </SelectedEntriesContextMenu>
     );
-  }
-);
+  })
+};
+
+const gridComponents = {
+  List: forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>(
+    ({ className, children, ...props }, ref) => (
+      <div className={cn("flex flex-wrap", className)} {...props} ref={ref}>
+        {children}
+      </div>
+    )
+  ),
+  Item: forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>(
+    ({ className, children, ...props }, ref) => (
+      <SelectedEntriesContextMenu>
+        <div
+          className={cn("flex flex-none content-stretch", className)}
+          {...props}
+          ref={ref}
+        >
+          {children}
+        </div>
+      </SelectedEntriesContextMenu>
+    )
+  )
+};
 
 export { Workspace };

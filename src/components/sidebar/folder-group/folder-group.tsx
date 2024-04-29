@@ -1,28 +1,23 @@
 import { For } from "@components/for";
-import { useAccessor } from "@hooks/use-accessor";
-import { cn, resolveBasicDirs } from "@lib/utils";
-import { ReactNode, useEffect } from "react";
+import { cn } from "@lib/utils";
 import { SidebarFolder } from "./folder";
 import { sep } from "@tauri-apps/api/path";
 import { useNavigation } from "@contexts/navigation";
+import { useEnvironment } from "@contexts/environment";
 
 const SidebarFolderGroup = () => {
   const { cd } = useNavigation();
-  const dirs = useAccessor<Map<string, ReactNode>>(new Map());
-
-  useEffect(() => {
-    resolveBasicDirs().then(dirs.set);
-  }, []);
+  const { basicDirs } = useEnvironment();
 
   return (
     <div className={cn("flex flex-col", "py-4")}>
-      <For of={Array.from(dirs().entries())}>
-        {([dir, icon], i) => (
+      <For of={basicDirs}>
+        {({ path, icon }) => (
           <SidebarFolder
-            key={i}
+            key={path}
             icon={icon}
-            name={dir.split(sep()).pop()}
-            onClick={cd(dir)}
+            name={path.split(sep()).pop()}
+            onClick={cd(path)}
           />
         )}
       </For>

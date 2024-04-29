@@ -15,6 +15,7 @@ import {
   pictureDir,
   sep
 } from "@tauri-apps/api/path";
+import { BasicDir } from "@typings/basic-dir";
 import { ChildrenProps } from "@typings/props";
 import { clsx, ClassValue } from "clsx";
 import { Context, FC, ReactNode, useContext } from "react";
@@ -46,7 +47,7 @@ function createContextProvider<T>(
 }
 
 async function resolveBasicDirs() {
-  const dirMap = new Map<string, ReactNode>();
+  const basicDirs: BasicDir[] = [];
 
   const promises = [
     appConfigDir(),
@@ -77,13 +78,13 @@ async function resolveBasicDirs() {
         path += sep() + "Starred";
       }
 
-      dirMap.set(path, icon);
+      basicDirs.push({ path, icon });
     } catch {
-      console.error("Failed to resolve one of the basic directories.");
+      console.warn("Failed to resolve one of the basic directories.");
     }
   }
 
-  return dirMap;
+  return basicDirs;
 }
 
 function percentage(part: number, total: number, decimals: number = 0): string {

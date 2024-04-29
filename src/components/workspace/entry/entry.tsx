@@ -2,9 +2,9 @@ import { useCurrentDir } from "@contexts/current-dir";
 import { useSettings } from "@contexts/settings";
 import { cn } from "@lib/utils";
 import { DirEntry } from "@typings/dir-entry";
-import { FC, MouseEventHandler, forwardRef, useMemo } from "react";
+import { MouseEventHandler, forwardRef, useMemo } from "react";
 import { EntryCheckbox } from "./checkbox";
-import { EntryName } from "./name";
+import { GridEntryName, ListEntryName } from "./name";
 import { useNavigation } from "@contexts/navigation";
 import { EntryFlags } from "./flags";
 import { EntryLastModified } from "./last-modified";
@@ -63,7 +63,7 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
     }
   };
 
-  const { showCheckboxes } = useSettings();
+  const { showCheckboxes, viewType } = useSettings();
 
   const onCheckedChange = () => {
     if (isSelected) {
@@ -73,7 +73,7 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
     }
   };
 
-  return (
+  return viewType() === "list" ? (
     <div
       className={cn(
         "w-full h-6",
@@ -92,12 +92,26 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
         {showCheckboxes() && (
           <EntryCheckbox checked={isSelected} onCheckedChange={onCheckedChange} />
         )}
-        <EntryName name={name} path={path} isDir={isDir} />
+        <ListEntryName name={name} path={path} isDir={isDir} />
       </span>
       <EntryFlags isHidden={isHidden} isSymlink={isSymlink} isStarred={isStarred} />
       <EntryLastModified lastModified={lastModified} />
       <EntrySize isDir={isDir} size={size} />
     </div>
+  ) : (
+    <div
+      className={cn(
+        "w-28 h-28",
+        !isSelected && "hover:bg-[--gray-3]",
+        isSelected && "bg-[--gray-4]"
+      )}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onContextMenu={onContextMenu}
+    >
+      <GridEntryName name={name} path={path} isDir={isDir} />
+    </div>
   );
 });
+
 export { Entry };

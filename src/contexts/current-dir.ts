@@ -2,10 +2,8 @@ import { useAccessor } from "@hooks/use-accessor";
 import { useTauriEvent } from "@hooks/use-tauri-event";
 import { OperationStatus, OperationType } from "@lib/operations";
 import { createContextHook, createContextProvider } from "@lib/utils";
-import { invoke } from "@tauri-apps/api/core";
 import { emit } from "@tauri-apps/api/event";
 import { Accessor } from "@typings/accessor";
-import { Command } from "@typings/command";
 import { DirEntry } from "@typings/dir-entry";
 import { EventToBackend } from "@typings/events";
 import { operations } from "main";
@@ -25,6 +23,11 @@ const CurrentDirProvider = createContextProvider(CurrentDirContext, () => {
   const dir = useAccessor<string>("");
   const entries = useAccessor<DirEntry[]>([]);
   const selected = useAccessor<DirEntry[]>([]);
+
+  // Reset selected entries every time the user changes the directory.
+  useEffect(() => {
+    selected.reset();
+  }, [dir()]);
 
   useTauriEvent(
     OperationType.ListDir,
