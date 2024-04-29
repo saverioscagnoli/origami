@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{ Path, PathBuf };
 
 use chrono::{ DateTime, Utc };
 use serde::Serialize;
@@ -195,37 +195,148 @@ pub fn open_file(app: AppHandle, path: String, op_id: String) {
       }),
   }
 }
+/* Copy a directory recursively. */
+async fn copy_dir(from: PathBuf, to: PathBuf) -> Result<(), tokio::io::Error> {
+  tokio::fs::create_dir_all(&to).await?;
+
+  let mut entries = tokio::fs::read_dir(&from).await?;
+
+  while let Some(entry) = entries.next_entry().await? {
+    let path = entry.path();
+    let new_path = to.join(entry.file_name());
+
+    if path.is_dir() {
+      // Box the recursive call to copy_dir
+      let task = Box::pin(copy_dir(path, new_path));
+      task.await?;
+    } else {
+      tokio::fs::copy(&path, &new_path).await?;
+    }
+  }
+
+  Ok(())
+}
 
 #[tauri::command]
-pub async fn delete_entry(
+pub async fn paste_entries(
   app: AppHandle,
-  path: String,
+  paths: Vec<String>,
+  dir: String,
+  is_cutting: bool,
   op_id: String
 ) -> Result<(), String> {
-  let path_buf = Path::new(&path);
+  let total_paths = paths.len();
+  for (index, path) in paths.into_iter().enumerate() {
+    let old_path = Path::new(&path);
+    let new_path = Path::new(&dir).join(old_path.file_name().unwrap());
 
-  let result = if path_buf.is_dir() {
-    tokio::fs::remove_dir_all(&path).await
-  } else {
-    tokio::fs::remove_file(&path).await
-  };
-
-  match result {
-    Ok(_) =>
-      emit(&app, EventToFrontend::DeleteEntry, Payload::<String> {
-        op_id,
-        data: Some(path),
-        error: None,
-        is_finished: true,
-      }),
-
-    Err(e) =>
-      emit(&app, EventToFrontend::DeleteEntry, Payload::<()> {
-        op_id,
+    if new_path.exists() {
+      emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+        op_id: op_id.clone(),
         data: None,
-        error: Some(e.to_string()),
-        is_finished: true,
-      }),
+        error: Some(format!("{} already exists", new_path.to_string_lossy())),
+        is_finished: false,
+      });
+    }
+
+    let is_last = index == total_paths - 1;
+
+    if is_cutting {
+      match tokio::fs::rename(&path, &new_path).await {
+        Ok(_) =>
+          emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+            op_id: op_id.clone(),
+            data: None,
+            error: None,
+            is_finished: is_last,
+          }),
+
+        Err(e) =>
+          emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+            op_id: op_id.clone(),
+            data: None,
+            error: Some(e.to_string()),
+            is_finished: is_last,
+          }),
+      }
+    } else {
+      if old_path.is_dir() {
+        match copy_dir(old_path.into(), new_path).await {
+          Ok(_) => {
+            emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+              op_id: op_id.clone(),
+              data: None,
+              error: None,
+              is_finished: is_last,
+            });
+          }
+
+          Err(e) =>
+            emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+              op_id: op_id.clone(),
+              data: None,
+              error: Some(e.to_string()),
+              is_finished: is_last,
+            }),
+        }
+      } else {
+        match tokio::fs::copy(&path, &new_path).await {
+          Ok(_) => {
+            emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+              op_id: op_id.clone(),
+              data: None,
+              error: None,
+              is_finished: is_last,
+            });
+          }
+
+          Err(e) =>
+            emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+              op_id: op_id.clone(),
+              data: None,
+              error: Some(e.to_string()),
+              is_finished: is_last,
+            }),
+        }
+      }
+    }
+  }
+
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn delete_entries(
+  app: AppHandle,
+  paths: Vec<String>,
+  op_id: String
+) -> Result<(), String> {
+  for path in paths {
+    let path_buf = Path::new(&path);
+
+    let result = if path_buf.is_dir() {
+      tokio::fs::remove_dir_all(&path).await
+    } else {
+      tokio::fs::remove_file(&path).await
+    };
+
+    match result {
+      Ok(_) =>
+        emit(&app, EventToFrontend::DeleteEntry, Payload::<String> {
+          op_id: op_id.clone(),
+          data: Some(path),
+          error: None,
+          is_finished: true,
+        }),
+    
+      Err(e) =>
+        emit(&app, EventToFrontend::DeleteEntry, Payload::<()> {
+          op_id: op_id.clone(),
+          data: None,
+          error: Some(e.to_string()),
+          is_finished: true,
+        }),
+    }
   }
 
   Ok(())

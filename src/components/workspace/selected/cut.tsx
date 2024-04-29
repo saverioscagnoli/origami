@@ -1,19 +1,12 @@
 import { ContextMenu } from "@components/tredici";
-import { useCurrentDir } from "@contexts/current-dir";
-import { useGlobalStates } from "@contexts/global-states";
+import { useNavigation } from "@contexts/navigation";
 import { ScissorsIcon } from "@radix-ui/react-icons";
 
 const CutMenuItem = () => {
-  const { cutting, copying } = useGlobalStates();
-  const { selected } = useCurrentDir();
-
-  const startCutting = () => {
-    copying.reset();
-    cutting.set(selected());
-  };
+  const { cutEntries } = useNavigation();
 
   return (
-    <ContextMenu.Item leftIcon={<ScissorsIcon />} onClick={startCutting}>
+    <ContextMenu.Item leftIcon={<ScissorsIcon />} onClick={cutEntries}>
       Cut
     </ContextMenu.Item>
   );

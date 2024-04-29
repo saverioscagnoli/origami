@@ -30,3 +30,15 @@ pub fn emit<P>(app: &AppHandle, evt: EventToFrontend, payload: P)
 {
   let _ = app.emit(EventToFrontend::as_str(&evt), payload);
 }
+
+#[tauri::command]
+pub fn get_os() -> String {
+  #[cfg(target_os = "windows")]
+  return "windows".to_string();
+
+  #[cfg(target_os = "macos")]
+  return "macos".to_string();
+
+  #[cfg(target_os = "linux")]
+  return "linux".to_string();
+}

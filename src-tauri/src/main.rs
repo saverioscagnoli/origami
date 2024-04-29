@@ -16,10 +16,10 @@ use events::EventFromFrontend;
 use payloads::WatchPayload;
 use std::sync::{ Arc, Mutex };
 use tauri::{ AppHandle, Manager, State };
-use utils::listen;
+use utils::{ listen, get_os };
 use watcher::{ create_watcher, unwatch, watch };
 
-use file_system::{ list_dir, open_file, delete_entry };
+use file_system::{ list_dir, open_file, paste_entries, delete_entries };
 
 #[tokio::main]
 async fn main() {
@@ -38,7 +38,9 @@ async fn main() {
         emit_disks,
         list_dir,
         open_file,
-        delete_entry,
+        paste_entries,
+        delete_entries,
+        get_os,
         stop_all
       ]
     )
@@ -95,13 +97,13 @@ async fn start_watching<'a>(
 
     if &p.old_path != "" {
       match unwatch(&mut watcher, &p.old_path) {
-        Ok(_) => log::info!("unwatched: {:?}", &p.old_path),
+        Ok(_) => {}
         Err(e) => log::error!("failed to unwatch: {:?}", e),
       }
     }
 
     match watch(&app_clone, &mut watcher, rx_mutex, &p.new_path) {
-      Ok(_) => log::info!("watched: {:?}", &p.new_path),
+      Ok(_) => {}
       Err(e) => log::error!("failed to watch: {:?}", e),
     }
   });

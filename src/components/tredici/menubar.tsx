@@ -139,6 +139,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
           "rounded",
           "text-sm",
           "focus:bg-[--gray-4]",
+          "outline-none",
           "data-[state='open']:bg-[--gray-4]",
           className
         )}
@@ -163,6 +164,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
             "shadow-lg",
             "bg-[--slate-1]",
             "text-[--slate-12]",
+            "select-none",
             "menubar-content",
             className
           )}
@@ -375,6 +377,7 @@ const MenubarSubContent = forwardRef<HTMLDivElement, MenubarSubContentProps>(
             "shadow-lg",
             "bg-[--slate-1]",
             "text-[--slate-12]",
+            "select-none",
             "menubar-content",
             className
           )}

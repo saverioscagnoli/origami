@@ -32,7 +32,12 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
     if (evt.detail === 1) {
       if (evt.ctrlKey) {
         // If the user presses the control key, add the entry to the selected list
-        addSelected();
+        // If the entry is already selected, remove it from the selected list
+        if (isSelected) {
+          removeSelected();
+        } else {
+          addSelected();
+        }
       } else if (evt.shiftKey) {
         // If the user presses the shift key, select all entries between the last selected entry and the current entry
       } else {
@@ -102,6 +107,8 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
     <div
       className={cn(
         "w-28 h-28",
+        "p-2",
+        "rounded-sm",
         !isSelected && "hover:bg-[--gray-3]",
         isSelected && "bg-[--gray-4]"
       )}

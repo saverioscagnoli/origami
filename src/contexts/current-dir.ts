@@ -1,13 +1,14 @@
 import { useAccessor } from "@hooks/use-accessor";
 import { useTauriEvent } from "@hooks/use-tauri-event";
+import { Callstack } from "@lib/callstack";
 import { OperationStatus, OperationType } from "@lib/operations";
 import { createContextHook, createContextProvider } from "@lib/utils";
 import { emit } from "@tauri-apps/api/event";
 import { Accessor } from "@typings/accessor";
 import { DirEntry } from "@typings/dir-entry";
 import { EventToBackend } from "@typings/events";
-import { operations } from "main";
 import { createContext, useEffect } from "react";
+import { useCallstack } from "./callstack";
 
 type CurrentDirContextValue = {
   dir: Accessor<string>;
@@ -29,6 +30,8 @@ const CurrentDirProvider = createContextProvider(CurrentDirContext, () => {
     selected.reset();
   }, [dir()]);
 
+  const callstack = useCallstack();
+
   useTauriEvent(
     OperationType.ListDir,
     payload => {
@@ -36,7 +39,7 @@ const CurrentDirProvider = createContextProvider(CurrentDirContext, () => {
 
       if (error) {
         alert(error);
-        operations.updateStatus(opId, OperationStatus.Error);
+        callstack.updateStatus(opId, OperationStatus.Error);
         return;
       }
 
@@ -47,10 +50,11 @@ const CurrentDirProvider = createContextProvider(CurrentDirContext, () => {
       entries.set(data.entries);
 
       if (isFinished) {
-        operations.updateStatus(opId, OperationStatus.Success);
-        if (data.path !== dir()) {
-          dir.set(data.path);
+        callstack.updateStatus(opId, OperationStatus.Success);
 
+        dir.set(data.path);
+
+        if (data.path !== dir()) {
           emit(EventToBackend.DirChanged, { oldPath: dir(), newPath: data.path });
         }
       }

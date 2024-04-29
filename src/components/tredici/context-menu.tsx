@@ -99,6 +99,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
             "shadow-lg",
             "bg-[--slate-1]",
             "text-[--slate-12]",
+            "select-none",
             "context-menu-content",
             className
           )}
@@ -325,6 +326,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
             "shadow-lg",
             "bg-[--slate-1]",
             "text-[--slate-12]",
+            "select-none",
             "context-menu-content",
             className
           )}

@@ -1,54 +1,36 @@
-import {
-  ArgsMap,
-  Operation,
-  OperationStatus,
-  OperationType
-} from "./operations";
+import { Dispatch, SetStateAction, useState } from "react";
+import { ArgsMap, Operation, OperationStatus, OperationType } from "./operations";
 
-class Callstack {
-  private static instance: Callstack;
+class Callstack<T extends OperationType> {
+  private map: Map<string, Operation<T>>;
+  private setMap: Dispatch<SetStateAction<Map<string, Operation<T>>>>;
 
-  private map: Map<string, Operation<OperationType>>;
+  public constructor(initialValue: Map<string, Operation<T>> = new Map()) {
+    const [map, setMap] = useState(initialValue);
 
-  private constructor() {
-    this.map = new Map();
+    this.map = map;
+    this.setMap = setMap;
   }
 
-  public static build(): Callstack {
-    if (!Callstack.instance) {
-      Callstack.instance = new Callstack();
-    }
-
-    return Callstack.instance;
-  }
-
-  public getState() {
-    return this.map;
-  }
-
-  public push<T extends OperationType>(type: T, args: ArgsMap[T]) {
-    const op = new Operation(type, args);
-    const uuid = window.crypto.randomUUID();
-
-    this.set(uuid, op);
-  }
-
-  public pop(id: string) {
-    this.map.delete(id);
-    this.change();
-  }
-
-  public get(id: string): Operation<OperationType> | undefined {
+  public get(id: string) {
     return this.map.get(id);
   }
 
-  public set(id: string, op: Operation<OperationType>) {
-    this.map.set(id, op);
-    this.change();
+  public set(id: string, op: Operation<T>) {
+    const updatedMap = new Map(this.map.set(id, op));
+    this.setMap(updatedMap);
   }
 
-  public getKeyValues(): [string, Operation<OperationType>][] {
-    return Array.from(this.map.entries());
+  public delete(id: string) {
+    this.map.delete(id);
+    const updatedMap = new Map(this.map);
+    this.setMap(updatedMap);
+  }
+
+  public push(type: T, args: ArgsMap[T]) {
+    const op = new Operation(type, args);
+
+    this.set(window.crypto.randomUUID(), op);
   }
 
   public updateStatus(id: string, status: OperationStatus) {
@@ -62,10 +44,24 @@ class Callstack {
     return op;
   }
 
-  public change() {
-    const { Ready, Pending, Success, Error, Canceled } = OperationStatus;
+  public getKeyValues() {
+    return Array.from(this.map.entries());
+  }
 
-    console.log(this.getKeyValues().map(([_, op]) => op.getStatus()));
+  public peek() {
+    return this.map;
+  }
+
+  public getPendingOperations(): Operation<T>[] {
+    return this.getKeyValues()
+      .map(([_, op]) => op)
+      .filter(op => op.isPending());
+  }
+
+  public watchChanges() {
+    const { Ready, Success, Error } = OperationStatus;
+
+    console.log(this.getKeyValues().map(([id, op]) => op.getStatus()));
 
     for (const [id, op] of this.getKeyValues()) {
       switch (op.getStatus()) {
@@ -76,20 +72,14 @@ class Callstack {
           break;
         }
 
-        case Pending: {
-          break;
-        }
-
-        case Success:
         case Error:
-        case Canceled: {
-          this.pop(id);
+        case Success: {
+          this.delete(id);
           break;
         }
 
-        default: {
+        default:
           break;
-        }
       }
     }
   }

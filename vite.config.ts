@@ -2,10 +2,11 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import million from "million/compiler";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react(), tsconfigPaths(), million.vite({ auto: true })],
+  plugins: [react(), tsconfigPaths(), million.vite({ auto: true }), visualizer()],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //

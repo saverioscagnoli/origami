@@ -53,8 +53,11 @@ pub fn watch<P: AsRef<Path>>(
             | EventKind::Remove(RemoveKind::File)
             // Windows
             | EventKind::Remove(RemoveKind::Any)
+            // Linux
             | EventKind::Modify(ModifyKind::Name(RenameMode::To))
-            | EventKind::Modify(ModifyKind::Name(RenameMode::From)) => {
+            | EventKind::Modify(ModifyKind::Name(RenameMode::From))
+            // Windows
+            | EventKind::Modify(ModifyKind::Any) => {
               emit(&app, EventToFrontend::Watch, "");
             }
 

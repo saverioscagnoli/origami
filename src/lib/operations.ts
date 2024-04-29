@@ -3,12 +3,14 @@ import { invoke } from "@tauri-apps/api/core";
 enum OperationType {
   ListDir = "list_dir",
   OpenFile = "open_file",
+  PasteEntries = "paste_entries",
   DeleteEntry = "delete_entry"
 }
 
 type ArgsMap = {
   [OperationType.ListDir]: { path: string };
   [OperationType.OpenFile]: { path: string };
+  [OperationType.PasteEntries]: { paths: string[]; dir: string; isCutting: boolean };
   [OperationType.DeleteEntry]: { path: string };
 };
 
@@ -31,12 +33,20 @@ class Operation<T extends OperationType> {
     this.status = OperationStatus.Ready;
   }
 
+  public peekArgs(): ArgsMap[T] {
+    return this.args;
+  }
+
   public getStatus(): OperationStatus {
     return this.status;
   }
 
   public setStatus(status: OperationStatus): void {
     this.status = status;
+  }
+
+  public getType(): T {
+    return this.type;
   }
 
   public isReady(): boolean {
@@ -57,6 +67,10 @@ class Operation<T extends OperationType> {
 
   public isCanceled(): boolean {
     return this.status === OperationStatus.Canceled;
+  }
+
+  public isFinished(): boolean {
+    return this.isSuccess() || this.isError() || this.isCanceled();
   }
 
   public invoke(id: string) {

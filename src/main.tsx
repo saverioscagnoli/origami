@@ -1,6 +1,5 @@
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { Callstack } from "@lib/callstack";
 import { CurrentDirProvider } from "@contexts/current-dir";
 import { SettingsProvider } from "@contexts/settings";
 
@@ -8,21 +7,20 @@ import "./styles.css";
 import { NavigationProvider } from "@contexts/navigation";
 import { GlobalStatesProvider } from "@contexts/global-states";
 import { EnvironmentProvider } from "@contexts/environment";
-
-const operations = Callstack.build();
+import { CallstackProvider } from "@contexts/callstack";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <SettingsProvider>
-    <CurrentDirProvider>
-      <NavigationProvider>
+    <CallstackProvider>
+      <CurrentDirProvider>
         <GlobalStatesProvider>
-          <EnvironmentProvider>
-            <App />
-          </EnvironmentProvider>
+          <NavigationProvider>
+            <EnvironmentProvider>
+              <App />
+            </EnvironmentProvider>
+          </NavigationProvider>
         </GlobalStatesProvider>
-      </NavigationProvider>
-    </CurrentDirProvider>
+      </CurrentDirProvider>
+    </CallstackProvider>
   </SettingsProvider>
 );
-
-export { operations };

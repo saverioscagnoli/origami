@@ -1,13 +1,7 @@
 import { useCurrentDir } from "@contexts/current-dir";
 import { cn } from "@lib/utils";
 import { Entry } from "./entry";
-import {
-  ComponentPropsWithoutRef,
-  forwardRef,
-  useEffect,
-  useMemo,
-  useRef
-} from "react";
+import { ComponentPropsWithoutRef, forwardRef, useMemo, useRef } from "react";
 import { useSettings } from "@contexts/settings";
 import { Virtuoso, VirtuosoGrid, VirtuosoHandle } from "react-virtuoso";
 import { useAccessor } from "@hooks/use-accessor";
@@ -96,7 +90,7 @@ const gridComponents = {
     ({ className, children, ...props }, ref) => (
       <SelectedEntriesContextMenu>
         <div
-          className={cn("flex flex-none content-stretch", className)}
+          className={cn("flex flex-none content-stretch", "p-3", className)}
           {...props}
           ref={ref}
         >
