@@ -1,13 +1,16 @@
-import { useDispatch } from "react-redux";
-import { useCurrentDir } from "./use-current-dir";
-import { pop, push, updateStatus } from "@redux/callstack-slice";
-import { OperationStatus, OperationType } from "@lib/operations";
 import { useGlobalStates } from "@contexts/global-states";
+import { OperationStatus, OperationType } from "@lib/operations";
+import { pop, push, updateStatus } from "@redux/callstack-slice";
 import {
+  addSelected as dispatchAddSelected,
+  removeSelected as dispatchRemoveSelected,
+  replaceSelected as dispatchReplaceSelected,
   updateDir as dispatchUpdateDir,
   updateEntries as dispatchUpdateEntries
 } from "@redux/current-dir-slice";
 import { DirEntry } from "@typings/dir-entry";
+import { useDispatch } from "react-redux";
+import { useCurrentDir } from "./use-current-dir";
 
 function useDispatchers() {
   const { dir, selected } = useCurrentDir();
@@ -117,6 +120,38 @@ function useDispatchers() {
     dispatch(pop({ id }));
   };
 
+  /**
+   * Replaces the selected entries in the redux store.
+   * @param newSelected the entries to replace the current state with.
+   */
+  const replaceSelected = (newSelected: DirEntry[]) => {
+    dispatch(dispatchReplaceSelected({ newSelected }));
+  };
+
+  /**
+   * Adds an entry to the selected entries in the redux store.
+   * @param entry the entry to add to the selected entries
+   */
+  const addSelected = (entry: DirEntry) => {
+    dispatch(
+      dispatchAddSelected({
+        entry
+      })
+    );
+  };
+
+  /**
+   * Removes an entry from the selected entries in the redux store.
+   * @param entry the entry to remove from the selected entries
+   */
+  const removeSelected = (entry: DirEntry) => {
+    dispatch(
+      dispatchRemoveSelected({
+        entry
+      })
+    );
+  };
+
   return {
     updateDir,
     updateEntries,
@@ -126,7 +161,10 @@ function useDispatchers() {
     pasteEntries,
     deleteEntries,
     updateOpStatus,
-    popOp
+    popOp,
+    replaceSelected,
+    addSelected,
+    removeSelected
   };
 }
 

@@ -1,26 +1,20 @@
-import { useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { useEvent } from "@util-hooks/use-event";
-import { cn } from "@lib/utils";
-import { Topbar } from "@components/topbar";
-import { Sidebar } from "@components/sidebar";
-import { Workspace } from "@components/workspace";
 import { Bottombar } from "@components/bottombar";
-import { Command } from "@typings/command";
-import { Operation, OperationStatus, OperationType } from "@lib/operations";
-import { setupHotkeys } from "@lib/hotkeys";
-import { homeDir } from "@tauri-apps/api/path";
-import { emit } from "@tauri-apps/api/event";
-import { EventToBackend } from "@typings/events";
-import { useAccessor } from "@hooks/use-accessor";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "redux/store";
-import { pop, push, updateStatus } from "@redux/callstack-slice";
-import { useTauriEvent } from "@hooks/use-tauri-event";
-import { fetchHomeDir } from "@redux/current-dir-slice";
-import { currentDirListeners } from "@lib/operation-listeners";
-import { useDispatchers } from "@hooks/use-dispatchers";
+import { Sidebar } from "@components/sidebar";
+import { Topbar } from "@components/topbar";
+import { Workspace } from "@components/workspace";
 import { useCallstack } from "@hooks/use-callstack";
+import { useDispatchers } from "@hooks/use-dispatchers";
+import { setupHotkeys } from "@lib/hotkeys";
+import { currentDirListeners } from "@lib/operation-listeners";
+import { OperationStatus } from "@lib/operations";
+import { cn } from "@lib/utils";
+import { invoke } from "@tauri-apps/api/core";
+import { emit } from "@tauri-apps/api/event";
+import { homeDir } from "@tauri-apps/api/path";
+import { Command } from "@typings/command";
+import { EventToBackend } from "@typings/events";
+import { useEvent } from "@util-hooks/use-event";
+import { useEffect } from "react";
 
 function App() {
   // const os = useAccessor<string>("");
@@ -35,25 +29,30 @@ function App() {
   //     .then(home => cd(home)());
   // }, []);
 
-  // useEvent("contextmenu", e => e.preventDefault());
-
-  // useEvent(window, "beforeunload", () => {
-  //   emit(EventToBackend.BeforeUnload).then(() => invoke(Command.StopAll));
-  // });
-
-  // setupHotkeys();
+  //
 
   currentDirListeners();
+  
+  // Remove the native context menu
+  useEvent("contextmenu", e => e.preventDefault());
+
+  // Emit a beforeunload event to the backend when the window is about to close
+  useEvent(window, "beforeunload", () => {
+    emit(EventToBackend.BeforeUnload).then(() => invoke(Command.StopAll));
+  });
 
   const callstack = useCallstack();
   const { cd, updateOpStatus, popOp } = useDispatchers();
 
   // Fetch the home directory and list its contents on app start
+
   useEffect(() => {
     homeDir()
       .then(path => cd(path)())
       .then(() => invoke(Command.StartDisks));
   }, []);
+
+  setupHotkeys();
 
   // Every time an operation in pushed to the array, check for its status
   // If it is ready, invoke, the backend function.
