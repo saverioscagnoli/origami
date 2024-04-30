@@ -1,11 +1,18 @@
 import { Menubar } from "@components/tredici";
-import { useCurrentDir } from "@contexts/current-dir";
+import { replaceSelected } from "@redux/current-dir-slice";
+import { RootState } from "@redux/store";
+import { useDispatch, useSelector } from "react-redux";
 
 const SelectAllMenuItem = () => {
-  const { entries, selected } = useCurrentDir();
+  const { entries, selected } = useSelector((state: RootState) => state.currentDir);
+  const dispatch = useDispatch();
 
   const selectAll = () => {
-    selected.set(entries());
+    dispatch(
+      replaceSelected({
+        newSelected: entries
+      })
+    );
   };
 
   return <Menubar.Item onClick={selectAll}>Select All</Menubar.Item>;

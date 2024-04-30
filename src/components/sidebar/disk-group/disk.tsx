@@ -3,11 +3,11 @@ import { BackpackIcon } from "@radix-ui/react-icons";
 import { FC } from "react";
 import { Disk as TDisk } from "@typings/disk";
 import { Progress } from "@components/tredici";
-import { useNavigation } from "@contexts/navigation";
 import { UsbIcon } from "lucide-react";
+import { useDispatchers } from "@hooks/use-dispatchers";
 
 const Disk: FC<TDisk> = ({ totalSpace, freeSpace, mountPoint, isRemovable }) => {
-  const { cd } = useNavigation();
+  const { cd } = useDispatchers();
 
   return (
     <div

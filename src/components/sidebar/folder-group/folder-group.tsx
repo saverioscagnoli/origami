@@ -2,12 +2,12 @@ import { For } from "@components/for";
 import { cn } from "@lib/utils";
 import { SidebarFolder } from "./folder";
 import { sep } from "@tauri-apps/api/path";
-import { useNavigation } from "@contexts/navigation";
 import { useEnvironment } from "@contexts/environment";
+import { useDispatchers } from "@hooks/use-dispatchers";
 
 const SidebarFolderGroup = () => {
-  const { cd } = useNavigation();
   const { basicDirs } = useEnvironment();
+  const { cd } = useDispatchers();
 
   return (
     <div className={cn("flex flex-col", "py-4")}>

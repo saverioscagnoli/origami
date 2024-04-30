@@ -28,6 +28,8 @@ pub async fn list_dir(
 
   let dir = tokio::fs::read_dir(&path).await;
 
+  println!("{:?}", path);
+
   if dir.is_err() {
     emit(&app, EventToFrontend::ListDir, Payload::<()> {
       op_id,
@@ -226,14 +228,16 @@ pub async fn paste_entries(
   op_id: String
 ) -> Result<(), String> {
   let total_paths = paths.len();
+  let dir_clone = dir.clone();
+
   for (index, path) in paths.into_iter().enumerate() {
     let old_path = Path::new(&path);
     let new_path = Path::new(&dir).join(old_path.file_name().unwrap());
 
     if new_path.exists() {
-      emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+      emit(&app, EventToFrontend::PasteEntries, Payload::<String> {
         op_id: op_id.clone(),
-        data: None,
+        data: Some(dir_clone.clone()),
         error: Some(format!("{} already exists", new_path.to_string_lossy())),
         is_finished: false,
       });
@@ -244,15 +248,15 @@ pub async fn paste_entries(
     if is_cutting {
       match tokio::fs::rename(&path, &new_path).await {
         Ok(_) =>
-          emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+          emit(&app, EventToFrontend::PasteEntries, Payload::<String> {
             op_id: op_id.clone(),
-            data: None,
+            data: Some(dir_clone.clone()),
             error: None,
             is_finished: is_last,
           }),
 
         Err(e) =>
-          emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+          emit(&app, EventToFrontend::PasteEntries, Payload::<String> {
             op_id: op_id.clone(),
             data: None,
             error: Some(e.to_string()),
@@ -263,16 +267,16 @@ pub async fn paste_entries(
       if old_path.is_dir() {
         match copy_dir(old_path.into(), new_path).await {
           Ok(_) => {
-            emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+            emit(&app, EventToFrontend::PasteEntries, Payload::<String> {
               op_id: op_id.clone(),
-              data: None,
+              data: Some(dir_clone.clone()),
               error: None,
               is_finished: is_last,
             });
           }
 
           Err(e) =>
-            emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+            emit(&app, EventToFrontend::PasteEntries, Payload::<String> {
               op_id: op_id.clone(),
               data: None,
               error: Some(e.to_string()),
@@ -282,16 +286,16 @@ pub async fn paste_entries(
       } else {
         match tokio::fs::copy(&path, &new_path).await {
           Ok(_) => {
-            emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+            emit(&app, EventToFrontend::PasteEntries, Payload::<String> {
               op_id: op_id.clone(),
-              data: None,
+              data: Some(dir_clone.clone()),
               error: None,
               is_finished: is_last,
             });
           }
 
           Err(e) =>
-            emit(&app, EventToFrontend::PasteEntries, Payload::<()> {
+            emit(&app, EventToFrontend::PasteEntries, Payload::<String> {
               op_id: op_id.clone(),
               data: None,
               error: Some(e.to_string()),
@@ -311,7 +315,9 @@ pub async fn delete_entries(
   paths: Vec<String>,
   op_id: String
 ) -> Result<(), String> {
-  for path in paths {
+  let len = paths.len();
+
+  for (i, path) in paths.into_iter().enumerate() {
     let path_buf = Path::new(&path);
 
     let result = if path_buf.is_dir() {
@@ -320,21 +326,23 @@ pub async fn delete_entries(
       tokio::fs::remove_file(&path).await
     };
 
+    let is_last = i == len - 1;
+
     match result {
       Ok(_) =>
-        emit(&app, EventToFrontend::DeleteEntry, Payload::<String> {
+        emit(&app, EventToFrontend::DeleteEntries, Payload::<String> {
           op_id: op_id.clone(),
-          data: Some(path),
+          data: Some(path_buf.parent().unwrap().to_string_lossy().to_string()),
           error: None,
-          is_finished: true,
+          is_finished: is_last,
         }),
-    
+
       Err(e) =>
-        emit(&app, EventToFrontend::DeleteEntry, Payload::<()> {
+        emit(&app, EventToFrontend::DeleteEntries, Payload::<()> {
           op_id: op_id.clone(),
           data: None,
           error: Some(e.to_string()),
-          is_finished: true,
+          is_finished: is_last,
         }),
     }
   }

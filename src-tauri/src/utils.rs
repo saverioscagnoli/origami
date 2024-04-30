@@ -5,7 +5,6 @@ use tauri::{ AppHandle, Manager };
 use crate::events::{ EventFromFrontend, EventToFrontend };
 
 pub fn listen<P>(
-  event_pool: Arc<Mutex<Vec<tauri::EventId>>>,
   app: &AppHandle,
   event: EventFromFrontend,
   cb: impl Fn(P) + Send + 'static
@@ -19,10 +18,6 @@ pub fn listen<P>(
       Err(_) => log::error!("failed to deserialize payload"),
     }
   });
-
-  if let Ok(mut pool) = event_pool.lock() {
-    pool.push(id);
-  }
 }
 
 pub fn emit<P>(app: &AppHandle, evt: EventToFrontend, payload: P)

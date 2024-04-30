@@ -1,6 +1,6 @@
 import { ContextMenu } from "@components/tredici";
-import { useCurrentDir } from "@contexts/current-dir";
 import { useGlobalStates } from "@contexts/global-states";
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { Pencil1Icon } from "@radix-ui/react-icons";
 
 const RenameMenuItem = () => {
@@ -8,7 +8,7 @@ const RenameMenuItem = () => {
   const { selected } = useCurrentDir();
 
   const onClick = () => {
-    renaming.set(selected().at(0));
+    renaming.set(selected.at(0));
   };
 
   return (

@@ -1,13 +1,14 @@
-import { useCurrentDir } from "@contexts/current-dir";
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { cn } from "@lib/utils";
 import { useMemo } from "react";
 
 const BottombarItemCount = () => {
   const { entries } = useCurrentDir();
-  const length = useMemo(() => entries().length, [entries]);
+
+  const length = useMemo(() => entries.length, [entries]);
   const hidden = useMemo(
-    () => Array.from(entries().values()).filter(e => e.isHidden).length,
-    [entries()]
+    () => entries.filter(entry => entry.isHidden).length,
+    [entries]
   );
 
   return (

@@ -1,15 +1,15 @@
 import { ContextMenu } from "@components/tredici";
-import { useNavigation } from "@contexts/navigation";
+import { useDispatchers } from "@hooks/use-dispatchers";
 import { TrashIcon } from "@radix-ui/react-icons";
 
 const DeleteMenuItem = () => {
-  const { deleteEntries } = useNavigation();
+  const { deleteEntries } = useDispatchers();
 
   return (
     <ContextMenu.Item
       colorScheme="red"
       leftIcon={<TrashIcon />}
-      onClick={deleteEntries}
+      onSelect={deleteEntries}
     >
       Delete
     </ContextMenu.Item>

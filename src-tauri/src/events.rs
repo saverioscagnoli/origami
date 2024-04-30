@@ -16,7 +16,7 @@ pub enum EventToFrontend {
   ListDir,
   OpenFile,
   PasteEntries,
-  DeleteEntry,
+  DeleteEntries,
   Watch,
   SendDisks,
 }
@@ -27,7 +27,7 @@ impl EventToFrontend {
       EventToFrontend::ListDir => "list_dir",
       EventToFrontend::OpenFile => "open_file",
       EventToFrontend::PasteEntries => "paste_entries",
-      EventToFrontend::DeleteEntry => "delete_entry",
+      EventToFrontend::DeleteEntries => "delete_entries",
       EventToFrontend::Watch => "watch",
       EventToFrontend::SendDisks => "send_disks",
     }

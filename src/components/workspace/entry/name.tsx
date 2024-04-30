@@ -1,8 +1,7 @@
 import { FolderIcon } from "@components/icons";
-import { useAccessor } from "@hooks/use-accessor";
 import { cn } from "@lib/utils";
 import { FileIcon } from "@radix-ui/react-icons";
-import { FC, useRef } from "react";
+import { FC } from "react";
 
 type EntryNameProps = {
   name: string;
@@ -45,4 +44,4 @@ const GridEntryName: FC<EntryNameProps> = ({ name, path, isDir }) => {
   );
 };
 
-export { ListEntryName, GridEntryName };
+export { GridEntryName, ListEntryName };

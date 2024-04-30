@@ -1,16 +1,16 @@
-import { useCurrentDir } from "@contexts/current-dir";
-import { cn } from "@lib/utils";
-import { Entry } from "./entry";
-import { ComponentPropsWithoutRef, forwardRef, useMemo, useRef } from "react";
-import { useSettings } from "@contexts/settings";
-import { Virtuoso, VirtuosoGrid, VirtuosoHandle } from "react-virtuoso";
-import { useAccessor } from "@hooks/use-accessor";
 import { ScrollArea } from "@components/tredici";
+import { useSettings } from "@contexts/settings";
+import { useAccessor } from "@hooks/use-accessor";
+import { useCurrentDir } from "@hooks/use-current-dir";
+import { cn } from "@lib/utils";
+import { ComponentPropsWithoutRef, forwardRef, useMemo, useRef } from "react";
+import { Virtuoso, VirtuosoGrid, VirtuosoHandle } from "react-virtuoso";
 import { EmptySpaceContextMenu } from "./empty-space";
+import { Entry } from "./entry";
 import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
-  const { dir, entries } = useCurrentDir();
+  const { entries } = useCurrentDir();
   const { showHidden, viewType } = useSettings();
 
   const scrollRef = useAccessor<HTMLDivElement | null>(null);
@@ -24,14 +24,14 @@ const Workspace = () => {
 
   const filtered = useMemo(
     () =>
-      entries()
+      entries
         .filter(e => showHidden() || !e.isHidden)
         .sort((a, b) => {
           if (a.isDir && !b.isDir) return -1;
           if (!a.isDir && b.isDir) return 1;
           return a.name.localeCompare(b.name);
         }),
-    [entries(), showHidden()]
+    [entries, showHidden()]
   );
 
   return (

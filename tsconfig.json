@@ -26,6 +26,7 @@
       "@hooks/*": ["hooks/*"],
       "@contexts/*": ["contexts/*"],
       "@typings/*": ["typings/*"],
+      "@redux/*": ["redux/*"],
     }
   },
   "include": ["src"],

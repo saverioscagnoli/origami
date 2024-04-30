@@ -1,21 +1,21 @@
 import { Menubar } from "@components/tredici";
-import { useCurrentDir } from "@contexts/current-dir";
-import { useNavigation } from "@contexts/navigation";
+import { useCurrentDir } from "@hooks/use-current-dir";
+import { useDispatchers } from "@hooks/use-dispatchers";
 import { TrashIcon } from "@radix-ui/react-icons";
 import { useMemo } from "react";
 
 const DeleteMenuItem = () => {
   const { selected } = useCurrentDir();
-  const { deleteEntries } = useNavigation();
+  const { deleteEntries } = useDispatchers();
 
-  const disabled = useMemo(() => selected().length === 0, [selected()]);
+  const disabled = useMemo(() => selected.length === 0, [selected]);
 
   return (
     <Menubar.Item
       colorScheme="red"
       leftIcon={<TrashIcon />}
       disabled={disabled}
-      onClick={deleteEntries}
+      onSelect={deleteEntries}
     >
       Delete
     </Menubar.Item>
@@ -23,3 +23,4 @@ const DeleteMenuItem = () => {
 };
 
 export { DeleteMenuItem };
+

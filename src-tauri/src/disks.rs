@@ -55,7 +55,6 @@ pub fn emit_disks(
   let event_pool = Arc::clone(&event_pool);
 
   listen::<Option<bool>>(
-    event_pool,
     &app,
     EventFromFrontend::BeforeUnload,
     move |_| {

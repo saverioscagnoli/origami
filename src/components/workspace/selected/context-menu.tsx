@@ -1,27 +1,27 @@
 import { ContextMenu } from "@components/tredici";
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { ChildrenProps } from "@typings/props";
-import { OpenMenuItem } from "./open";
 import { useMemo } from "react";
-import { StarUnstarMenuItem } from "./star-unstar";
-import { CutMenuItem } from "./cut";
 import { CopyMenuItem } from "./copy";
-import { RenameMenuItem } from "./rename";
+import { CutMenuItem } from "./cut";
 import { DeleteMenuItem } from "./delete";
-import { useCurrentDir } from "@contexts/current-dir";
+import { OpenMenuItem } from "./open";
+import { RenameMenuItem } from "./rename";
+import { StarUnstarMenuItem } from "./star-unstar";
 
 const SelectedEntriesContextMenu: React.FC<ChildrenProps> = ({ children }) => {
   const { selected } = useCurrentDir();
 
   const canOpen = useMemo(() => {
-    const entries = selected();
+    const entries = selected;
     return entries.every(e => !e.isDir) || entries.length === 1;
-  }, [selected()]);
+  }, [selected]);
 
   const canStar = useMemo(() => {
-    const entries = selected();
+    const entries = selected;
     const starred = entries.filter(e => e.isStarred);
     return starred.length === 0 || starred.length === entries.length;
-  }, [selected()]);
+  }, [selected]);
 
   return (
     <ContextMenu>

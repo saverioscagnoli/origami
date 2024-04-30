@@ -1,4 +1,4 @@
-import { useCurrentDir } from "@contexts/current-dir";
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { cn } from "@lib/utils";
 
 const TopbarDirDisplay = () => {
@@ -16,7 +16,7 @@ const TopbarDirDisplay = () => {
         "active:data-[tauri-drag-region]:cursor-grabbing"
       )}
     >
-      {dir()}
+      {dir}
     </span>
   );
 };

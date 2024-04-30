@@ -1,11 +1,9 @@
 import { FolderIcon } from "@components/icons";
 import { ContextMenu } from "@components/tredici";
-import { useCurrentDir } from "@contexts/current-dir";
 import { useGlobalStates } from "@contexts/global-states";
 import { FileIcon, PlusIcon } from "@radix-ui/react-icons";
 
 const NewMenuItem = () => {
-  const { entries } = useCurrentDir();
   const { renaming } = useGlobalStates();
 
   const onNewFile = () => {};

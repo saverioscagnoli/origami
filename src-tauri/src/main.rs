@@ -17,7 +17,7 @@ use payloads::WatchPayload;
 use std::sync::{ Arc, Mutex };
 use tauri::{ AppHandle, Manager, State };
 use utils::{ listen, get_os };
-use watcher::{ create_watcher, unwatch, watch };
+use watcher::{ start_watching };
 
 use file_system::{ list_dir, open_file, paste_entries, delete_entries };
 
@@ -76,40 +76,40 @@ fn init(app: &AppHandle) {
   }
 }
 
-#[tauri::command]
-async fn start_watching<'a>(
-  event_pool: State<'a, Arc<Mutex<Vec<tauri::EventId>>>>,
-  app: AppHandle
-) -> Result<(), tauri::Error> {
-  let (watcher, rx) = create_watcher().unwrap();
+// #[tauri::command]
+// async fn start_watching<'a>(
+//   event_pool: State<'a, Arc<Mutex<Vec<tauri::EventId>>>>,
+//   app: AppHandle
+// ) -> Result<(), tauri::Error> {
+//   let (watcher, rx) = create_watcher().unwrap();
 
-  let watcher_mutex = Arc::new(Mutex::new(watcher));
+//   let watcher_mutex = Arc::new(Mutex::new(watcher));
 
-  let event_pool = Arc::clone(&event_pool);
-  let rx_mutex = Arc::new(tokio::sync::Mutex::new(rx));
+//   let event_pool = Arc::clone(&event_pool);
+//   let rx_mutex = Arc::new(tokio::sync::Mutex::new(rx));
 
-  let app_clone = app.clone();
+//   let app_clone = app.clone();
 
-  listen::<WatchPayload>(event_pool, &app, EventFromFrontend::DirChanged, move |p| {
-    let mut watcher = watcher_mutex.lock().unwrap();
+//   listen::<WatchPayload>(event_pool, &app, EventFromFrontend::DirChanged, move |p| {
+//     let mut watcher = watcher_mutex.lock().unwrap();
 
-    let rx_mutex = Arc::clone(&rx_mutex);
+//     let rx_mutex = Arc::clone(&rx_mutex);
 
-    if &p.old_path != "" {
-      match unwatch(&mut watcher, &p.old_path) {
-        Ok(_) => {}
-        Err(e) => log::error!("failed to unwatch: {:?}", e),
-      }
-    }
+//     if &p.old_path != "" {
+//       match unwatch(&mut watcher, &p.old_path) {
+//         Ok(_) => {}
+//         Err(e) => log::error!("failed to unwatch: {:?}", e),
+//       }
+//     }
 
-    match watch(&app_clone, &mut watcher, rx_mutex, &p.new_path) {
-      Ok(_) => {}
-      Err(e) => log::error!("failed to watch: {:?}", e),
-    }
-  });
+//     match watch(&app_clone, &mut watcher, rx_mutex, &p.new_path) {
+//       Ok(_) => {}
+//       Err(e) => log::error!("failed to watch: {:?}", e),
+//     }
+//   });
 
-  Ok(())
-}
+//   Ok(())
+// }
 
 #[tauri::command]
 fn stop_all(event_pool: State<Arc<Mutex<Vec<tauri::EventId>>>>, app: AppHandle) {

@@ -1,29 +1,34 @@
-import { useCurrentDir } from "@contexts/current-dir";
 import { useSettings } from "@contexts/settings";
+import { useCurrentDir } from "@hooks/use-current-dir";
+import { useDispatchers } from "@hooks/use-dispatchers";
 import { cn } from "@lib/utils";
+import {
+  addSelected,
+  removeSelected,
+  replaceSelected
+} from "@redux/current-dir-slice";
 import { DirEntry } from "@typings/dir-entry";
 import { MouseEventHandler, forwardRef, useMemo } from "react";
+import { useDispatch } from "react-redux";
 import { EntryCheckbox } from "./checkbox";
-import { GridEntryName, ListEntryName } from "./name";
-import { useNavigation } from "@contexts/navigation";
 import { EntryFlags } from "./flags";
 import { EntryLastModified } from "./last-modified";
+import { GridEntryName, ListEntryName } from "./name";
 import { EntrySize } from "./size";
 
 const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
   const { selected } = useCurrentDir();
+  const dispatch = useDispatch();
+
+  const { cd, open } = useDispatchers();
 
   const { name, path, isDir, isHidden, isSymlink, isStarred, lastModified, size } =
     entry;
 
   const isSelected = useMemo(
-    () => selected().findIndex(e => e.path === path) !== -1,
-    [selected()]
+    () => selected.findIndex(e => e.path === path) !== -1,
+    [selected]
   );
-
-  const addSelected = () => selected.set([...selected(), entry]);
-  const replaceSelected = () => selected.set([entry]);
-  const removeSelected = () => selected.set(selected().filter(e => e.path !== path));
 
   const onClick: MouseEventHandler<HTMLDivElement> = evt => {
     evt.preventDefault();
@@ -34,20 +39,18 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
         // If the user presses the control key, add the entry to the selected list
         // If the entry is already selected, remove it from the selected list
         if (isSelected) {
-          removeSelected();
+          dispatch(removeSelected({ entry }));
         } else {
-          addSelected();
+          dispatch(addSelected({ entry }));
         }
       } else if (evt.shiftKey) {
         // If the user presses the shift key, select all entries between the last selected entry and the current entry
       } else {
         // If the user doesn't press any keys, select only the current entry
-        replaceSelected();
+        dispatch(replaceSelected({ newSelected: [entry] }));
       }
     }
   };
-
-  const { cd, openFiles } = useNavigation();
 
   const onDoubleClick: MouseEventHandler<HTMLDivElement> = evt => {
     evt.preventDefault();
@@ -56,14 +59,14 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
     if (isDir) {
       cd(path)();
     } else {
-      openFiles([path])();
+      open(path)();
     }
   };
 
   const onContextMenu = () => {
-    if (selected().length <= 1) {
+    if (selected.length <= 1) {
       replaceSelected();
-    } else if (selected().findIndex(e => e.path === path) === -1) {
+    } else if (selected.findIndex(e => e.path === path) === -1) {
       addSelected();
     }
   };

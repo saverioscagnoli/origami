@@ -1,12 +1,12 @@
 import { For } from "@components/for";
 import { Menubar } from "@components/tredici";
 import { useEnvironment } from "@contexts/environment";
-import { useNavigation } from "@contexts/navigation";
+import { useDispatchers } from "@hooks/use-dispatchers";
 import { sep } from "@tauri-apps/api/path";
 
 const BasicDirsMenuItems = () => {
-  const { cd } = useNavigation();
   const { basicDirs } = useEnvironment();
+  const { cd } = useDispatchers();
 
   return (
     <For of={basicDirs}>
