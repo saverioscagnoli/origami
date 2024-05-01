@@ -12,16 +12,15 @@ mod disks;
 
 use consts::STARRED_DIR_NAME;
 use disks::emit_disks;
-use events::EventFromFrontend;
-use payloads::WatchPayload;
+
 use std::sync::{ Arc, Mutex };
 use tauri::{ AppHandle, Manager, State };
-use utils::{ listen, get_os };
-use watcher::{ start_watching };
+use utils::get_os;
+use watcher::start_watching;
 
 use file_system::{ list_dir, open_file, paste_entries, delete_entries };
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 async fn main() {
   env_logger::Builder
     ::from_env(env_logger::Env::default().default_filter_or("info"))

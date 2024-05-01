@@ -8,7 +8,7 @@ pub fn listen<P>(
   app: &AppHandle,
   event: EventFromFrontend,
   cb: impl Fn(P) + Send + 'static
-)
+) -> tauri::EventId
   where P: serde::de::DeserializeOwned
 {
   let id = app.listen(EventFromFrontend::as_str(&event), move |evt| {
@@ -18,6 +18,8 @@ pub fn listen<P>(
       Err(_) => log::error!("failed to deserialize payload"),
     }
   });
+
+  id
 }
 
 pub fn emit<P>(app: &AppHandle, evt: EventToFrontend, payload: P)

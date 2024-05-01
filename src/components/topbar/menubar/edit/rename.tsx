@@ -10,10 +10,14 @@ const RenameMenuItem = () => {
   const { renaming } = useGlobalStates();
 
   const isEmpty = useMemo(() => selected.length === 0, [selected]);
+  const isMoreThanOne = useMemo(() => selected.length > 1, [selected]);
   const isRenaming = useMemo(() => renaming() !== null, [renaming()]);
 
   return (
-    <Menubar.Item leftIcon={<Pencil1Icon />} disabled={isEmpty || isRenaming}>
+    <Menubar.Item
+      leftIcon={<Pencil1Icon />}
+      disabled={isEmpty || isMoreThanOne || isRenaming}
+    >
       Rename
     </Menubar.Item>
   );

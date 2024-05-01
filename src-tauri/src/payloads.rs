@@ -15,3 +15,13 @@ pub struct Payload<T> {
   pub error: Option<String>,
   pub is_finished: bool,
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PastePayload {
+  pub dir: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct DeletePayload {
+  pub dir: String,
+}

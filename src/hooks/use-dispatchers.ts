@@ -54,7 +54,12 @@ function useDispatchers() {
    * Reloads the current directory by requesting a directory listing
    */
   const reload = () => {
-    cd(dir)();
+    dispatch(
+      push({
+        type: OperationType.ListDir,
+        args: { path: dir }
+      })
+    );
   };
 
   const open = (path: string) => () => {
@@ -83,10 +88,13 @@ function useDispatchers() {
 
     dispatch(
       push({
-        type: OperationType.DeleteEntries,
-        args: { paths: selected.map(e => e.path), dir, isCutting }
+        type: OperationType.PasteEntries,
+        args: { paths, dir, isCutting }
       })
     );
+
+    copying.set([]);
+    cutting.set([]);
   };
 
   /**

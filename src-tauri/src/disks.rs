@@ -42,31 +42,21 @@ pub fn get_disks() -> Vec<Disk> {
 }
 
 #[tauri::command]
-pub fn emit_disks(
-  event_pool: State<Arc<Mutex<Vec<tauri::EventId>>>>,
-  app: AppHandle
-) -> Result<(), String> {
+pub fn emit_disks(app: AppHandle) -> Result<(), String> {
   let sleep_time = Duration::from_secs(EMIT_DISKS_INTERVAL_SECONDS);
   let app = app.clone();
 
   let should_stop = Arc::new(AtomicBool::new(false));
   let should_stop_clone = Arc::clone(&should_stop);
 
-  let event_pool = Arc::clone(&event_pool);
-
-  listen::<Option<bool>>(
-    &app,
-    EventFromFrontend::BeforeUnload,
-    move |_| {
-      println!("Stopping disks thread");
-      should_stop.store(true, Ordering::SeqCst);
-    }
-  );
+  let id = listen::<Option<bool>>(&app, EventFromFrontend::BeforeUnload, move |_| {
+    should_stop.store(true, Ordering::SeqCst);
+  });
 
   thread::spawn(move || {
     loop {
       if should_stop_clone.load(Ordering::SeqCst) {
-        println!("Stopping disks thread");
+        app.unlisten(id);
         break;
       }
 
@@ -76,6 +66,8 @@ pub fn emit_disks(
 
       thread::sleep(sleep_time);
     }
+
+    println!("Stopping disks thread");
   });
 
   Ok(())

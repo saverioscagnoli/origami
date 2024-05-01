@@ -6,8 +6,10 @@ import { buildMappedTauriEventHook } from "@util-hooks/use-tauri-event";
 type OperationMap = {
   [OperationType.ListDir]: Payload<{ entries: DirEntry[]; path: string }>;
   [OperationType.OpenFile]: Payload<{ path: string }>;
-  [OperationType.PasteEntries]: Payload<null>;
-  [OperationType.DeleteEntries]: Payload<{ paths: string[] }>;
+
+  // Returns the directory where the file(s) were pasted, so that the frontend can update the UI accordingly.
+  [OperationType.PasteEntries]: Payload<{ dir: string }>;
+  [OperationType.DeleteEntries]: Payload<{ dir: string }>;
 };
 
 const useBackendOperation = buildMappedTauriEventHook<OperationMap>();

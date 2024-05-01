@@ -32,7 +32,7 @@ function App() {
   //
 
   currentDirListeners();
-  
+
   // Remove the native context menu
   useEvent("contextmenu", e => e.preventDefault());
 

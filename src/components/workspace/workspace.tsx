@@ -11,7 +11,8 @@ import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
   const { entries } = useCurrentDir();
-  const { showHidden, viewType } = useSettings();
+  const { viewType } = useSettings();
+  const { showHidden } = useSettings();
 
   const scrollRef = useAccessor<HTMLDivElement | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -20,17 +21,10 @@ const Workspace = () => {
   //   if (virtuosoRef.current) {
   //     virtuosoRef.current.scrollToIndex({ index: 0, behavior: "smooth" });
   //   }
-  // }, [dir()]);
+  // }, [entries]);
 
   const filtered = useMemo(
-    () =>
-      entries
-        .filter(e => showHidden() || !e.isHidden)
-        .sort((a, b) => {
-          if (a.isDir && !b.isDir) return -1;
-          if (!a.isDir && b.isDir) return 1;
-          return a.name.localeCompare(b.name);
-        }),
+    () => entries.filter(e => showHidden() || !e.isHidden),
     [entries, showHidden()]
   );
 
