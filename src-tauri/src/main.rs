@@ -9,11 +9,12 @@ mod structs;
 mod file_system;
 mod consts;
 mod disks;
+mod settings;
 
 use consts::{ SETTINGS_FILE_NAME, STARRED_DIR_NAME };
 use disks::emit_disks;
-use structs::Settings;
 
+use settings::{ Settings, load_settings, update_settings };
 use tauri::{ AppHandle, Manager };
 use utils::get_os;
 use watcher::start_watching;
@@ -39,7 +40,9 @@ async fn main() {
         open_file,
         paste_entries,
         delete_entries,
-        get_os
+        get_os,
+        load_settings,
+        update_settings
       ]
     )
     .setup(|app| {
@@ -71,10 +74,16 @@ async fn init(app: &AppHandle) {
     std::fs::create_dir_all(&starred_dir).unwrap();
   }
 
+  let mut settings: Settings;
+
   if !settings_file.exists() {
-    let settings = Settings::new();
-    settings.write_default(settings_file).await;
+    settings = Settings::new();
+  } else {
+    settings = Settings::load(&settings_file).await;
   }
+
+  settings.check_validity().await;
+  settings.write(&settings_file).await;
 }
 
 // #[tauri::command]
