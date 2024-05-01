@@ -10,11 +10,11 @@ mod file_system;
 mod consts;
 mod disks;
 
-use consts::STARRED_DIR_NAME;
+use consts::{ SETTINGS_FILE_NAME, STARRED_DIR_NAME };
 use disks::emit_disks;
+use structs::Settings;
 
-use std::sync::{ Arc, Mutex };
-use tauri::{ AppHandle, Manager, State };
+use tauri::{ AppHandle, Manager };
 use utils::get_os;
 use watcher::start_watching;
 
@@ -39,20 +39,16 @@ async fn main() {
         open_file,
         paste_entries,
         delete_entries,
-        get_os,
-        stop_all
+        get_os
       ]
     )
     .setup(|app| {
       let handle = app.handle();
+      let handle_clone = handle.clone();
 
-      init(handle);
-
-      let event_pool: Arc<Mutex<Vec<tauri::EventId>>> = Arc::new(
-        Mutex::new(Vec::new())
-      );
-
-      app.manage(event_pool);
+      tokio::spawn(async move {
+        init(&handle_clone).await;
+      });
 
       Ok(())
     })
@@ -66,12 +62,18 @@ async fn main() {
     .expect("error while running tauri application");
 }
 
-fn init(app: &AppHandle) {
+async fn init(app: &AppHandle) {
   let path = app.path();
   let starred_dir = path.app_config_dir().unwrap().join(STARRED_DIR_NAME);
+  let settings_file = path.app_config_dir().unwrap().join(SETTINGS_FILE_NAME);
 
   if !starred_dir.exists() {
     std::fs::create_dir_all(&starred_dir).unwrap();
+  }
+
+  if !settings_file.exists() {
+    let settings = Settings::new();
+    settings.write_default(settings_file).await;
   }
 }
 
@@ -109,16 +111,3 @@ fn init(app: &AppHandle) {
 
 //   Ok(())
 // }
-
-#[tauri::command]
-fn stop_all(event_pool: State<Arc<Mutex<Vec<tauri::EventId>>>>, app: AppHandle) {
-  if let Ok(mut event_pool) = event_pool.lock() {
-    for id in event_pool.iter() {
-      app.unlisten(*id);
-
-      log::warn!("unlistened: {:?}", id);
-    }
-
-    event_pool.clear();
-  }
-}
