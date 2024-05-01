@@ -1,5 +1,4 @@
 import { ScrollArea } from "@components/tredici";
-import { useSettings } from "@contexts/settings";
 import { useAccessor } from "@hooks/use-accessor";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { cn } from "@lib/utils";
@@ -8,11 +7,11 @@ import { Virtuoso, VirtuosoGrid, VirtuosoHandle } from "react-virtuoso";
 import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
 import { SelectedEntriesContextMenu } from "./selected";
+import { useSettings } from "@hooks/use-settings";
 
 const Workspace = () => {
   const { entries } = useCurrentDir();
-  const { viewType } = useSettings();
-  const { showHidden } = useSettings();
+  const { viewType, showHidden } = useSettings();
 
   const scrollRef = useAccessor<HTMLDivElement | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -24,8 +23,8 @@ const Workspace = () => {
   // }, [entries]);
 
   const filtered = useMemo(
-    () => entries.filter(e => showHidden() || !e.isHidden),
-    [entries, showHidden()]
+    () => entries.filter(e => showHidden || !e.isHidden),
+    [entries, showHidden]
   );
 
   return (
@@ -35,7 +34,7 @@ const Workspace = () => {
           className={cn("w-full h-full", "rounded-[inherit]")}
           ref={scrollRef.set}
         >
-          {viewType() === "list" ? (
+          {viewType === "list" ? (
             <Virtuoso
               data={filtered}
               totalCount={filtered.length}

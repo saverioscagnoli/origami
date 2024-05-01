@@ -8,7 +8,9 @@ import {
   updateDir as dispatchUpdateDir,
   updateEntries as dispatchUpdateEntries
 } from "@redux/current-dir-slice";
+import { updateSettings as DispatchUpdateSettings } from "@redux/settings-slice";
 import { DirEntry } from "@typings/dir-entry";
+import { Settings } from "@typings/settings";
 import { useDispatch } from "react-redux";
 import { useCurrentDir } from "./use-current-dir";
 
@@ -41,6 +43,8 @@ function useDispatchers() {
    */
   const cd = (path: string) => () => {
     if (path === dir) return;
+
+    replaceSelected([]);
 
     dispatch(
       push({
@@ -160,6 +164,15 @@ function useDispatchers() {
     );
   };
 
+  /**
+   * Replaces the current settings with the new settings.
+   * Any number of settings can be updated at once.
+   * @param settings The new settings
+   */
+  const updateSettings = (settings: Partial<Settings>) => {
+    dispatch(DispatchUpdateSettings(settings));
+  };
+
   return {
     updateDir,
     updateEntries,
@@ -172,7 +185,8 @@ function useDispatchers() {
     popOp,
     replaceSelected,
     addSelected,
-    removeSelected
+    removeSelected,
+    updateSettings
   };
 }
 

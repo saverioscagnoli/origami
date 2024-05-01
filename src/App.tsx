@@ -4,6 +4,7 @@ import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
 import { useCallstack } from "@hooks/use-callstack";
 import { useDispatchers } from "@hooks/use-dispatchers";
+import { useSettings } from "@hooks/use-settings";
 import { setupHotkeys } from "@lib/hotkeys";
 import { currentDirListeners } from "@lib/operation-listeners";
 import { OperationStatus } from "@lib/operations";
@@ -14,7 +15,7 @@ import { homeDir } from "@tauri-apps/api/path";
 import { Command } from "@typings/command";
 import { EventToBackend } from "@typings/events";
 import { useEvent } from "@util-hooks/use-event";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 function App() {
   // const os = useAccessor<string>("");
@@ -41,18 +42,22 @@ function App() {
     emit(EventToBackend.BeforeUnload).then(() => invoke(Command.StopAll));
   });
 
-  const callstack = useCallstack();
   const { cd, updateOpStatus, popOp } = useDispatchers();
 
   // Fetch the home directory and list its contents on app start
 
   useEffect(() => {
-    homeDir()
-      .then(path => cd(path)())
-      .then(() => invoke(Command.StartDisks));
+    invoke(Command.StartDisks)
+      .then(() => homeDir())
+      .then(home => cd(home)());
   }, []);
 
+  // Logic to navigate to the start directory on app start
+  const started = useRef<boolean>(false);
+
   setupHotkeys();
+
+  const callstack = useCallstack();
 
   // Every time an operation in pushed to the array, check for its status
   // If it is ready, invoke, the backend function.
@@ -75,6 +80,32 @@ function App() {
       }
     }
   }, [callstack]);
+
+  const { theme } = useSettings();
+
+  useEffect(() => {
+    document.documentElement.classList.add("light", "dark");
+
+    switch (theme) {
+      case "light": {
+        document.documentElement.classList.remove("dark");
+        break;
+      }
+
+      case "dark": {
+        document.documentElement.classList.remove("light");
+        break;
+      }
+
+      case "system": {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.add("light");
+        }
+      }
+    }
+  }, [theme]);
 
   return (
     <div

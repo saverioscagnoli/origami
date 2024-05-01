@@ -1,15 +1,21 @@
 import { Menubar } from "@components/tredici";
-import { useSettings } from "@contexts/settings";
+import { useDispatchers } from "@hooks/use-dispatchers";
+import { useSettings } from "@hooks/use-settings";
 import { CheckboxIcon } from "@radix-ui/react-icons";
 
 const ShowCheckboxesMenuItem = () => {
   const { showCheckboxes } = useSettings();
+  const { updateSettings } = useDispatchers();
+
+  const onCheckedChange = (checked: boolean) => {
+    updateSettings({ showCheckboxes: checked });
+  };
 
   return (
     <Menubar.CheckboxItem
       leftIcon={<CheckboxIcon />}
-      checked={showCheckboxes()}
-      onCheckedChange={showCheckboxes.set}
+      checked={showCheckboxes}
+      onCheckedChange={onCheckedChange}
     >
       Show Checkboxes
     </Menubar.CheckboxItem>

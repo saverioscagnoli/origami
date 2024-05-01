@@ -30,7 +30,7 @@ function createContextHook<T>(ctx: Context<T>, name: string) {
     const value = useContext(ctx);
 
     if (!value) {
-      throw new Error(`${name} must be used within a ${name}Provider`);
+      throw new Error(`use${name} must be used within a ${name}Provider`);
     }
 
     return value;

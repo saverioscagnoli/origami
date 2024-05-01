@@ -1,9 +1,5 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { homeDir } from "@tauri-apps/api/path";
+import { createSlice } from "@reduxjs/toolkit";
 import { DirEntry } from "@typings/dir-entry";
-import { useDispatch } from "react-redux";
-import { push } from "./callstack-slice";
-import { OperationType } from "@lib/operations";
 import { Action } from "./store";
 
 type CurrentDirSliceState = {
@@ -11,14 +7,6 @@ type CurrentDirSliceState = {
   entries: DirEntry[];
   selected: DirEntry[];
 };
-
-// First cd that happens when the user opens the app
-const fetchHomeDir = createAsyncThunk("currentDir/fetchHomeDir", async () => {
-  const dispatch = useDispatch();
-
-  const home = await homeDir();
-  dispatch(push({ type: OperationType.ListDir, args: { path: home } }));
-});
 
 const currentDirSlice = createSlice({
   name: "currentDir",
@@ -52,9 +40,12 @@ const currentDirSlice = createSlice({
   }
 });
 
-export { fetchHomeDir };
-
-export const { updateDir, updateEntries, replaceSelected, addSelected, removeSelected } =
-  currentDirSlice.actions;
+export const {
+  updateDir,
+  updateEntries,
+  replaceSelected,
+  addSelected,
+  removeSelected
+} = currentDirSlice.actions;
 
 export const currentDirReducer = currentDirSlice.reducer;

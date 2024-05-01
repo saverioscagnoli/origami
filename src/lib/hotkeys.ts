@@ -1,10 +1,10 @@
-import { useSettings } from "@contexts/settings";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { useDispatchers } from "@hooks/use-dispatchers";
+import { useSettings } from "@hooks/use-settings";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 
 function setupHotkeys() {
-  const { replaceSelected } = useDispatchers();
+  const { replaceSelected, updateSettings } = useDispatchers();
   const { entries } = useCurrentDir();
 
   useHotkey(
@@ -21,19 +21,29 @@ function setupHotkeys() {
 
   const { showHidden, showCheckboxes } = useSettings();
 
-  useHotkey([Modifier.Ctrl], Key.KeyH, e => {
-    if (e.repeat) return;
-    e.preventDefault();
+  useHotkey(
+    [Modifier.Ctrl],
+    Key.KeyH,
+    e => {
+      if (e.repeat) return;
+      e.preventDefault();
 
-    showHidden.toggle();
-  });
+      updateSettings({ showHidden: !showHidden });
+    },
+    [showHidden]
+  );
 
-  useHotkey([Modifier.Ctrl], Key.KeyJ, e => {
-    if (e.repeat) return;
-    e.preventDefault();
+  useHotkey(
+    [Modifier.Ctrl],
+    Key.KeyJ,
+    e => {
+      if (e.repeat) return;
+      e.preventDefault();
 
-    showCheckboxes.toggle();
-  });
+      updateSettings({ showCheckboxes: !showCheckboxes });
+    },
+    [showCheckboxes]
+  );
 }
 
 export { setupHotkeys };

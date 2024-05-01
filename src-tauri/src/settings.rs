@@ -5,14 +5,6 @@ use tauri::{ AppHandle, Manager };
 
 use crate::consts::SETTINGS_FILE_NAME;
 
-#[derive(Deserialize)]
-pub enum SettingsKey {
-  Theme,
-  ViewType,
-  ShowHidden,
-  ShowCheckboxes,
-}
-
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Settings {
@@ -70,7 +62,7 @@ pub async fn load_settings(app: AppHandle) -> Settings {
 #[tauri::command]
 pub async fn update_settings(
   app: AppHandle,
-  key: SettingsKey,
+  key: String,
   value: String
 ) -> Result<(), String> {
   let path = app.path();
@@ -78,21 +70,23 @@ pub async fn update_settings(
 
   let mut settings = Settings::load(&settings_file).await;
 
-  match key {
-    SettingsKey::Theme => {
+  match key.as_str() {
+    "theme" => {
       settings.theme = value;
     }
-    SettingsKey::ViewType => {
+    "viewType" => {
       settings.view_type = value;
     }
-    SettingsKey::ShowHidden => {
+    "showHidden" => {
       settings.show_hidden = value.parse().unwrap_or(false);
     }
-    SettingsKey::ShowCheckboxes => {
+    "showCheckboxes" => {
       settings.show_checkboxes = value.parse().unwrap_or(false);
     }
+    _ => {
+      return Err(format!("Invalid key: {}", key));
+    }
   }
-
   settings.write(&settings_file).await;
 
   Ok(())

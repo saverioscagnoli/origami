@@ -1,6 +1,6 @@
-import { useSettings } from "@contexts/settings";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { useDispatchers } from "@hooks/use-dispatchers";
+import { useSettings } from "@hooks/use-settings";
 import { cn } from "@lib/utils";
 import { DirEntry } from "@typings/dir-entry";
 import { MouseEventHandler, forwardRef, useMemo } from "react";
@@ -69,13 +69,13 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
 
   const onCheckedChange = () => {
     if (isSelected) {
-      removeSelected(entry)
+      removeSelected(entry);
     } else {
-      addSelected(entry)
+      addSelected(entry);
     }
   };
 
-  return viewType() === "list" ? (
+  return viewType === "list" ? (
     <div
       className={cn(
         "w-full h-6",
@@ -91,7 +91,7 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
       onContextMenu={onContextMenu}
     >
       <span className={cn("flex items-center gap-1.5")}>
-        {showCheckboxes() && (
+        {showCheckboxes && (
           <EntryCheckbox checked={isSelected} onCheckedChange={onCheckedChange} />
         )}
         <ListEntryName name={name} path={path} isDir={isDir} />

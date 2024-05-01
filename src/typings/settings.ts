@@ -1,10 +1,3 @@
-enum SettingsKey {
-  Theme = "Theme",
-  ShowHidden = "ShowHidden",
-  ShowCheckboxes = "ShowCheckboxes",
-  ViewType = "ViewType"
-}
-
 type Settings = {
   theme: "light" | "dark" | "system";
   showHidden: boolean;
@@ -12,5 +5,4 @@ type Settings = {
   viewType: "list" | "grid";
 };
 
-export { SettingsKey };
 export type { Settings };
