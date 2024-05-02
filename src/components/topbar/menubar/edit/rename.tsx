@@ -10,7 +10,7 @@ const RenameMenuItem = () => {
 
   const isEmpty = useMemo(() => selected.length === 0, [selected]);
   const isMoreThanOne = useMemo(() => selected.length > 1, [selected]);
-  const isRenaming = useMemo(() => renaming() !== null, [renaming()]);
+  const isRenaming = useMemo(() => renaming !== null, [renaming]);
 
   return (
     <Menubar.Item

@@ -7,7 +7,7 @@ import { ReloadMenuItem } from "./reload";
 
 const EmptySpaceContextMenu: FC<ChildrenProps> = ({ children }) => {
   return (
-    <ContextMenu>
+    <ContextMenu >
       <ContextMenu.Trigger asChild>{children}</ContextMenu.Trigger>
       <ContextMenu.Content>
         <ReloadMenuItem />

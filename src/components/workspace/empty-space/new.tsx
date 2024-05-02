@@ -4,24 +4,25 @@ import { useGlobalStates } from "@contexts/global-states";
 import { FileIcon, PlusIcon } from "@radix-ui/react-icons";
 
 const NewMenuItem = () => {
-  const { renaming } = useGlobalStates();
+  const { creating } = useGlobalStates();
 
-  const onNewFile = () => {};
-
-  const onNewFolder = () => {};
+  const onSelect = (isDir: boolean) => () => creating.set({ state: true, isDir });
 
   return (
-    <ContextMenu.Sub>
-      <ContextMenu.SubTrigger leftIcon={<PlusIcon />}>New</ContextMenu.SubTrigger>
-      <ContextMenu.SubContent>
-        <ContextMenu.Item leftIcon={<FileIcon />} onClick={onNewFile}>
-          File
-        </ContextMenu.Item>
-        <ContextMenu.Item leftIcon={<FolderIcon />} onClick={onNewFolder}>
-          Folder
-        </ContextMenu.Item>
-      </ContextMenu.SubContent>
-    </ContextMenu.Sub>
+    <>
+      <ContextMenu.Sub>
+        <ContextMenu.SubTrigger leftIcon={<PlusIcon />}>New</ContextMenu.SubTrigger>
+        <ContextMenu.SubContent>
+          <ContextMenu.Item leftIcon={<FileIcon />} onSelect={onSelect(false)}>
+            File
+          </ContextMenu.Item>
+
+          <ContextMenu.Item leftIcon={<FolderIcon />} onSelect={onSelect(true)}>
+            Folder
+          </ContextMenu.Item>
+        </ContextMenu.SubContent>
+      </ContextMenu.Sub>
+    </>
   );
 };
 

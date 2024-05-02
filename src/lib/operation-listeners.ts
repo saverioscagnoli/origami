@@ -9,6 +9,7 @@ function currentDirListeners() {
   const { updateDir, updateEntries, updateOpStatus, reload } = useDispatchers();
   const { dir } = useCurrentDir();
 
+  // ListDir operation listener
   useBackendOperation(OperationType.ListDir, payload => {
     const { opId, data, error, isFinished } = payload;
 
@@ -40,6 +41,7 @@ function currentDirListeners() {
     }
   });
 
+  // PasteEntries operation listener
   useBackendOperation(
     OperationType.PasteEntries,
     payload => {
@@ -62,6 +64,7 @@ function currentDirListeners() {
     [dir]
   );
 
+  // DeleteEntries operation listener
   useBackendOperation(
     OperationType.DeleteEntries,
     payload => {
@@ -82,6 +85,22 @@ function currentDirListeners() {
     },
     [dir]
   );
+
+  // CreateEntry operation listener
+  useBackendOperation(OperationType.CreateEntry, payload => {
+    const { opId, error, isFinished } = payload;
+
+    if (error) {
+      alert(error);
+      updateOpStatus(opId, OperationStatus.Error);
+      return;
+    }
+
+    if (isFinished) {
+      updateOpStatus(opId, OperationStatus.Success);
+      reload();
+    }
+  }, [dir])
 }
 
 export { currentDirListeners };

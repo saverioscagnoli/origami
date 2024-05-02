@@ -1,8 +1,19 @@
 import { Menubar } from "@components/tredici";
+import { useGlobalStates } from "@contexts/global-states";
 import { FilePlusIcon } from "@radix-ui/react-icons";
 
 const NewFileMenuItem = () => {
-  return <Menubar.Item leftIcon={<FilePlusIcon />}>New File</Menubar.Item>;
+  const { creating } = useGlobalStates();
+
+  const onSelect = () => {
+    creating.set({ state: true, isDir: false });
+  };
+
+  return (
+    <Menubar.Item leftIcon={<FilePlusIcon />} onSelect={onSelect}>
+      New File
+    </Menubar.Item>
+  );
 };
 
 export { NewFileMenuItem };

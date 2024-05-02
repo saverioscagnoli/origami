@@ -1,4 +1,5 @@
 import { Bottombar } from "@components/bottombar";
+import { CreateDialog } from "@components/dialogs";
 import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
@@ -119,6 +120,9 @@ function App() {
       <div
         className={cn("w-full h-[calc(100vh-3.5rem)]", "fixed top-8", "flex gap-0")}
       >
+        <>
+          <CreateDialog />
+        </>
         <Sidebar />
         <Workspace />
       </div>

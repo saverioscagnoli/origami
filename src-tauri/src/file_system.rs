@@ -309,6 +309,40 @@ pub async fn paste_entries(
 }
 
 #[tauri::command]
+pub async fn create_entry(
+  app: AppHandle,
+  path: String,
+  is_dir: bool,
+  op_id: String
+) {
+  let result = if is_dir {
+    tokio::fs::create_dir_all(&path).await
+  } else {
+    tokio::fs::File::create(&path).await.map(|_| ())
+  };
+
+  match result {
+    Ok(_) => {
+      emit(&app, EventToFrontend::CreateEntry, Payload::<String> {
+        op_id,
+        data: Some(path),
+        error: None,
+        is_finished: true,
+      });
+    }
+
+    Err(e) => {
+      emit(&app, EventToFrontend::CreateEntry, Payload::<String> {
+        op_id,
+        data: None,
+        error: Some(e.to_string()),
+        is_finished: true,
+      });
+    }
+  }
+}
+
+#[tauri::command]
 pub async fn delete_entries(
   app: AppHandle,
   paths: Vec<String>,

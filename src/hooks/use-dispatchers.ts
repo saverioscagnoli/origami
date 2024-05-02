@@ -114,6 +114,20 @@ function useDispatchers() {
   };
 
   /**
+   * Creates a folder or file in the given path.
+   * @param path The path of the entry to create
+   * @param isDir Whether the entry to create is a directory or not
+   */
+  const createEntry = (path: string, isDir: boolean) => {
+    dispatch(
+      push({
+        type: OperationType.CreateEntry,
+        args: { path, isDir }
+      })
+    );
+  };
+
+  /**
    *  Updates the status of an operation in the callstack.
    *  I.e from "Pending" to "Success"
    * @param id The id of the operation to update
@@ -180,6 +194,7 @@ function useDispatchers() {
     reload,
     open,
     pasteEntries,
+    createEntry,
     deleteEntries,
     updateOpStatus,
     popOp,

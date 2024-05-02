@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { callstackReducer } from "./callstack-slice";
 import { currentDirReducer } from "./current-dir-slice";
 import { settingsReducer } from "./settings-slice";
-
 type Action<T> = {
   payload: T;
   type: string;

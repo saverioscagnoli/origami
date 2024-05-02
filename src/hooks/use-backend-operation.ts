@@ -9,6 +9,7 @@ type OperationMap = {
 
   // Returns the directory where the file(s) were pasted, so that the frontend can update the UI accordingly.
   [OperationType.PasteEntries]: Payload<{ dir: string }>;
+  [OperationType.CreateEntry]: Payload<string>;
   [OperationType.DeleteEntries]: Payload<{ dir: string }>;
 };
 

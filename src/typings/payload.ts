@@ -1,6 +1,6 @@
 type Payload<T> = {
   opId: string;
-  data: T | null;
+  data: T;
   error: string | null;
   isFinished: boolean;
 };

@@ -19,7 +19,13 @@ use tauri::{ AppHandle, Manager };
 use utils::get_os;
 use watcher::start_watching;
 
-use file_system::{ list_dir, open_file, paste_entries, delete_entries };
+use file_system::{
+  list_dir,
+  open_file,
+  paste_entries,
+  delete_entries,
+  create_entry,
+};
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 async fn main() {
@@ -39,6 +45,7 @@ async fn main() {
         list_dir,
         open_file,
         paste_entries,
+        create_entry,
         delete_entries,
         get_os,
         load_settings,

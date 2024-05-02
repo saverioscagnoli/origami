@@ -8,7 +8,7 @@ const RenameMenuItem = () => {
   const { selected } = useCurrentDir();
 
   const onClick = () => {
-    renaming.set(selected.at(0));
+    //renaming.set(selected.at(0));
   };
 
   return (

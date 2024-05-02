@@ -25,4 +25,3 @@ const PasteMenuItem = () => {
 };
 
 export { PasteMenuItem };
-
