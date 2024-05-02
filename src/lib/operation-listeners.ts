@@ -87,7 +87,27 @@ function currentDirListeners() {
   );
 
   // CreateEntry operation listener
-  useBackendOperation(OperationType.CreateEntry, payload => {
+  useBackendOperation(
+    OperationType.CreateEntry,
+    payload => {
+      const { opId, error, isFinished } = payload;
+
+      if (error) {
+        alert(error);
+        updateOpStatus(opId, OperationStatus.Error);
+        return;
+      }
+
+      if (isFinished) {
+        updateOpStatus(opId, OperationStatus.Success);
+        reload();
+      }
+    },
+    [dir]
+  );
+
+  // RenameEntry operation listener
+  useBackendOperation(OperationType.RenameEntry, payload => {
     const { opId, error, isFinished } = payload;
 
     if (error) {
@@ -100,7 +120,7 @@ function currentDirListeners() {
       updateOpStatus(opId, OperationStatus.Success);
       reload();
     }
-  }, [dir])
+  }, [dir]);
 }
 
 export { currentDirListeners };

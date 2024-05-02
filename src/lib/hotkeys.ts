@@ -7,19 +7,20 @@ import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 function setupHotkeys() {
   const { replaceSelected, updateSettings, deleteEntries } = useDispatchers();
   const { entries, selected } = useCurrentDir();
-  const { creating: creatingState } = useGlobalStates();
+  const { creating: creatingState,renaming } = useGlobalStates();
   const { state: creating } = creatingState();
+
 
   useHotkey(
     [Modifier.Ctrl],
     Key.KeyA,
     e => {
-      if (e.repeat || creating) return;
+      if (e.repeat || creating || renaming()) return;
       e.preventDefault();
 
       replaceSelected(entries);
     },
-    [entries, creating]
+    [entries, creating, renaming()]
   );
 
   const { showHidden, showCheckboxes } = useSettings();
@@ -28,36 +29,49 @@ function setupHotkeys() {
     [Modifier.Ctrl],
     Key.KeyH,
     e => {
-      if (e.repeat || creating) return;
+      if (e.repeat || creating || renaming()) return;
       e.preventDefault();
 
       updateSettings({ showHidden: !showHidden });
     },
-    [showHidden, creating]
+    [showHidden, creating, renaming()]
   );
 
   useHotkey(
     [Modifier.Ctrl],
     Key.KeyJ,
     e => {
-      if (e.repeat || creating) return;
+      if (e.repeat || creating || renaming()) return;
       e.preventDefault();
 
       updateSettings({ showCheckboxes: !showCheckboxes });
     },
-    [showCheckboxes, creating]
+    [showCheckboxes, creating, renaming()]
   );
 
   useHotkey(
     [],
     Key.Delete,
     e => {
-      if (e.repeat || creating) return;
+      if (e.repeat || creating || renaming()) return;
       e.preventDefault();
 
       deleteEntries();
     },
-    [selected, creating]
+    [selected, creating, renaming()]
+  );
+
+
+  useHotkey(
+    [],
+    Key.F2,
+    e => {
+      if (e.repeat || creating || renaming()) return;
+      e.preventDefault();
+
+      renaming.set(selected.at(0));
+    },
+    [renaming(), selected, creating, renaming()]
   );
 }
 

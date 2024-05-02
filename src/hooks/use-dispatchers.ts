@@ -97,8 +97,6 @@ function useDispatchers() {
         .reduce((a, b) => a + b, 0);
     }
 
-    console.log(totalSize);
-
     dispatch(
       push({
         type: OperationType.PasteEntries,
@@ -109,6 +107,20 @@ function useDispatchers() {
     copying.set([]);
     cutting.set([]);
   };
+
+  /**
+   * Renames an entry in the current directory.
+   * @param oldPath The old path of the entry to rename
+   * @param newPath The new path of the entry to rename
+   */
+  const renameEntry = (oldPath: string, newName: string) => {
+    dispatch(
+      push({
+        type: OperationType.RenameEntry,
+        args: { oldPath, newName }
+      })
+    );
+  }
 
   /**
    * Deletes the selected entries in the current directory.
@@ -204,6 +216,7 @@ function useDispatchers() {
     open,
     pasteEntries,
     createEntry,
+    renameEntry,
     deleteEntries,
     updateOpStatus,
     popOp,

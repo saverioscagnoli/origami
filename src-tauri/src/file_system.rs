@@ -1,4 +1,4 @@
-use std::{ path::{ Path, PathBuf }, thread };
+use std::{ path::{ Path, PathBuf }, thread, time::Instant };
 
 use chrono::{ DateTime, Utc };
 use fs_extra::file::{ copy_with_progress, CopyOptions };
@@ -218,6 +218,56 @@ async fn copy_dir(from: PathBuf, to: PathBuf) -> Result<(), tokio::io::Error> {
   Ok(())
 }
 
+use std::fs::File;
+use std::io::{ self, Read, Write };
+use std::time::{ Duration };
+
+pub fn copy_file_with_progress<F>(
+  src: impl AsRef<Path>,
+  dst: impl AsRef<Path>,
+  mut handler: F
+) -> io::Result<()>
+  where F: FnMut(u64, u64, f64)
+{
+  let mut src_file = File::open(src.as_ref())?;
+  let mut dst_file = File::create(dst.as_ref())?;
+
+  let total_bytes = src_file.metadata()?.len();
+  let mut copied_bytes = 0u64;
+  let mut buffer = vec![0; 1024 * 1024]; // 1MB buffer
+  let start_time = Instant::now();
+  let mut rate = 0.0;
+  let debounce_interval = Duration::from_millis(200);
+  let mut last_call_time = Instant::now();
+
+  while let Ok(n) = src_file.read(&mut buffer) {
+    if n == 0 {
+      break;
+    }
+    dst_file.write_all(&buffer[..n])?;
+    copied_bytes += n as u64;
+
+    let elapsed_time = start_time.elapsed().as_secs_f64();
+    rate = if elapsed_time > 0.0 {
+      (copied_bytes as f64) / elapsed_time
+    } else {
+      0.0
+    };
+
+    if last_call_time.elapsed() >= debounce_interval {
+      handler(copied_bytes, total_bytes, rate);
+      last_call_time = Instant::now();
+    }
+  }
+
+  // Call the handler one last time to ensure it gets the final state
+  if copied_bytes == total_bytes {
+    handler(copied_bytes, total_bytes, rate);
+  }
+
+  Ok(())
+}
+
 #[tauri::command]
 pub async fn paste_entries(
   app: AppHandle,
@@ -235,33 +285,50 @@ pub async fn paste_entries(
         let old_path = Path::new(&path);
         let new_path = Path::new(&dir).join(old_path.file_name().unwrap());
 
-        let mut i = 0;
+        let mut i: i32 = 0;
 
-        let _ = copy_with_progress(
-          old_path,
-          new_path,
-          &CopyOptions::default(),
-          |data| {
-            if i % 10 == 0 {
-              emit(
-                &app,
-                EventToFrontend::CopyProgress,
-                Payload::<CopyProgressPayload> {
-                  op_id: op_id.clone(),
-                  error: None,
-                  data: Some(CopyProgressPayload {
-                    copied: data.copied_bytes,
-                    total: data.total_bytes,
-                  }),
-                  is_finished: false,
-                }
-              );
-            }
+        let start = Instant::now();
 
-            i += 1;
+        copy_file_with_progress(old_path, new_path, |copied, total, rate| {
+          if i % 5000 == 0 {
+            emit(
+              &app,
+              EventToFrontend::CopyProgress,
+              Payload::<CopyProgressPayload> {
+                op_id: op_id.clone(),
+                error: None,
+                data: Some(CopyProgressPayload {
+                  copied,
+                  total,
+                }),
+                is_finished: false,
+              }
+            );
+
+            i = 0;
           }
-        );
+
+          i += 1;
+          // rate in megabytes per second
+          println!("Rate: {:.2} MB/s", rate / 1024.0 / 1024.0);
+        }).unwrap();
+
+        // Capture the current time after the function call
+        let duration: Duration = start.elapsed();
+
+        // Print the duration it took to execute the function
+        println!("Time elapsed in copy_file_with_progress is: {:?}", duration);
       }
+
+      emit(&app, EventToFrontend::CopyProgress, Payload::<CopyProgressPayload> {
+        op_id: op_id.clone(),
+        error: None,
+        data: Some(CopyProgressPayload {
+          copied: 0,
+          total: 0,
+        }),
+        is_finished: true,
+      });
     });
   } else {
     tokio::spawn(async move {
@@ -370,6 +437,36 @@ pub async fn create_entry(
 
     Err(e) => {
       emit(&app, EventToFrontend::CreateEntry, Payload::<String> {
+        op_id,
+        data: None,
+        error: Some(e.to_string()),
+        is_finished: true,
+      });
+    }
+  }
+}
+
+#[tauri::command]
+pub async fn rename_entry(
+  app: AppHandle,
+  old_path: String,
+  new_name: String,
+  op_id: String
+) {
+  let new_path_buf = Path::new(&old_path).with_file_name(new_name);
+
+  match tokio::fs::rename(&old_path, &new_path_buf).await {
+    Ok(_) => {
+      emit(&app, EventToFrontend::RenameEntry, Payload::<String> {
+        op_id,
+        data: Some(new_path_buf.to_string_lossy().to_string()),
+        error: None,
+        is_finished: true,
+      });
+    }
+
+    Err(e) => {
+      emit(&app, EventToFrontend::RenameEntry, Payload::<String> {
         op_id,
         data: None,
         error: Some(e.to_string()),

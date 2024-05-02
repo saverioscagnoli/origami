@@ -90,7 +90,7 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
     >
-      <span className={cn("flex items-center gap-1.5")}>
+      <span className={cn("flex items-center justify-start text-start gap-1.5")}>
         {showCheckboxes && (
           <EntryCheckbox checked={isSelected} onCheckedChange={onCheckedChange} />
         )}

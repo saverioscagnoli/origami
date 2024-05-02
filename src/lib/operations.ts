@@ -3,6 +3,7 @@ enum OperationType {
   OpenFile = "open_file",
   PasteEntries = "paste_entries",
   CreateEntry = "create_entry",
+  RenameEntry = "rename_entry",
   DeleteEntries = "delete_entries"
 }
 
@@ -16,6 +17,7 @@ type ArgsMap = {
     totalSize: number;
   };
   [OperationType.CreateEntry]: { path: string; isDir: boolean };
+  [OperationType.RenameEntry]: { oldPath: string; newName: string };
   [OperationType.DeleteEntries]: { paths: string[] };
 };
 
