@@ -5,11 +5,11 @@ import { useSettings } from "@hooks/use-settings";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 
 function setupHotkeys() {
-  const { replaceSelected, updateSettings, deleteEntries } = useDispatchers();
-  const { entries, selected } = useCurrentDir();
-  const { creating: creatingState,renaming } = useGlobalStates();
+  const { replaceSelected, updateSettings, pasteEntries, deleteEntries } =
+    useDispatchers();
+  const { entries, selected, dir } = useCurrentDir();
+  const { creating: creatingState, renaming, cutting, copying } = useGlobalStates();
   const { state: creating } = creatingState();
-
 
   useHotkey(
     [Modifier.Ctrl],
@@ -61,7 +61,6 @@ function setupHotkeys() {
     [selected, creating, renaming()]
   );
 
-
   useHotkey(
     [],
     Key.F2,
@@ -72,6 +71,42 @@ function setupHotkeys() {
       renaming.set(selected.at(0));
     },
     [renaming(), selected, creating, renaming()]
+  );
+
+  useHotkey(
+    [Modifier.Ctrl],
+    Key.KeyC,
+    e => {
+      if (e.repeat || creating || renaming()) return;
+      e.preventDefault();
+
+      copying.set(selected);
+    },
+    [creating, renaming(), selected, copying()]
+  );
+
+  useHotkey(
+    [Modifier.Ctrl],
+    Key.KeyX,
+    e => {
+      if (e.repeat || creating || renaming()) return;
+      e.preventDefault();
+
+      cutting.set(selected);
+    },
+    [creating, renaming(), selected, cutting()]
+  );
+
+  useHotkey(
+    [Modifier.Ctrl],
+    Key.KeyV,
+    e => {
+      if (e.repeat || creating || renaming()) return;
+      e.preventDefault();
+
+      pasteEntries();
+    },
+    [creating, dir, selected, renaming(), cutting(), copying()]
   );
 }
 

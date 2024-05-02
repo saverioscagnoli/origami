@@ -1,7 +1,7 @@
 use std::{ path::{ Path, PathBuf }, thread, time::Instant };
 
 use chrono::{ DateTime, Utc };
-use fs_extra::file::{ copy_with_progress, CopyOptions };
+use fs_extra::dir::{ CopyOptions, TransitProcessResult };
 use serde::Serialize;
 use tauri::AppHandle;
 
@@ -278,57 +278,107 @@ pub async fn paste_entries(
   op_id: String
 ) -> Result<(), String> {
   let total_paths = paths.len();
+  let mut size = 0;
 
-  if !is_cutting && total_size >= (COPY_SIZE_THRESHOLD as u64) {
+  for path in paths.clone() {
+    let path = Path::new(&path);
+
+    if path.is_dir() {
+      size += match fs_extra::dir::get_size(&path) {
+        Ok(size) => size,
+        Err(_) => 0,
+      };
+    } else {
+      size += match tokio::fs::metadata(&path).await {
+        Ok(metadata) => metadata.len(),
+        Err(_) => 0,
+      };
+    }
+  }
+
+  if !is_cutting && size >= (COPY_SIZE_THRESHOLD as u64) {
     thread::spawn(move || {
       for (index, path) in paths.into_iter().enumerate() {
         let old_path = Path::new(&path);
         let new_path = Path::new(&dir).join(old_path.file_name().unwrap());
 
+        let is_last = index == total_paths - 1;
         let mut i: i32 = 0;
 
-        let start = Instant::now();
-
-        copy_file_with_progress(old_path, new_path, |copied, total, rate| {
-          if i % 5000 == 0 {
-            emit(
-              &app,
-              EventToFrontend::CopyProgress,
-              Payload::<CopyProgressPayload> {
-                op_id: op_id.clone(),
-                error: None,
-                data: Some(CopyProgressPayload {
-                  copied,
-                  total,
-                }),
-                is_finished: false,
-              }
-            );
-
-            i = 0;
+        if old_path.is_dir() {
+          if !new_path.exists() {
+            fs_extra::dir::create_all(&new_path, false).unwrap();
           }
 
-          i += 1;
-          // rate in megabytes per second
-          println!("Rate: {:.2} MB/s", rate / 1024.0 / 1024.0);
-        }).unwrap();
+          fs_extra::dir
+            ::copy_with_progress(
+              old_path,
+              &dir,
+              &CopyOptions::default(),
+              |info| {
+                if i % 5000 == 0 {
+                  emit(
+                    &app,
+                    EventToFrontend::CopyProgress,
+                    Payload::<CopyProgressPayload> {
+                      op_id: op_id.clone(),
+                      error: None,
+                      data: Some(CopyProgressPayload {
+                        copied: info.copied_bytes,
+                        total: info.total_bytes,
+                      }),
+                      is_finished: is_last,
+                    }
+                  );
 
-        // Capture the current time after the function call
-        let duration: Duration = start.elapsed();
+                  println!("{} / {}", info.copied_bytes, info.total_bytes);
 
-        // Print the duration it took to execute the function
-        println!("Time elapsed in copy_file_with_progress is: {:?}", duration);
+                  i = 0;
+                }
+
+                i += 1;
+
+                TransitProcessResult::ContinueOrAbort
+              }
+            )
+            .unwrap();
+        } else {
+          copy_file_with_progress(old_path, new_path, |copied, total, rate| {
+            if i % 5000 == 0 {
+              emit(
+                &app,
+                EventToFrontend::CopyProgress,
+                Payload::<CopyProgressPayload> {
+                  op_id: op_id.clone(),
+                  error: None,
+                  data: Some(CopyProgressPayload {
+                    copied,
+                    total,
+                  }),
+                  is_finished: is_last,
+                }
+              );
+
+              println!("{} / {} ({} MB/s)", copied, total, rate / 1024.0 / 1024.0);
+
+              i = 0;
+            }
+
+            i += 1;
+          }).unwrap();
+        }
       }
 
-      emit(&app, EventToFrontend::CopyProgress, Payload::<CopyProgressPayload> {
-        op_id: op_id.clone(),
-        error: None,
-        data: Some(CopyProgressPayload {
-          copied: 0,
-          total: 0,
-        }),
-        is_finished: true,
-      });
+      emit(
+        &app,
+        EventToFrontend::PasteEntries,
+        Payload::<PastePayload> {
+          op_id,
+          data: Some(PastePayload { dir }),
+          error: None,
+          is_finished: true,
+        }
+      );
     });
   } else {
     tokio::spawn(async move {
@@ -367,6 +417,7 @@ pub async fn paste_entries(
           }
         } else {
           if old_path.is_dir() {
+            println!("Copying directory: {:?}", old_path);
             match copy_dir(old_path.into(), new_path).await {
               Ok(_) => {
                 emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {

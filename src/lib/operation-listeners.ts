@@ -53,12 +53,9 @@ function currentDirListeners() {
         return;
       }
 
-      if (data.dir === dir) {
-        reload();
-      }
-
       if (isFinished) {
         updateOpStatus(opId, OperationStatus.Success);
+        reload();
       }
     },
     [dir]
@@ -107,20 +104,24 @@ function currentDirListeners() {
   );
 
   // RenameEntry operation listener
-  useBackendOperation(OperationType.RenameEntry, payload => {
-    const { opId, error, isFinished } = payload;
+  useBackendOperation(
+    OperationType.RenameEntry,
+    payload => {
+      const { opId, error, isFinished } = payload;
 
-    if (error) {
-      alert(error);
-      updateOpStatus(opId, OperationStatus.Error);
-      return;
-    }
+      if (error) {
+        alert(error);
+        updateOpStatus(opId, OperationStatus.Error);
+        return;
+      }
 
-    if (isFinished) {
-      updateOpStatus(opId, OperationStatus.Success);
-      reload();
-    }
-  }, [dir]);
+      if (isFinished) {
+        updateOpStatus(opId, OperationStatus.Success);
+        reload();
+      }
+    },
+    [dir]
+  );
 }
 
 export { currentDirListeners };

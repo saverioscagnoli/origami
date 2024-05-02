@@ -4,7 +4,7 @@ import { useAccessor } from "@hooks/use-accessor";
 import { useDispatchers } from "@hooks/use-dispatchers";
 import { cn } from "@lib/utils";
 import { ChildrenProps } from "@typings/props";
-import { FC, KeyboardEventHandler, useMemo, useRef } from "react";
+import { FC, KeyboardEventHandler, useEffect, useMemo, useRef } from "react";
 
 type RenamePopoverProps = ChildrenProps & {
   name: string;
@@ -18,12 +18,19 @@ const RenamePopover: FC<RenamePopoverProps> = ({ children, name }) => {
   const open = useMemo(() => renaming()?.name === name, [renaming(), name]);
 
   const onOpenChange = (open: boolean) => {
-    if (open) {
-      inputRef.current?.focus();
-    } else {
+    if (!open) {
       renaming.set(null);
     }
   };
+
+  useEffect(() => {
+    if (open) {
+      inputRef.current?.focus();
+      setTimeout(() => {
+        inputRef.current?.setSelectionRange(0, name.lastIndexOf("."));
+      });
+    }
+  }, [open]);
 
   const { renameEntry } = useDispatchers();
 

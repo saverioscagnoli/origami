@@ -120,7 +120,7 @@ function useDispatchers() {
         args: { oldPath, newName }
       })
     );
-  }
+  };
 
   /**
    * Deletes the selected entries in the current directory.
