@@ -4,7 +4,8 @@ enum EventToBackend {
 }
 
 enum EventFromBackend {
-  SendDisks = "send_disks"
+  SendDisks = "send_disks",
+  CopyProgress = "copy_progress"
 }
 
-export { EventToBackend, EventFromBackend };
+export { EventFromBackend, EventToBackend };

@@ -25,3 +25,9 @@ pub struct PastePayload {
 pub struct DeletePayload {
   pub dir: String,
 }
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct CopyProgressPayload {
+  pub copied: u64,
+  pub total: u64,
+}

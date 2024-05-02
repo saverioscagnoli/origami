@@ -1,4 +1,5 @@
 import { FolderIcon } from "@components/icons";
+import { fileIconMap } from "@lib/file-icon-map";
 import { cn } from "@lib/utils";
 import { FileIcon } from "@radix-ui/react-icons";
 import { FC } from "react";
@@ -12,7 +13,13 @@ type EntryNameProps = {
 const ListEntryName: FC<EntryNameProps> = ({ name, path, isDir }) => {
   return (
     <span className={cn("flex items-center gap-1.5")}>
-      <span className={cn("min-w-4")}>{isDir ? <FolderIcon /> : <FileIcon />}</span>
+      <span className={cn("min-w-4")}>
+        {isDir ? (
+          <FolderIcon />
+        ) : (
+          fileIconMap.get(name.split(".").pop().toLowerCase()) ?? <FileIcon />
+        )}
+      </span>
       <p
         className={cn("w-32 md:w-40 lg:w-52 xl:w-64", "cursor-default", "truncate")}
       >
@@ -34,7 +41,7 @@ const GridEntryName: FC<EntryNameProps> = ({ name, path, isDir }) => {
         {isDir ? (
           <FolderIcon className={cn("w-full h-full")} />
         ) : (
-          <FileIcon className={cn("w-full h-full")} />
+          fileIconMap.get(name.split(".").pop().toLowerCase()) ?? <FileIcon className={cn("w-full h-full")} />
         )}
       </span>
       <p className={cn("w-full", "cursor-default", "truncate", "text-center")}>

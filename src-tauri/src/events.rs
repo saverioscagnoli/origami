@@ -20,6 +20,7 @@ pub enum EventToFrontend {
   DeleteEntries,
   Watch,
   SendDisks,
+  CopyProgress
 }
 
 impl EventToFrontend {
@@ -32,6 +33,7 @@ impl EventToFrontend {
       EventToFrontend::DeleteEntries => "delete_entries",
       EventToFrontend::Watch => "watch",
       EventToFrontend::SendDisks => "send_disks",
+      EventToFrontend::CopyProgress => "copy_progress"
     }
   }
 }

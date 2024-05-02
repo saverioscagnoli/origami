@@ -5,10 +5,9 @@ import { useCurrentDir } from "@hooks/use-current-dir";
 import { useDispatchers } from "@hooks/use-dispatchers";
 import { cn } from "@lib/utils";
 import { sep } from "@tauri-apps/api/path";
-import { ChildrenProps } from "@typings/props";
-import { FC, KeyboardEventHandler, useMemo, useRef } from "react";
+import { KeyboardEventHandler, useMemo, useRef } from "react";
 
-const CreateDialog: FC<ChildrenProps> = ({ children }) => {
+const CreateDialog= () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const name = useAccessor<string>("");
 
@@ -31,11 +30,10 @@ const CreateDialog: FC<ChildrenProps> = ({ children }) => {
       open={state}
       onOpenChange={state => (state ? inputRef.current?.focus() : creating.reset())}
     >
-      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
       <Dialog.Content className={cn("w-1/3")}>
         <Dialog.Title>Create {isDir ? "Folder" : "File"}</Dialog.Title>
         <Input
-          className={cn("mt-2")}
+          className={cn("mt-2", "font-normal")}
           value={name()}
           spellCheck={false}
           onValueChange={name.set}

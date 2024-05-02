@@ -1,13 +1,14 @@
-use std::path::{ Path, PathBuf };
+use std::{ path::{ Path, PathBuf }, thread };
 
 use chrono::{ DateTime, Utc };
+use fs_extra::file::{ copy_with_progress, CopyOptions };
 use serde::Serialize;
 use tauri::AppHandle;
 
 use crate::{
-  consts::LIST_DIR_BULK_SIZE,
+  consts::{ COPY_SIZE_THRESHOLD, LIST_DIR_BULK_SIZE },
   events::EventToFrontend,
-  payloads::{ DeletePayload, PastePayload, Payload },
+  payloads::{ CopyProgressPayload, DeletePayload, PastePayload, Payload },
   structs::DirEntry,
   utils::emit,
 };
@@ -223,55 +224,71 @@ pub async fn paste_entries(
   paths: Vec<String>,
   dir: String,
   is_cutting: bool,
+  total_size: u64,
   op_id: String
 ) -> Result<(), String> {
   let total_paths = paths.len();
 
-  tokio::spawn(async move {
-    for (index, path) in paths.into_iter().enumerate() {
-      let old_path = Path::new(&path);
-      let new_path = Path::new(&dir).join(old_path.file_name().unwrap());
+  if !is_cutting && total_size >= (COPY_SIZE_THRESHOLD as u64) {
+    thread::spawn(move || {
+      for (index, path) in paths.into_iter().enumerate() {
+        let old_path = Path::new(&path);
+        let new_path = Path::new(&dir).join(old_path.file_name().unwrap());
 
-      if new_path.exists() {
-        emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
-          op_id: op_id.clone(),
-          data: Some(PastePayload { dir: dir.clone() }),
-          error: Some(format!("{} already exists", new_path.to_string_lossy())),
-          is_finished: false,
-        });
+        let mut i = 0;
+
+        let _ = copy_with_progress(
+          old_path,
+          new_path,
+          &CopyOptions::default(),
+          |data| {
+            if i % 10 == 0 {
+              emit(
+                &app,
+                EventToFrontend::CopyProgress,
+                Payload::<CopyProgressPayload> {
+                  op_id: op_id.clone(),
+                  error: None,
+                  data: Some(CopyProgressPayload {
+                    copied: data.copied_bytes,
+                    total: data.total_bytes,
+                  }),
+                  is_finished: false,
+                }
+              );
+            }
+
+            i += 1;
+          }
+        );
       }
+    });
+  } else {
+    tokio::spawn(async move {
+      for (index, path) in paths.into_iter().enumerate() {
+        let old_path = Path::new(&path);
+        let new_path = Path::new(&dir).join(old_path.file_name().unwrap());
 
-      let is_last = index == total_paths - 1;
-
-      if is_cutting {
-        match tokio::fs::rename(&path, &new_path).await {
-          Ok(_) =>
-            emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
-              op_id: op_id.clone(),
-              data: Some(PastePayload { dir: dir.clone() }),
-              error: None,
-              is_finished: is_last,
-            }),
-
-          Err(e) =>
-            emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
-              op_id: op_id.clone(),
-              data: Some(PastePayload { dir: dir.clone() }),
-              error: Some(e.to_string()),
-              is_finished: is_last,
-            }),
+        if new_path.exists() {
+          emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
+            op_id: op_id.clone(),
+            data: Some(PastePayload { dir: dir.clone() }),
+            error: Some(format!("{} already exists", new_path.to_string_lossy())),
+            is_finished: false,
+          });
         }
-      } else {
-        if old_path.is_dir() {
-          match copy_dir(old_path.into(), new_path).await {
-            Ok(_) => {
+
+        let is_last = index == total_paths - 1;
+
+        if is_cutting {
+          match tokio::fs::rename(&path, &new_path).await {
+            Ok(_) =>
               emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
                 op_id: op_id.clone(),
                 data: Some(PastePayload { dir: dir.clone() }),
                 error: None,
                 is_finished: is_last,
-              });
-            }
+              }),
 
             Err(e) =>
               emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
@@ -282,29 +299,49 @@ pub async fn paste_entries(
               }),
           }
         } else {
-          match tokio::fs::copy(&path, &new_path).await {
-            Ok(_) => {
-              emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
-                op_id: op_id.clone(),
-                data: Some(PastePayload { dir: dir.clone() }),
-                error: None,
-                is_finished: is_last,
-              });
-            }
+          if old_path.is_dir() {
+            match copy_dir(old_path.into(), new_path).await {
+              Ok(_) => {
+                emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
+                  op_id: op_id.clone(),
+                  data: Some(PastePayload { dir: dir.clone() }),
+                  error: None,
+                  is_finished: is_last,
+                });
+              }
 
-            Err(e) =>
-              emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
-                op_id: op_id.clone(),
-                data: Some(PastePayload { dir: dir.clone() }),
-                error: Some(e.to_string()),
-                is_finished: is_last,
-              }),
+              Err(e) =>
+                emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
+                  op_id: op_id.clone(),
+                  data: Some(PastePayload { dir: dir.clone() }),
+                  error: Some(e.to_string()),
+                  is_finished: is_last,
+                }),
+            }
+          } else {
+            match tokio::fs::copy(&path, &new_path).await {
+              Ok(_) => {
+                emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
+                  op_id: op_id.clone(),
+                  data: Some(PastePayload { dir: dir.clone() }),
+                  error: None,
+                  is_finished: is_last,
+                });
+              }
+
+              Err(e) =>
+                emit(&app, EventToFrontend::PasteEntries, Payload::<PastePayload> {
+                  op_id: op_id.clone(),
+                  data: Some(PastePayload { dir: dir.clone() }),
+                  error: Some(e.to_string()),
+                  is_finished: is_last,
+                }),
+            }
           }
         }
       }
-    }
-  });
-
+    });
+  }
   Ok(())
 }
 

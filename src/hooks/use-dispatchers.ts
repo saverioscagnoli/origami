@@ -83,17 +83,26 @@ function useDispatchers() {
   const pasteEntries = () => {
     let paths: string[] = [];
     let isCutting = cutting().length > 0;
+    let totalSize: number;
 
     if (isCutting) {
       paths = cutting().map(e => e.path);
+      totalSize = cutting()
+        .map(e => e.size)
+        .reduce((a, b) => a + b, 0);
     } else {
       paths = copying().map(e => e.path);
+      totalSize = copying()
+        .map(e => e.size)
+        .reduce((a, b) => a + b, 0);
     }
+
+    console.log(totalSize);
 
     dispatch(
       push({
         type: OperationType.PasteEntries,
-        args: { paths, dir, isCutting }
+        args: { paths, dir, isCutting, totalSize }
       })
     );
 
