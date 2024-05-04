@@ -1,29 +1,35 @@
 import { ScrollArea } from "@components/tredici";
-import { useAccessor } from "@hooks/use-accessor";
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { useSettings } from "@hooks/use-settings";
 import { cn } from "@lib/utils";
-import { ComponentPropsWithoutRef, forwardRef, useMemo, useRef } from "react";
+import {
+  ComponentPropsWithoutRef,
+  forwardRef,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import { Virtuoso, VirtuosoGrid, VirtuosoHandle } from "react-virtuoso";
 import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
 import { SelectedEntriesContextMenu } from "./selected";
-import { useSettings } from "@hooks/use-settings";
 
 const Workspace = () => {
   const { entries } = useCurrentDir();
-  const { viewType, showHidden } = useSettings();
+  const { showHidden, view } = useSettings();
 
-  const scrollRef = useAccessor<HTMLDivElement | null>(null);
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
-  // useEffect(() => {
-  //   if (virtuosoRef.current) {
-  //     virtuosoRef.current.scrollToIndex({ index: 0, behavior: "smooth" });
-  //   }
-  // }, [entries]);
-
   const filtered = useMemo(
-    () => entries.filter(e => showHidden || !e.isHidden),
+    () =>
+      entries
+        .filter(e => showHidden || !e.isHidden)
+        .sort((a, b) => {
+          if (a.isDir && !b.isDir) return -1;
+          if (!a.isDir && b.isDir) return 1;
+          return a.name.localeCompare(b.name);
+        }),
     [entries, showHidden]
   );
 
@@ -32,14 +38,14 @@ const Workspace = () => {
       <ScrollArea className={cn("w-full h-full")} id="workspace">
         <ScrollArea.Viewport
           className={cn("w-full h-full", "rounded-[inherit]")}
-          ref={scrollRef.set}
+          ref={setScrollRef}
         >
-          {viewType === "list" ? (
+          {view === "list" ? (
             <Virtuoso
               data={filtered}
               totalCount={filtered.length}
               fixedItemHeight={24}
-              customScrollParent={scrollRef() ?? undefined}
+              customScrollParent={scrollRef ?? undefined}
               ref={virtuosoRef}
               itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
               components={listComponents}
@@ -48,7 +54,7 @@ const Workspace = () => {
             <VirtuosoGrid
               data={filtered}
               totalCount={filtered.length}
-              customScrollParent={scrollRef() ?? undefined}
+              customScrollParent={scrollRef ?? undefined}
               ref={virtuosoRef}
               itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
               components={gridComponents}

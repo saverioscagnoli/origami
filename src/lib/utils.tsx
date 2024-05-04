@@ -6,18 +6,8 @@ import {
   ReaderIcon,
   StarFilledIcon
 } from "@radix-ui/react-icons";
-import {
-  appConfigDir,
-  desktopDir,
-  documentDir,
-  downloadDir,
-  homeDir,
-  pictureDir,
-  sep
-} from "@tauri-apps/api/path";
-import { BasicDir } from "@typings/basic-dir";
 import { ChildrenProps } from "@typings/props";
-import { clsx, ClassValue } from "clsx";
+import { ClassValue, clsx } from "clsx";
 import { Context, FC, ReactNode, useContext } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -46,47 +36,6 @@ function createContextProvider<T>(
   );
 }
 
-async function resolveBasicDirs() {
-  const basicDirs: BasicDir[] = [];
-
-  const promises = [
-    appConfigDir(),
-    homeDir(),
-    desktopDir(),
-    downloadDir(),
-    documentDir(),
-    pictureDir()
-  ];
-
-  const icons = [
-    <StarFilledIcon />,
-    <HomeIcon />,
-    <DesktopIcon />,
-    <DownloadIcon />,
-    <ReaderIcon />,
-    <ImageIcon />
-  ];
-
-  for (let i = 0; i < promises.length; i++) {
-    const promise = promises[i];
-
-    try {
-      let path = await promise;
-      const icon = icons[i];
-
-      if (i === 0) {
-        path += sep() + "Starred";
-      }
-
-      basicDirs.push({ path, icon });
-    } catch {
-      console.warn("Failed to resolve one of the basic directories.");
-    }
-  }
-
-  return basicDirs;
-}
-
 function percentage(part: number, total: number, decimals: number = 0): string {
   return parseFloat(((part / total) * 100).toFixed(decimals)) + "%";
 }
@@ -103,11 +52,20 @@ function formatBytes(bytes: number, decimals: number = 2): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
+const basicDirIconMap = new Map<string, ReactNode>([
+  ["StarFilledIcon", <StarFilledIcon />],
+  ["HomeIcon", <HomeIcon />],
+  ["DesktopIcon", <DesktopIcon />],
+  ["DownloadIcon", <DownloadIcon />],
+  ["ReaderIcon", <ReaderIcon />],
+  ["ImageIcon", <ImageIcon />]
+]);
+
 export {
+  basicDirIconMap,
   cn,
   createContextHook,
   createContextProvider,
-  resolveBasicDirs,
-  percentage,
-  formatBytes
+  formatBytes,
+  percentage
 };

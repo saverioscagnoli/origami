@@ -1,5 +1,7 @@
 use serde::{ Deserialize, Serialize };
 
+use crate::structs::DirEntry;
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct WatchPayload {
@@ -14,6 +16,12 @@ pub struct Payload<T> {
   pub data: Option<T>,
   pub error: Option<String>,
   pub is_finished: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ListDirPayload {
+  pub path: String,
+  pub entries: Vec<DirEntry>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

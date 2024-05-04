@@ -1,8 +1,11 @@
+type Theme = "light" | "dark" | "system";
+type View = "list" | "grid";
+
 type Settings = {
-  theme: "light" | "dark" | "system";
+  theme: Theme;
+  view: View;
   showHidden: boolean;
   showCheckboxes: boolean;
-  viewType: "list" | "grid";
 };
 
-export type { Settings };
+export type { Settings, Theme, View };

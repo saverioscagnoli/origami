@@ -1,15 +1,13 @@
 import { Menubar } from "@components/tredici";
-import { useDispatchers } from "@hooks/use-dispatchers";
 import { useSettings } from "@hooks/use-settings";
 import { MagicWandIcon } from "@radix-ui/react-icons";
-import { Settings } from "@typings/settings";
+import { Theme } from "@typings/settings";
 
 const ThemeMenuItem = () => {
-  const { updateSettings } = useDispatchers();
-  const { theme } = useSettings();
+  const { theme, updateSettings } = useSettings();
 
   const onValueChange = (value: string) => {
-    updateSettings({ theme: value as Settings["theme"] });
+    updateSettings({ theme: value as Theme });
   };
 
   return (

@@ -1,26 +1,18 @@
 import { Menubar } from "@components/tredici";
-import { useGlobalStates } from "@contexts/global-states";
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { useGlobalStates } from "@hooks/use-global-states";
 import { ScissorsIcon } from "@radix-ui/react-icons";
-import { useMemo } from "react";
 
 const CutMenuItem = () => {
   const { selected } = useCurrentDir();
-  const { cutting, copying } = useGlobalStates();
-
-  const disabled = useMemo(() => selected.length === 0, [selected]);
+  const { canCut, startCutting } = useGlobalStates();
 
   const onSelect = () => {
-    cutting.set(selected);
-    copying.set([]);
+    startCutting(selected);
   };
 
   return (
-    <Menubar.Item
-      leftIcon={<ScissorsIcon />}
-      disabled={disabled}
-      onSelect={onSelect}
-    >
+    <Menubar.Item leftIcon={<ScissorsIcon />} disabled={!canCut} onSelect={onSelect}>
       Cut
     </Menubar.Item>
   );

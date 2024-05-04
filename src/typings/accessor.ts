@@ -1,8 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 
 type Accessor<T> = {
-  (): T;
-  set: Dispatch<SetStateAction<T>>;
+  (value?: T): T extends undefined ? T : void;
   reset: () => void;
 } & (T extends boolean
   ? { toggle: () => void; on: () => void; off: () => void }

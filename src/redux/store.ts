@@ -1,20 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { callstackReducer } from "./callstack-slice";
 import { currentDirReducer } from "./current-dir-slice";
+import { environmentReducer } from "./environment-slice";
+import { globalStatesReducer } from "./global-states-slice";
 import { settingsReducer } from "./settings-slice";
-type Action<T> = {
-  payload: T;
-  type: string;
-};
 
 const store = configureStore({
   reducer: {
-    callstack: callstackReducer,
     currentDir: currentDirReducer,
-    settings: settingsReducer
+    settings: settingsReducer,
+    environment: environmentReducer,
+    globalStates: globalStatesReducer
   }
 });
 
 export { store };
 export type RootState = ReturnType<typeof store.getState>;
-export type { Action };

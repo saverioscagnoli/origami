@@ -15,7 +15,9 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": false,
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "strictNullChecks": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
@@ -26,7 +28,7 @@
       "@hooks/*": ["hooks/*"],
       "@contexts/*": ["contexts/*"],
       "@typings/*": ["typings/*"],
-      "@redux/*": ["redux/*"],
+      "@redux/*": ["redux/*"]
     }
   },
   "include": ["src"],

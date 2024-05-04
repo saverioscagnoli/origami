@@ -1,13 +1,13 @@
 import { For } from "@components/for";
+import { useCurrentDir } from "@hooks/use-current-dir";
+import { useEnvironment } from "@hooks/use-environment";
 import { cn } from "@lib/utils";
-import { SidebarFolder } from "./folder";
 import { sep } from "@tauri-apps/api/path";
-import { useEnvironment } from "@contexts/environment";
-import { useDispatchers } from "@hooks/use-dispatchers";
+import { SidebarFolder } from "./folder";
 
 const SidebarFolderGroup = () => {
   const { basicDirs } = useEnvironment();
-  const { cd } = useDispatchers();
+  const { cd } = useCurrentDir();
 
   return (
     <div className={cn("flex flex-col", "py-4")}>
@@ -17,7 +17,7 @@ const SidebarFolderGroup = () => {
             key={path}
             icon={icon}
             name={path.split(sep()).pop()}
-            onClick={cd(path)}
+            onClick={() => cd(path)}
           />
         )}
       </For>

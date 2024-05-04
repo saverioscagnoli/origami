@@ -1,19 +1,18 @@
 import { ContextMenu } from "@components/tredici";
-import { useGlobalStates } from "@contexts/global-states";
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { useGlobalStates } from "@hooks/use-global-states";
 import { CopyIcon } from "@radix-ui/react-icons";
 
 const CopyMenuItem = () => {
   const { selected } = useCurrentDir();
-  const { copying, cutting } = useGlobalStates();
+  const { startCopying } = useGlobalStates();
 
-  const onClick = () => {
-    copying.set(selected);
-    cutting.set([]);
+  const onSelect = () => {
+    startCopying(selected);
   };
 
   return (
-    <ContextMenu.Item leftIcon={<CopyIcon />} onClick={onClick}>
+    <ContextMenu.Item leftIcon={<CopyIcon />} onSelect={onSelect}>
       Copy
     </ContextMenu.Item>
   );

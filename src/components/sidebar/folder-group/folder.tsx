@@ -1,8 +1,8 @@
-import { cn } from "@lib/utils";
-import { FC, ReactNode } from "react";
+import { basicDirIconMap, cn } from "@lib/utils";
+import { FC } from "react";
 
 type SidebarFolderProps = {
-  icon: ReactNode;
+  icon: string;
   name: string;
   onClick: () => void;
 };
@@ -30,7 +30,7 @@ const SidebarFolder: FC<SidebarFolderProps> = ({ icon, name, onClick }) => {
       }}
       onClick={onClick}
     >
-      <span>{icon}</span>
+      <span>{basicDirIconMap.get(icon)}</span>
       <p>{name}</p>
     </div>
   );

@@ -1,20 +1,17 @@
 import { useCurrentDir } from "@hooks/use-current-dir";
-import { useDispatchers } from "@hooks/use-dispatchers";
 import { useSettings } from "@hooks/use-settings";
 import { cn } from "@lib/utils";
 import { DirEntry } from "@typings/dir-entry";
-import { MouseEventHandler, forwardRef, useMemo } from "react";
+import { MouseEventHandler, memo, useMemo } from "react";
 import { EntryCheckbox } from "./checkbox";
 import { EntryFlags } from "./flags";
 import { EntryLastModified } from "./last-modified";
 import { GridEntryName, ListEntryName } from "./name";
 import { EntrySize } from "./size";
 
-const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
-  const { selected } = useCurrentDir();
-
-  const { cd, open, addSelected, removeSelected, replaceSelected } =
-    useDispatchers();
+const Entry = memo<DirEntry>(entry => {
+  const { selected, cd, addSelected, removeSelected, replaceSelected } =
+    useCurrentDir();
 
   const { name, path, isDir, isHidden, isSymlink, isStarred, lastModified, size } =
     entry;
@@ -24,50 +21,7 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
     [selected]
   );
 
-  const onClick: MouseEventHandler<HTMLDivElement> = evt => {
-    evt.preventDefault();
-    evt.stopPropagation();
-
-    if (evt.detail === 1) {
-      if (evt.ctrlKey) {
-        // If the user presses the control key, add the entry to the selected list
-        // If the entry is already selected, remove it from the selected list
-        if (isSelected) {
-          removeSelected(entry);
-        } else {
-          addSelected(entry);
-        }
-      } else if (evt.shiftKey) {
-        // If the user presses the shift key, select all entries between the last selected entry and the current entry
-      } else {
-        // If the user doesn't press any keys, select only the current entry
-        replaceSelected([entry]);
-      }
-    }
-  };
-
-  const onDoubleClick: MouseEventHandler<HTMLDivElement> = evt => {
-    evt.preventDefault();
-    evt.stopPropagation();
-
-    if (isDir) {
-      cd(path)();
-    } else {
-      open(path)();
-    }
-  };
-
-  const onContextMenu = () => {
-    if (selected.length <= 1) {
-      replaceSelected([entry]);
-    } else if (selected.findIndex(e => e.path === path) === -1) {
-      addSelected(entry);
-    }
-  };
-
-  const { showCheckboxes, viewType } = useSettings();
-
-  const onCheckedChange = () => {
+  const addOrRemove = () => {
     if (isSelected) {
       removeSelected(entry);
     } else {
@@ -75,7 +29,33 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
     }
   };
 
-  return viewType === "list" ? (
+  const onClick: MouseEventHandler<HTMLDivElement> = e => {
+    e.preventDefault();
+
+    if (e.detail === 1) {
+      if (e.ctrlKey) {
+        addOrRemove();
+      } else {
+        replaceSelected([entry]);
+      }
+    } else if (e.detail === 2) {
+      if (isDir) {
+        cd(path);
+      }
+    }
+  };
+
+  const onContextMenu = () => {
+    if (!isSelected && selected.length < 2) {
+      replaceSelected([entry]);
+    } else {
+      addSelected(entry);
+    }
+  };
+
+  const { view, showCheckboxes } = useSettings();
+
+  return view === "list" ? (
     <div
       className={cn(
         "w-full h-6",
@@ -87,12 +67,11 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
         "group"
       )}
       onClick={onClick}
-      onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
     >
       <span className={cn("flex items-center justify-start text-start gap-1.5")}>
         {showCheckboxes && (
-          <EntryCheckbox checked={isSelected} onCheckedChange={onCheckedChange} />
+          <EntryCheckbox checked={isSelected} onCheckedChange={addOrRemove} />
         )}
         <ListEntryName name={name} path={path} isDir={isDir} />
       </span>
@@ -110,7 +89,6 @@ const Entry = forwardRef<HTMLDivElement, DirEntry>((entry, ref) => {
         isSelected && "bg-[--gray-4]"
       )}
       onClick={onClick}
-      onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
     >
       <GridEntryName name={name} path={path} isDir={isDir} />

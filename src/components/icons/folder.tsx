@@ -1,7 +1,6 @@
-import { IconProps } from "@typings/props";
 import { forwardRef } from "react";
 
-const FolderIcon = forwardRef<SVGSVGElement, IconProps>(
+const FolderIcon = forwardRef<SVGSVGElement, any>(
   ({ color = "currentColor", ...props }, ref) => {
     return (
       <svg

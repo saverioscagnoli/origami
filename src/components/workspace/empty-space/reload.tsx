@@ -1,12 +1,12 @@
 import { ContextMenu } from "@components/tredici";
-import { useDispatchers } from "@hooks/use-dispatchers";
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { ReloadIcon } from "@radix-ui/react-icons";
 
 const ReloadMenuItem = () => {
-  const { reload } = useDispatchers();
+  const { reload } = useCurrentDir();
 
   return (
-    <ContextMenu.Item leftIcon={<ReloadIcon />} onClick={reload}>
+    <ContextMenu.Item leftIcon={<ReloadIcon />} onSelect={reload}>
       Reload
     </ContextMenu.Item>
   );

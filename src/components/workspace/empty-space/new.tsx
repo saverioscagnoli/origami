@@ -1,12 +1,10 @@
 import { FolderIcon } from "@components/icons";
 import { ContextMenu } from "@components/tredici";
-import { useGlobalStates } from "@contexts/global-states";
 import { FileIcon, PlusIcon } from "@radix-ui/react-icons";
 
 const NewMenuItem = () => {
-  const { creating } = useGlobalStates();
 
-  const onSelect = (isDir: boolean) => () => creating.set({ state: true, isDir });
+  const onSelect = (isDir: boolean) => () => {}
 
   return (
     <>

@@ -1,21 +1,15 @@
-use std::{ sync::{ atomic::{ AtomicBool, Ordering }, Arc }, thread, time::Duration };
+use std::{ sync::atomic::{ AtomicBool, Ordering }, thread, time::Duration };
 
-use serde::{ Deserialize, Serialize };
 use sysinfo::Disks;
-use tauri::{ AppHandle, Manager };
+use tauri::{ AppHandle, State };
+use std::sync::{ Arc, Mutex };
 
-use crate::consts::EMIT_DISKS_INTERVAL_SECONDS;
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct Disk {
-  pub name: String,
-  pub mount_point: String,
-  pub file_system: String,
-  pub total_space: u64,
-  pub free_space: u64,
-  pub is_removable: bool,
-}
+use crate::{
+  consts::EMIT_DISKS_INTERVAL_SECONDS,
+  events::{ EventFromFrontend, EventToFrontend },
+  structs::Disk,
+  utils::{ emit, listen },
+};
 
 pub fn get_disks() -> Vec<Disk> {
   let sys_disks = Disks::new_with_refreshed_list();
@@ -48,14 +42,14 @@ pub fn get_disks() -> Vec<Disk> {
 }
 
 #[tauri::command]
-pub fn poll_disks(app: AppHandle) {
+pub fn emit_disks(app: AppHandle) -> Result<(), String> {
   let sleep_time = Duration::from_secs(EMIT_DISKS_INTERVAL_SECONDS);
   let app = app.clone();
 
   let should_stop = Arc::new(AtomicBool::new(false));
   let should_stop_clone = Arc::clone(&should_stop);
 
-  let id = app.listen("before_unload", move |_| {
+  let id = listen::<Option<bool>>(&app, EventFromFrontend::BeforeUnload, move |_| {
     should_stop.store(true, Ordering::SeqCst);
   });
 
@@ -63,14 +57,18 @@ pub fn poll_disks(app: AppHandle) {
     loop {
       if should_stop_clone.load(Ordering::SeqCst) {
         app.unlisten(id);
-        log::warn!("Stopped disk pool");
         break;
       }
 
       let disks = get_disks();
-      let _ = app.emit("send_disks", disks);
+
+      emit(&app, EventToFrontend::SendDisks, disks);
 
       thread::sleep(sleep_time);
     }
+
+    println!("Stopping disks thread");
   });
+
+  Ok(())
 }

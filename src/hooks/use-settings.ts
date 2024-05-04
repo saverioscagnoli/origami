@@ -1,8 +1,19 @@
+import {
+  SettingsState,
+  updateSettings as dispatchUpdateSettings
+} from "@redux/settings-slice";
 import { RootState } from "@redux/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 function useSettings() {
-  return useSelector((state: RootState) => state.settings);
+  const settings = useSelector<RootState, SettingsState>(state => state.settings);
+  const dispatch = useDispatch();
+
+  const updateSettings = (newSettings: Partial<SettingsState>) => {
+    dispatch(dispatchUpdateSettings(newSettings));
+  };
+
+  return { ...settings, updateSettings };
 }
 
 export { useSettings };

@@ -1,13 +1,15 @@
+import { Progress } from "@components/tredici";
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { cn, formatBytes, percentage } from "@lib/utils";
 import { BackpackIcon } from "@radix-ui/react-icons";
-import { FC } from "react";
 import { Disk as TDisk } from "@typings/disk";
-import { Progress } from "@components/tredici";
 import { UsbIcon } from "lucide-react";
-import { useDispatchers } from "@hooks/use-dispatchers";
+import { FC } from "react";
 
 const Disk: FC<TDisk> = ({ totalSpace, freeSpace, mountPoint, isRemovable }) => {
-  const { cd } = useDispatchers();
+  const { cd } = useCurrentDir();
+
+  const onClick = () => cd(mountPoint);
 
   return (
     <div
@@ -18,7 +20,7 @@ const Disk: FC<TDisk> = ({ totalSpace, freeSpace, mountPoint, isRemovable }) => 
         "hover:bg-[--gray-3]",
         "cursor-pointer"
       )}
-      onClick={cd(mountPoint)}
+      onClick={onClick}
     >
       <div className={cn("flex items-center justify-between")}>
         <span className={cn("flex items-center gap-2")}>

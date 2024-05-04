@@ -1,10 +1,6 @@
 import { cn } from "@lib/utils";
-import { EventFromBackend } from "@typings/events";
-import { useTauriEvent } from "@util-hooks/use-tauri-event";
-import { useState } from "react";
 import { BottombarItemCount } from "./item-count";
 import { BottombarOperationDisplay } from "./operations";
-import { Progress } from "@components/tredici";
 
 const Bottombar = () => {
   // const [copied, setCopied] = useState<number>(0);

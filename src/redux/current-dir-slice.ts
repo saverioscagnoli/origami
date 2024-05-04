@@ -1,6 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { DirEntry } from "@typings/dir-entry";
-import { Action } from "./store";
 
 type CurrentDirSliceState = {
   dir: string;
@@ -12,23 +11,23 @@ const currentDirSlice = createSlice({
   name: "currentDir",
   initialState: { dir: "", entries: [], selected: [] } as CurrentDirSliceState,
   reducers: {
-    updateDir: (state, action: Action<{ newDir: string }>) => {
+    updateDir: (state, action: PayloadAction<{ newDir: string }>) => {
       state.dir = action.payload.newDir;
     },
 
-    updateEntries: (state, action: Action<{ entries: DirEntry[] }>) => {
+    updateEntries: (state, action: PayloadAction<{ entries: DirEntry[] }>) => {
       state.entries = action.payload.entries;
     },
 
-    replaceSelected: (state, action: Action<{ newSelected: DirEntry[] }>) => {
+    replaceSelected: (state, action: PayloadAction<{ newSelected: DirEntry[] }>) => {
       state.selected = action.payload.newSelected;
     },
 
-    addSelected: (state, action: Action<{ entry: DirEntry }>) => {
+    addSelected: (state, action: PayloadAction<{ entry: DirEntry }>) => {
       state.selected.push(action.payload.entry);
     },
 
-    removeSelected: (state, action: Action<{ entry: DirEntry }>) => {
+    removeSelected: (state, action: PayloadAction<{ entry: DirEntry }>) => {
       const index = state.selected.findIndex(
         entry => entry.path === action.payload.entry.path
       );
@@ -49,3 +48,5 @@ export const {
 } = currentDirSlice.actions;
 
 export const currentDirReducer = currentDirSlice.reducer;
+
+export type CurrentDirState = ReturnType<typeof currentDirReducer>;
