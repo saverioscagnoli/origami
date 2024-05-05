@@ -1,4 +1,6 @@
 enum Command {
+  LoadSettings = "load_settings",
+  UpdateSettings = "update_settings",
   ListDir = "list_dir",
   PollDisks = "poll_disks",
   OpenFiles = "open_files",

@@ -4,9 +4,11 @@
 mod file_system;
 mod disks;
 mod consts;
+mod settings;
 
 use file_system::{ list_dir, open_files, rename_entry };
 use disks::poll_disks;
+use settings::{load_settings,update_settings};
 
 fn main() {
   env_logger::Builder
@@ -17,7 +19,14 @@ fn main() {
     ::default()
     .plugin(tauri_plugin_shell::init())
     .invoke_handler(
-      tauri::generate_handler![list_dir, poll_disks, open_files, rename_entry]
+      tauri::generate_handler![
+        load_settings,
+        update_settings,
+        list_dir,
+        poll_disks,
+        open_files,
+        rename_entry
+      ]
     )
     .on_page_load(|_window, _| {
       #[cfg(debug_assertions)]

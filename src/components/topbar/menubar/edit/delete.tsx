@@ -1,9 +1,12 @@
 import { Menubar } from "@components/tredici";
-import { useGlobalStates } from "@hooks/use-global-states";
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { TrashIcon } from "@radix-ui/react-icons";
+import { useMemo } from "react";
 
 const DeleteMenuItem = () => {
-  const { canDelete } = useGlobalStates();
+  const { selected } = useCurrentDir();
+
+  const canDelete = useMemo(() => selected.length > 0, [selected]);
 
   return (
     <Menubar.Item colorScheme="red" leftIcon={<TrashIcon />} disabled={!canDelete}>

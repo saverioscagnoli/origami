@@ -87,12 +87,17 @@ const Entry = memo<DirEntry>(entry => {
         "w-28 h-28",
         "p-2",
         "rounded-sm",
+        "relative",
         !isSelected && "hover:bg-[--gray-3]",
-        isSelected && "bg-[--gray-4]"
+        isSelected && "bg-[--gray-4]",
+        "group"
       )}
       onClick={onClick}
       onContextMenu={onContextMenu}
     >
+      {showCheckboxes && (
+        <EntryCheckbox className={cn("absolute top-2 left-2")}  checked={isSelected} onCheckedChange={addOrRemove} />
+      )}
       <GridEntryName name={name} path={path} isDir={isDir} />
     </div>
   );

@@ -1,5 +1,6 @@
 import { Input, Popover } from "@components/tredici";
 import { useCommands } from "@hooks/use-commands";
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { useGlobalStates } from "@hooks/use-global-states";
 import { cn } from "@lib/utils";
 import { ChildrenProps } from "@typings/props";
@@ -19,6 +20,7 @@ type RenamePopoverProps = ChildrenProps & {
 const RenamePopover: FC<RenamePopoverProps> = ({ children, name }) => {
   const { renaming, setRenaming } = useGlobalStates();
   const { renameEntry } = useCommands();
+  const { replaceSelected } = useCurrentDir();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -45,11 +47,13 @@ const RenamePopover: FC<RenamePopoverProps> = ({ children, name }) => {
     switch (e.key) {
       case "Enter": {
         renameEntry(value);
+        replaceSelected([]);
         break;
       }
 
       case "Escape": {
         setRenaming(null);
+        replaceSelected([]);
         break;
       }
     }

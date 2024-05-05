@@ -1,4 +1,5 @@
 import { Bottombar } from "@components/bottombar";
+import { ErrorDialog } from "@components/dialogs";
 import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
@@ -76,9 +77,9 @@ const App = () => {
       <div
         className={cn("w-full h-[calc(100vh-3.5rem)]", "fixed top-8", "flex gap-0")}
       >
-        {/* <>
-          <CreateDialog />
-        </> */}
+        <>
+          <ErrorDialog />
+        </>
         <Sidebar />
         <Workspace />
       </div>

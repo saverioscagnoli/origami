@@ -112,6 +112,7 @@ const DialogClose = forwardRef<HTMLButtonElement, DialogCloseProps>(
         <RxDialog.Close
           children={children}
           className={className}
+          asChild
           {...props}
           ref={ref}
         />

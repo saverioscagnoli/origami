@@ -1,3 +1,4 @@
+import { useCurrentDir } from "@hooks/use-current-dir";
 import { useGlobalStates } from "@hooks/use-global-states";
 import { useSettings } from "@hooks/use-settings";
 import { DirEntry } from "@typings/dir-entry";
@@ -8,8 +9,9 @@ const checkInvalid = (renaming: DirEntry | null, repeat: boolean) =>
 
 function setupHotkeys() {
   const { showHidden, showCheckboxes, updateSettings } = useSettings();
-  const { renaming } = useGlobalStates();
+  const { renaming, setRenaming } = useGlobalStates();
 
+  /** Toggle show hidden */
   useHotkey(
     [Modifier.Ctrl],
     Key.KeyH,
@@ -22,6 +24,7 @@ function setupHotkeys() {
     [showHidden, renaming]
   );
 
+  /** Toggle show checkboxes */
   useHotkey(
     [Modifier.Ctrl],
     Key.KeyJ,
@@ -32,6 +35,36 @@ function setupHotkeys() {
       updateSettings({ showCheckboxes: !showCheckboxes });
     },
     [showCheckboxes, renaming]
+  );
+
+  const { entries, selected, replaceSelected } = useCurrentDir();
+
+  /** Rename hotekey */
+  useHotkey(
+    [],
+    Key.F2,
+    e => {
+      if (checkInvalid(renaming, e.repeat)) return;
+      e.preventDefault();
+
+      if (selected.length === 1) {
+        setRenaming(selected.at(0));
+      }
+    },
+    [renaming, selected]
+  );
+
+  /** Select all hotkey */
+  useHotkey(
+    [Modifier.Ctrl],
+    Key.KeyA,
+    e => {
+      if (checkInvalid(renaming, e.repeat)) return;
+      e.preventDefault();
+
+      replaceSelected(entries);
+    },
+    [renaming, selected, entries]
   );
 }
 

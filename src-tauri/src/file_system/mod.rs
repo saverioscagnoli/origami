@@ -4,8 +4,11 @@ pub mod api;
 pub mod platform_impl;
 
 #[tauri::command]
-pub async fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
-  api::list_dir(path).await
+pub async fn list_dir(path: String) -> (Vec<DirEntry>, String) {
+  match api::list_dir(path).await {
+    Ok(entries) => (entries, "".to_string()),
+    Err(e) => (vec![], e.to_string()),
+  }
 }
 
 #[tauri::command]
@@ -20,9 +23,9 @@ pub async fn open_files(paths: Vec<String>) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub async fn rename_entry(path: String, new_name: String) -> Result<(), String> {
-  match api::rename_entry(path, new_name) {
-    Ok(_) => Ok(()),
-    Err(e) => Err(e.to_string()),
+pub async fn rename_entry(path: String, new_name: String) -> (String, String) {
+  match api::rename_entry(&path, new_name) {
+    Ok(_) => (path, "".to_string()),
+    Err(e) => (path, e.to_string()),
   }
 }

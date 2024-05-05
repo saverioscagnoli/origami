@@ -10,6 +10,7 @@ import {
   replaceSelected as distpatchReplaceSelected
 } from "@redux/current-dir-slice";
 import { Command } from "@typings/enums";
+import { useGlobalStates } from "./use-global-states";
 
 function useCurrentDir() {
   const currentDir = useSelector<RootState, CurrentDirState>(
@@ -17,6 +18,7 @@ function useCurrentDir() {
   );
 
   const dispatch = useDispatch();
+  const { setError } = useGlobalStates();
 
   /**
    * Add an entry to the selected list in the redux store
@@ -48,9 +50,16 @@ function useCurrentDir() {
    */
   const cd = async (path: string) => {
     if (path !== currentDir.dir) {
-      const res = await invoke(Command.ListDir, { path });
+      const [entries, err] = await invoke(Command.ListDir, { path });
 
-      dispatch(updateEntries({ entries: res as DirEntry[] }));
+      if (err) {
+        setError(err);
+        return;
+      }
+
+      setError(null);
+
+      dispatch(updateEntries({ entries }));
       dispatch(updateDir({ newDir: path }));
       replaceSelected([]);
     }
@@ -60,9 +69,16 @@ function useCurrentDir() {
    * Reload the current directory
    */
   const reload = async () => {
-    const res = await invoke(Command.ListDir, { path: currentDir.dir });
+    const [entries, err] = await invoke(Command.ListDir, { path: currentDir.dir });
 
-    dispatch(updateEntries({ entries: res as DirEntry[] }));
+    if (err) {
+      setError(err);
+      return;
+    }
+
+    setError(null);
+
+    dispatch(updateEntries({ entries }));
   };
 
   const openFiles = async (paths: string[]) => {

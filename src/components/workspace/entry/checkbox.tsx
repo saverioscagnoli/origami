@@ -5,9 +5,14 @@ import { FC } from "react";
 type EntryCheckboxProps = {
   checked: boolean;
   onCheckedChange: () => void;
+  className?: string;
 };
 
-const EntryCheckbox: FC<EntryCheckboxProps> = ({ checked, onCheckedChange }) => {
+const EntryCheckbox: FC<EntryCheckboxProps> = ({
+  checked,
+  onCheckedChange,
+  className
+}) => {
   return (
     <Checkbox
       size="sm"
@@ -17,7 +22,8 @@ const EntryCheckbox: FC<EntryCheckboxProps> = ({ checked, onCheckedChange }) => 
         "border-[1px]",
         "z-50",
         checked ? "visible" : "invisible",
-        "group-hover:visible"
+        "group-hover:visible",
+        className
       )}
       checked={checked}
       onCheckedChange={onCheckedChange}

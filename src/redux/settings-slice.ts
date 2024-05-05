@@ -1,5 +1,11 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { invoke } from "@lib/mapped-invoke";
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { Command } from "@typings/enums";
 import { Settings } from "@typings/settings";
+
+const loadSettings = createAsyncThunk("settings/load", async () => {
+  return await invoke(Command.LoadSettings);
+});
 
 const settingsSlice = createSlice({
   name: "settings",
@@ -32,8 +38,15 @@ const settingsSlice = createSlice({
         state.showHidden = showHidden;
       }
     }
+  },
+  extraReducers: builder => {
+    builder.addCase(loadSettings.fulfilled, (state, action) => {
+      Object.assign(state, action.payload);
+    });
   }
 });
+
+export { loadSettings };
 
 export const settingsReducer = settingsSlice.reducer;
 export const { updateSettings } = settingsSlice.actions;
