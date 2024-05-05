@@ -1,6 +1,8 @@
 enum Command {
   ListDir = "list_dir",
-  PollDisks = "poll_disks"
+  PollDisks = "poll_disks",
+  OpenFiles = "open_files",
+  RenameEntry = "rename_entry"
 }
 
 enum BackendEvent {
@@ -17,7 +19,7 @@ enum BasicDirLabel {
   Desktop = "desktop",
   Downloads = "downloads",
   Documents = "documents",
-  Pictures = "pictures",
+  Pictures = "pictures"
 }
 
-export { BackendEvent, Command, FrontendEvent, BasicDirLabel };
+export { BackendEvent, BasicDirLabel, Command, FrontendEvent };

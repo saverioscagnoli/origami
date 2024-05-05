@@ -16,15 +16,15 @@ function useGlobalStates() {
     state => state.globalStates
   );
 
-  const startCutting = (cutting: DirEntry[]) => {
+  const setCutting = (cutting: DirEntry[]) => {
     dispatch(dispatchStartCutting(cutting));
   };
 
-  const startCopying = (copying: DirEntry[]) => {
+  const setCopying = (copying: DirEntry[]) => {
     dispatch(dispatchStartCopying(copying));
   };
 
-  const startRenaming = (renaming: DirEntry) => {
+  const setRenaming = (renaming: DirEntry | null) => {
     dispatch(dispatchStartRenaming(renaming));
   };
 
@@ -42,9 +42,9 @@ function useGlobalStates() {
 
   return {
     ...globalStates,
-    startCutting,
-    startCopying,
-    startRenaming,
+    setCutting,
+    setCopying,
+    setRenaming,
     canCopy,
     canCut,
     canRename,

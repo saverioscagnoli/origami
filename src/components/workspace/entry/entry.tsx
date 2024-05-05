@@ -10,7 +10,7 @@ import { GridEntryName, ListEntryName } from "./name";
 import { EntrySize } from "./size";
 
 const Entry = memo<DirEntry>(entry => {
-  const { selected, cd, addSelected, removeSelected, replaceSelected } =
+  const { selected, cd, addSelected, removeSelected, replaceSelected, openFiles } =
     useCurrentDir();
 
   const { name, path, isDir, isHidden, isSymlink, isStarred, lastModified, size } =
@@ -41,6 +41,8 @@ const Entry = memo<DirEntry>(entry => {
     } else if (e.detail === 2) {
       if (isDir) {
         cd(path);
+      } else {
+        openFiles([entry.path]);
       }
     }
   };

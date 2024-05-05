@@ -5,7 +5,7 @@ mod file_system;
 mod disks;
 mod consts;
 
-use file_system::api::list_dir;
+use file_system::{ list_dir, open_files, rename_entry };
 use disks::poll_disks;
 
 fn main() {
@@ -16,7 +16,9 @@ fn main() {
   tauri::Builder
     ::default()
     .plugin(tauri_plugin_shell::init())
-    .invoke_handler(tauri::generate_handler![list_dir, poll_disks])
+    .invoke_handler(
+      tauri::generate_handler![list_dir, poll_disks, open_files, rename_entry]
+    )
     .on_page_load(|_window, _| {
       #[cfg(debug_assertions)]
       {

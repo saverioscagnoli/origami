@@ -24,7 +24,9 @@ const currentDirSlice = createSlice({
     },
 
     addSelected: (state, action: PayloadAction<{ entry: DirEntry }>) => {
-      state.selected.push(action.payload.entry);
+      if (!state.selected.find(entry => entry.path === action.payload.entry.path)) {
+        state.selected.push(action.payload.entry);
+      }
     },
 
     removeSelected: (state, action: PayloadAction<{ entry: DirEntry }>) => {

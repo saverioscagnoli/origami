@@ -5,10 +5,10 @@ import { CopyIcon } from "@radix-ui/react-icons";
 
 const CopyMenuItem = () => {
   const { selected } = useCurrentDir();
-  const { canCopy, startCopying } = useGlobalStates();
+  const { canCopy, setCopying } = useGlobalStates();
 
   const onSelect = () => {
-    startCopying(selected);
+    setCopying(selected);
   };
 
   return (

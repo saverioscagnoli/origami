@@ -5,10 +5,10 @@ import { ScissorsIcon } from "@radix-ui/react-icons";
 
 const CutMenuItem = () => {
   const { selected } = useCurrentDir();
-  const { canCut, startCutting } = useGlobalStates();
+  const { canCut, setCutting } = useGlobalStates();
 
   const onSelect = () => {
-    startCutting(selected);
+    setCutting(selected);
   };
 
   return (

@@ -27,7 +27,7 @@ pub async fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
     }
   };
 
-  let mut dir = match dir.collect::<io::Result<Vec<_>>>() {
+  let dir = match dir.collect::<io::Result<Vec<_>>>() {
     Ok(dir) => dir,
     Err(e) => {
       return Err(e.to_string());
@@ -103,4 +103,16 @@ pub fn last_modified(path: impl AsRef<Path>) -> String {
   };
 
   DateTime::<Utc>::from(time).format("%d/%m/%Y %H:%M").to_string()
+}
+
+pub fn open_file(path: impl AsRef<Path>) -> io::Result<()> {
+  let path = path.as_ref();
+  open::that(path)
+}
+
+
+pub fn rename_entry(path: impl AsRef<Path>, new_name: String) -> io::Result<()> {
+  let path = path.as_ref();
+  let new_path = path.with_file_name(new_name);
+  std::fs::rename(path, new_path)
 }

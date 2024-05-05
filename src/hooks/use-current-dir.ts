@@ -3,12 +3,12 @@ import { RootState } from "@redux/store";
 import { DirEntry } from "@typings/dir-entry";
 import { useDispatch, useSelector } from "react-redux";
 
+import { invoke } from "@lib/mapped-invoke";
 import {
   addSelected as distpatchAddSelected,
   removeSelected as distpatchRemoveSelected,
   replaceSelected as distpatchReplaceSelected
 } from "@redux/current-dir-slice";
-import { invoke } from "@tauri-apps/api/core";
 import { Command } from "@typings/enums";
 
 function useCurrentDir() {
@@ -52,6 +52,7 @@ function useCurrentDir() {
 
       dispatch(updateEntries({ entries: res as DirEntry[] }));
       dispatch(updateDir({ newDir: path }));
+      replaceSelected([]);
     }
   };
 
@@ -64,7 +65,19 @@ function useCurrentDir() {
     dispatch(updateEntries({ entries: res as DirEntry[] }));
   };
 
-  return { ...currentDir, addSelected, removeSelected, replaceSelected, cd, reload };
+  const openFiles = async (paths: string[]) => {
+    await invoke(Command.OpenFiles, { paths });
+  };
+
+  return {
+    ...currentDir,
+    addSelected,
+    removeSelected,
+    replaceSelected,
+    cd,
+    reload,
+    openFiles
+  };
 }
 
 export { useCurrentDir };

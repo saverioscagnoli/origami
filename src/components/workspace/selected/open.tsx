@@ -1,20 +1,20 @@
 import { ContextMenu } from "@components/tredici";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { EnterIcon } from "@radix-ui/react-icons";
-import { useMemo } from "react";
 
 const OpenMenuItem = () => {
-  const { selected } = useCurrentDir();
+  const { selected, cd, openFiles } = useCurrentDir();
 
-  const paths = useMemo(() => selected.map(e => e.path), [selected]);
-  const isDir = paths.length === 1 && selected.at(0).isDir;
-
-  const onClick = () => {
-
+  const onSelect = () => {
+    if (selected.at(0).isDir) {
+      cd(selected.at(0).path);
+    } else {
+      openFiles(selected.map(e => e.path));
+    }
   };
 
   return (
-    <ContextMenu.Item leftIcon={<EnterIcon />} onClick={onClick}>
+    <ContextMenu.Item leftIcon={<EnterIcon />} onSelect={onSelect}>
       Open
     </ContextMenu.Item>
   );
