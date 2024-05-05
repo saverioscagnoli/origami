@@ -1,5 +1,5 @@
 import { Bottombar } from "@components/bottombar";
-import { ErrorDialog } from "@components/dialogs";
+import { CreateDialog, ErrorDialog } from "@components/dialogs";
 import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
@@ -79,6 +79,7 @@ const App = () => {
       >
         <>
           <ErrorDialog />
+          <CreateDialog />
         </>
         <Sidebar />
         <Workspace />

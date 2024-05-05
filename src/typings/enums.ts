@@ -4,7 +4,9 @@ enum Command {
   ListDir = "list_dir",
   PollDisks = "poll_disks",
   OpenFiles = "open_files",
-  RenameEntry = "rename_entry"
+  RenameEntry = "rename_entry",
+  DeleteEntries = "delete_entries",
+  CreateEntry = "create_entry"
 }
 
 enum BackendEvent {

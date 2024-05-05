@@ -5,7 +5,8 @@ type GlobalStatesSlice = {
   cutting: DirEntry[];
   copying: DirEntry[];
   renaming: DirEntry | null;
-  error: string | null;
+  errors: string[] | null;
+  creating: { state: boolean; isDir: boolean } | null;
 };
 
 const globalStatesSlice = createSlice({
@@ -14,7 +15,8 @@ const globalStatesSlice = createSlice({
     cutting: [],
     copying: [],
     renaming: null,
-    error: null
+    errors: null,
+    creating: null
   } as GlobalStatesSlice,
   reducers: {
     startCutting: (state, action: PayloadAction<DirEntry[]>) => {
@@ -31,13 +33,20 @@ const globalStatesSlice = createSlice({
       state.renaming = action.payload;
     },
 
-    setError: (state, action: PayloadAction<string>) => {
-      state.error = action.payload;
+    setErrors: (state, action: PayloadAction<string[]>) => {
+      state.errors = action.payload;
+    },
+
+    setCreating: (
+      state,
+      action: PayloadAction<{ state: boolean; isDir: boolean }>
+    ) => {
+      state.creating = action.payload;
     }
   }
 });
 
-export const { startCutting, startCopying, startRenaming, setError } =
+export const { startCutting, startCopying, startRenaming, setErrors, setCreating } =
   globalStatesSlice.actions;
 
 export const globalStatesReducer = globalStatesSlice.reducer;

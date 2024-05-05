@@ -6,9 +6,15 @@ mod disks;
 mod consts;
 mod settings;
 
-use file_system::{ list_dir, open_files, rename_entry };
+use file_system::{
+  list_dir,
+  open_files,
+  rename_entry,
+  delete_entries,
+  create_entry,
+};
 use disks::poll_disks;
-use settings::{load_settings,update_settings};
+use settings::{ load_settings, update_settings };
 
 fn main() {
   env_logger::Builder
@@ -25,7 +31,9 @@ fn main() {
         list_dir,
         poll_disks,
         open_files,
-        rename_entry
+        rename_entry,
+        delete_entries,
+        create_entry
       ]
     )
     .on_page_load(|_window, _| {

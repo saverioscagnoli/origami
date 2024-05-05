@@ -116,3 +116,23 @@ pub fn rename_entry(path: impl AsRef<Path>, new_name: String) -> io::Result<()> 
   let new_path = path.with_file_name(new_name);
   std::fs::rename(path, new_path)
 }
+
+pub fn delete_entry(path: impl AsRef<Path>) -> io::Result<()> {
+  let path = path.as_ref();
+
+  if path.is_dir() {
+    std::fs::remove_dir_all(&path) 
+  } else {
+    std::fs::remove_file(&path)
+  }
+}
+
+pub fn create_entry(path: impl AsRef<Path>, is_dir: bool) -> io::Result<()> {
+  let path = path.as_ref();
+
+  if is_dir {
+    std::fs::create_dir_all(&path)
+  } else {
+    std::fs::File::create(&path).map(|_| ())
+  }
+}

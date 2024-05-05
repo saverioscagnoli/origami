@@ -4,7 +4,7 @@ import { useCurrentDir } from "./use-current-dir";
 import { useGlobalStates } from "./use-global-states";
 
 function useCommands() {
-  const { renaming, setRenaming, setError } = useGlobalStates();
+  const { renaming, setRenaming, setErrors } = useGlobalStates();
   const { reload } = useCurrentDir();
 
   const renameEntry = async (newName: string) => {
@@ -17,14 +17,36 @@ function useCommands() {
     });
 
     if (err) {
-      setError(err);
+      setErrors([err]);
       return;
     }
 
     reload();
   };
 
-  return { renameEntry };
+  const deleteEntries = async (paths: string[]) => {
+    const [_, errors] = await invoke(Command.DeleteEntries, { paths });
+
+    if (errors.length > 0) {
+      setErrors(errors);
+      return;
+    }
+
+    reload();
+  };
+
+  const createEntry = async (path: string, isDir: boolean) => {
+    const [_, error] = await invoke(Command.CreateEntry, { path, isDir });
+
+    if (error) {
+      setErrors([error]);
+      return;
+    }
+
+    reload();
+  };
+
+  return { renameEntry, deleteEntries, createEntry };
 }
 
 export { useCommands };

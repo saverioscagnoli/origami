@@ -1,21 +1,35 @@
 import { Button, Dialog } from "@components/tredici";
 import { useGlobalStates } from "@hooks/use-global-states";
 import { cn } from "@lib/utils";
+import React from "react";
 
 const ErrorDialog = () => {
-  const { error, setError } = useGlobalStates();
+  const { errors, setErrors } = useGlobalStates();
 
   const onOpenChange = (value: boolean) => {
     if (!value) {
-      setError(null);
+      setErrors(null);
     }
   };
 
   return (
-    <Dialog open={error !== null} onOpenChange={onOpenChange}>
+    <Dialog open={errors !== null} onOpenChange={onOpenChange}>
       <Dialog.Content>
-        <Dialog.Title>Error!</Dialog.Title>
-        <Dialog.Description>{error}</Dialog.Description>
+        <Dialog.Title>
+          {errors?.length > 1 ? `${errors.length} Errors!` : "Error!"}
+        </Dialog.Title>
+        <Dialog.Description>
+          {errors?.length > 1
+            ? errors?.map((err, i) => (
+                <React.Fragment key={i}>
+                  <span>
+                    Error {i}: {err}
+                  </span>
+                  <br />
+                </React.Fragment>
+              ))
+            : errors?.at(0)}
+        </Dialog.Description>
         <Dialog.Close />
         <div className={cn("flex justify-end")}>
           <Dialog.Close>

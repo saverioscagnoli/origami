@@ -18,7 +18,7 @@ function useCurrentDir() {
   );
 
   const dispatch = useDispatch();
-  const { setError } = useGlobalStates();
+  const { setErrors } = useGlobalStates();
 
   /**
    * Add an entry to the selected list in the redux store
@@ -53,11 +53,11 @@ function useCurrentDir() {
       const [entries, err] = await invoke(Command.ListDir, { path });
 
       if (err) {
-        setError(err);
+        setErrors([err]);
         return;
       }
 
-      setError(null);
+      setErrors(null);
 
       dispatch(updateEntries({ entries }));
       dispatch(updateDir({ newDir: path }));
@@ -72,11 +72,11 @@ function useCurrentDir() {
     const [entries, err] = await invoke(Command.ListDir, { path: currentDir.dir });
 
     if (err) {
-      setError(err);
+      setErrors([err]);
       return;
     }
 
-    setError(null);
+    setErrors(null);
 
     dispatch(updateEntries({ entries }));
   };

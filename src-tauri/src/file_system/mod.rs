@@ -29,3 +29,29 @@ pub async fn rename_entry(path: String, new_name: String) -> (String, String) {
     Err(e) => (path, e.to_string()),
   }
 }
+
+#[tauri::command]
+pub async fn delete_entries(paths: Vec<String>) -> (Vec<String>, Vec<String>) {
+  let mut errors = vec![];
+  let paths_clone = paths.clone();
+
+  for path in paths {
+    match api::delete_entry(&path) {
+      Ok(_) => {}
+      Err(e) => {
+        errors.push(e.to_string());
+      }
+    }
+  }
+
+  (paths_clone, errors)
+}
+
+
+#[tauri::command]
+pub async fn create_entry(path: String, is_dir: bool) -> (String, String) {
+  match api::create_entry(&path, is_dir) {
+    Ok(_) => (path, "".to_string()),
+    Err(e) => (path, e.to_string()),
+  }
+}

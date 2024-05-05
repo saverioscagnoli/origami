@@ -1,6 +1,7 @@
 import {
   GlobalStatesState,
-  setError as dispatchSetError,
+  setCreating as dispatchSetCreating,
+  setErrors as dispatchSetErrors,
   startCopying as dispatchStartCopying,
   startCutting as dispatchStartCutting,
   startRenaming as dispatchStartRenaming
@@ -27,8 +28,12 @@ function useGlobalStates() {
     dispatch(dispatchStartRenaming(renaming));
   };
 
-  const setError = (error: string | null) => {
-    dispatch(dispatchSetError(error));
+  const setErrors = (error: string[] | null) => {
+    dispatch(dispatchSetErrors(error));
+  };
+
+  const setCreating = (creating: { state: boolean; isDir: boolean }) => {
+    dispatch(dispatchSetCreating(creating));
   };
 
   return {
@@ -36,7 +41,8 @@ function useGlobalStates() {
     setCutting,
     setCopying,
     setRenaming,
-    setError
+    setErrors,
+    setCreating
   };
 }
 
