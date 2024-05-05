@@ -18,8 +18,13 @@ pub struct DirEntry {
   pub size: u64,
 }
 
-pub async fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
-  let path = Path::new(&path);
+pub async fn list_dir(
+  path: impl AsRef<Path>,
+  starred_dir: impl AsRef<Path>
+) -> Result<Vec<DirEntry>, String> {
+  let path = path.as_ref();
+  let starred_dir = starred_dir.as_ref();
+
   let dir = match path.read_dir() {
     Ok(dir) => dir,
     Err(e) => {
@@ -34,7 +39,7 @@ pub async fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
     }
   };
 
-  let entries = dir
+  let mut entries: Vec<DirEntry> = dir
     .par_iter()
     .map(|entry| {
       let path = entry.path();
@@ -42,7 +47,7 @@ pub async fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
       let is_dir = path.is_dir();
       let is_hidden = platform_impl::is_hidden(&path);
       let is_symlink = is_symlink(&path);
-      let is_starred = false;
+      let is_starred = starred_dir.join(&name).exists();
       let last_modified = last_modified(&path);
 
       let size = if is_dir {
@@ -68,6 +73,16 @@ pub async fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
       entry
     })
     .collect();
+
+  entries.sort_by(|a, b| {
+    if a.is_dir == b.is_dir {
+      a.name.to_lowercase().cmp(&b.name.to_lowercase())
+    } else if a.is_dir {
+      std::cmp::Ordering::Less
+    } else {
+      std::cmp::Ordering::Greater
+    }
+  });
 
   Ok(entries)
 }
@@ -110,7 +125,6 @@ pub fn open_file(path: impl AsRef<Path>) -> io::Result<()> {
   open::that(path)
 }
 
-
 pub fn rename_entry(path: impl AsRef<Path>, new_name: String) -> io::Result<()> {
   let path = path.as_ref();
   let new_path = path.with_file_name(new_name);
@@ -121,7 +135,7 @@ pub fn delete_entry(path: impl AsRef<Path>) -> io::Result<()> {
   let path = path.as_ref();
 
   if path.is_dir() {
-    std::fs::remove_dir_all(&path) 
+    std::fs::remove_dir_all(&path)
   } else {
     std::fs::remove_file(&path)
   }
@@ -135,4 +149,13 @@ pub fn create_entry(path: impl AsRef<Path>, is_dir: bool) -> io::Result<()> {
   } else {
     std::fs::File::create(&path).map(|_| ())
   }
+}
+
+use base64::{ engine::general_purpose, Engine };
+
+pub fn get_image_base64(path: impl AsRef<Path>) -> io::Result<String> {
+  let path = path.as_ref();
+  let image = std::fs::read(path)?;
+
+  Ok(general_purpose::STANDARD.encode(&image))
 }

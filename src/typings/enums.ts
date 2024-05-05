@@ -6,7 +6,10 @@ enum Command {
   OpenFiles = "open_files",
   RenameEntry = "rename_entry",
   DeleteEntries = "delete_entries",
-  CreateEntry = "create_entry"
+  CreateEntry = "create_entry",
+  StarEntries = "star_entries",
+  UnstarEntries = "unstar_entries",
+  GetImageBase64 = "get_image_base64"
 }
 
 enum BackendEvent {

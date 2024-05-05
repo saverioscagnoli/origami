@@ -33,6 +33,8 @@ const App = () => {
     }
   }, [basicDirs]);
 
+  useEvent("contextmenu", e => e.preventDefault());
+
   const { theme } = useSettings();
 
   // Change the theme based on the user's preference

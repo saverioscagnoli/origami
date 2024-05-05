@@ -1,9 +1,11 @@
 import { Menubar } from "@components/tredici";
-import { NewWindowMenuItem } from "./new-window";
+import { CloseAllWindowsMenuItem } from "./close-all-windows";
+import { CloseWindowMenuItem } from "./close-window";
 import { NewFileMenuItem } from "./new-file";
 import { NewFolderMenuItem } from "./new-folder";
-import { CloseWindowMenuItem } from "./close-window";
-import { CloseAllWindowsMenuItem } from "./close-all-windows";
+import { NewWindowMenuItem } from "./new-window";
+import { SearchEverywhereMenuItem } from "./search-everywhere";
+import { SearchHereMenuItem } from "./search-here";
 
 const TopbarFileMenu = () => {
   return (
@@ -14,6 +16,9 @@ const TopbarFileMenu = () => {
         <Menubar.Separator />
         <NewFileMenuItem />
         <NewFolderMenuItem />
+        <Menubar.Separator />
+        <SearchHereMenuItem />
+        <SearchEverywhereMenuItem />
         <Menubar.Separator />
         <CloseWindowMenuItem />
         <CloseAllWindowsMenuItem />

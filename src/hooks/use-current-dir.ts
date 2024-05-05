@@ -1,4 +1,8 @@
-import { CurrentDirState, updateDir, updateEntries } from "@redux/current-dir-slice";
+import {
+  CurrentDirState,
+  updateEntries as dispatchUpdateEntries,
+  updateDir
+} from "@redux/current-dir-slice";
 import { RootState } from "@redux/store";
 import { DirEntry } from "@typings/dir-entry";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,6 +13,8 @@ import {
   removeSelected as distpatchRemoveSelected,
   replaceSelected as distpatchReplaceSelected
 } from "@redux/current-dir-slice";
+import { setSearching } from "@redux/global-states-slice";
+import { sep } from "@tauri-apps/api/path";
 import { Command } from "@typings/enums";
 import { useGlobalStates } from "./use-global-states";
 
@@ -59,7 +65,8 @@ function useCurrentDir() {
 
       setErrors(null);
 
-      dispatch(updateEntries({ entries }));
+      dispatch(setSearching({ state: false, query: "", where: "here" }));
+      dispatch(dispatchUpdateEntries({ entries }));
       dispatch(updateDir({ newDir: path }));
       replaceSelected([]);
     }
@@ -78,11 +85,26 @@ function useCurrentDir() {
 
     setErrors(null);
 
-    dispatch(updateEntries({ entries }));
+    dispatch(dispatchUpdateEntries({ entries }));
+  };
+
+  const updateEntries = (entries: DirEntry[]) => {
+    dispatch(dispatchUpdateEntries({ entries }));
   };
 
   const openFiles = async (paths: string[]) => {
     await invoke(Command.OpenFiles, { paths });
+  };
+
+  const goToParent = () => {
+    const parent = currentDir.dir.split(sep()).slice(0, -1).join(sep());
+
+    if (parent === "") return;
+
+    // If parent is a root directory, append a slash
+    const parentWithSlash = parent.length === 2 ? parent + sep() : parent;
+
+    cd(parentWithSlash);
   };
 
   return {
@@ -92,7 +114,9 @@ function useCurrentDir() {
     replaceSelected,
     cd,
     reload,
-    openFiles
+    updateEntries,
+    openFiles,
+    goToParent
   };
 }
 

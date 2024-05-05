@@ -1,8 +1,11 @@
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { useGlobalStates } from "@hooks/use-global-states";
 import { cn } from "@lib/utils";
+import { SearchInput } from "./search-input";
 
 const TopbarDirDisplay = () => {
   const { dir } = useCurrentDir();
+  const { searching } = useGlobalStates();
 
   return (
     <span
@@ -16,7 +19,7 @@ const TopbarDirDisplay = () => {
         "active:data-[tauri-drag-region]:cursor-grabbing"
       )}
     >
-      {dir}
+      {searching.state ? <SearchInput /> : dir}
     </span>
   );
 };

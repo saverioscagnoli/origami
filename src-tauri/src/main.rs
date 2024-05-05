@@ -12,6 +12,9 @@ use file_system::{
   rename_entry,
   delete_entries,
   create_entry,
+  star_entries,
+  unstar_entries,
+  get_image_base64,
 };
 use disks::poll_disks;
 use settings::{ load_settings, update_settings };
@@ -33,7 +36,10 @@ fn main() {
         open_files,
         rename_entry,
         delete_entries,
-        create_entry
+        create_entry,
+        star_entries,
+        unstar_entries,
+        get_image_base64
       ]
     )
     .on_page_load(|_window, _| {

@@ -46,7 +46,29 @@ function useCommands() {
     reload();
   };
 
-  return { renameEntry, deleteEntries, createEntry };
+  const starEntries = async (paths: string[]) => {
+    const [_, errors] = await invoke(Command.StarEntries, { paths });
+
+    if (errors.length > 0) {
+      setErrors(errors);
+      return;
+    }
+
+    reload();
+  };
+
+  const unstarEntries = async (paths: string[]) => {
+    const [_, errors] = await invoke(Command.UnstarEntries, { paths });
+
+    if (errors.length > 0) {
+      setErrors(errors);
+      return;
+    }
+
+    reload();
+  };
+
+  return { renameEntry, deleteEntries, createEntry, starEntries, unstarEntries };
 }
 
 export { useCommands };

@@ -32,11 +32,35 @@ type InvokeMap = {
     returns: [string, string?];
   };
 
+  /**
+   * Data for the star entry command
+   * @param path The path to the entry
+   * @returns The new starred status of the entry
+   */
+  [Command.StarEntries]: { args: { paths: string[] }; returns: [string, string[]] };
+
+  /**
+   * Data for the unstar entry command
+   * @param path The path to the entry
+   * @returns The new starred status of the entry
+   */
+  [Command.UnstarEntries]: {
+    args: { paths: string[] };
+    returns: [string, string[]];
+  };
+
   [Command.LoadSettings]: { args: {}; returns: Settings };
   [Command.UpdateSettings]: {
     args: { key: keyof Settings; value: string };
     returns: void;
   };
+
+  /**
+   * Data for the get image base64 command
+   * @param path The path to the image
+   * @returns The base64 encoded image
+   */
+  [Command.GetImageBase64]: { args: { path: string }; returns: string };
 };
 
 async function invoke<K extends Command>(command: K, args?: InvokeMap[K]["args"]) {

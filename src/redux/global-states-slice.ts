@@ -7,6 +7,7 @@ type GlobalStatesSlice = {
   renaming: DirEntry | null;
   errors: string[] | null;
   creating: { state: boolean; isDir: boolean } | null;
+  searching: { state: boolean; where: "here" | "everywhere"; query: string };
 };
 
 const globalStatesSlice = createSlice({
@@ -16,7 +17,8 @@ const globalStatesSlice = createSlice({
     copying: [],
     renaming: null,
     errors: null,
-    creating: null
+    creating: null,
+    searching: { state: false, where: "here", query: "" }
   } as GlobalStatesSlice,
   reducers: {
     startCutting: (state, action: PayloadAction<DirEntry[]>) => {
@@ -42,12 +44,29 @@ const globalStatesSlice = createSlice({
       action: PayloadAction<{ state: boolean; isDir: boolean }>
     ) => {
       state.creating = action.payload;
+    },
+
+    setSearching: (
+      state,
+      action: PayloadAction<{
+        state: boolean;
+        where: "here" | "everywhere";
+        query: string;
+      }>
+    ) => {
+      state.searching = action.payload;
     }
   }
 });
 
-export const { startCutting, startCopying, startRenaming, setErrors, setCreating } =
-  globalStatesSlice.actions;
+export const {
+  startCutting,
+  startCopying,
+  startRenaming,
+  setErrors,
+  setCreating,
+  setSearching
+} = globalStatesSlice.actions;
 
 export const globalStatesReducer = globalStatesSlice.reducer;
 

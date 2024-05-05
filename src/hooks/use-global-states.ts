@@ -2,6 +2,7 @@ import {
   GlobalStatesState,
   setCreating as dispatchSetCreating,
   setErrors as dispatchSetErrors,
+  setSearching as dispatchSetSearching,
   startCopying as dispatchStartCopying,
   startCutting as dispatchStartCutting,
   startRenaming as dispatchStartRenaming
@@ -36,13 +37,24 @@ function useGlobalStates() {
     dispatch(dispatchSetCreating(creating));
   };
 
+  const setSearching = (
+    state: {
+      state: boolean;
+      where: "here" | "everywhere";
+      query: string;
+    } | null
+  ) => {
+    dispatch(dispatchSetSearching(state));
+  };
+
   return {
     ...globalStates,
     setCutting,
     setCopying,
     setRenaming,
     setErrors,
-    setCreating
+    setCreating,
+    setSearching
   };
 }
 
