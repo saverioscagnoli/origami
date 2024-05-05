@@ -41,6 +41,8 @@ pub fn create_symlink(
   path: impl AsRef<Path>,
   target: impl AsRef<Path>
 ) -> io::Result<()> {
+  use crate::consts::FLAG_CREATE_NO_WINDOW;
+
   let path = path.as_ref();
   let target = target.as_ref();
 
@@ -58,18 +60,21 @@ pub fn create_symlink(
     }
   } else {
     use std::process::Command;
+    use std::os::windows::process::CommandExt;
 
     if path.is_dir() {
       Command::new("cmd")
         .args(
           &["/C", "mklink", "/J", target.to_str().unwrap(), path.to_str().unwrap()]
         )
+        .creation_flags(FLAG_CREATE_NO_WINDOW)
         .output()?;
     } else {
       Command::new("cmd")
         .args(
           &["/C", "mklink", "/h", target.to_str().unwrap(), path.to_str().unwrap()]
         )
+        .creation_flags(FLAG_CREATE_NO_WINDOW)
         .output()?;
     }
   }
