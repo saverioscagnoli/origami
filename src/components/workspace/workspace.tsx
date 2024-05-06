@@ -17,6 +17,7 @@ import {
 import { Virtuoso, VirtuosoGrid } from "react-virtuoso";
 import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
+import { ImagePreview } from "./image-preview";
 import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
@@ -218,7 +219,7 @@ const Workspace = () => {
   return (
     <EmptySpaceContextMenu>
       <ScrollArea
-        className={cn("w-full h-full", "focus:outline-none")}
+        className={cn("w-full h-full", "focus:outline-none", "relative")}
         id="workspace"
         tabIndex={0}
         ref={workspaceRef}
@@ -247,35 +248,7 @@ const Workspace = () => {
               />
             )}
 
-            {/* {(() => {
-              const [base64, setBase64] = useState<string>("");
-
-              useEffect(() => {
-                if (
-                  selected.at(0) &&
-                  selected.length === 1 &&
-                  selected.at(0).name.endsWith(".png")
-                ) {
-                  invoke(Command.GetImageBase64, { path: selected.at(0).path }).then(
-                    setBase64
-                  );
-                }
-              }, [selected]);
-
-              return (
-                <div
-                  className={cn(
-                    "absolute bottom-0 right-0",
-                    selected.length === 1 &&
-                      selected.at(0)?.name.endsWith(".png") &&
-                      "!block",
-                    "hidden"
-                  )}
-                >
-                  <img src={`data:image/png;base64,${base64[0]}`} alt="preview" />
-                </div>
-              );
-            })()} */}
+            <ImagePreview />
           </>
           <ScrollArea.Scrollbar className={cn("mr-1")} />
         </ScrollArea.Viewport>
