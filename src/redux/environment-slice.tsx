@@ -1,3 +1,4 @@
+import { invoke } from "@lib/mapped-invoke";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   appConfigDir,
@@ -8,7 +9,7 @@ import {
   pictureDir,
   sep
 } from "@tauri-apps/api/path";
-import { BasicDirLabel } from "@typings/enums";
+import { BasicDirLabel, Command } from "@typings/enums";
 
 type BasicDir = {
   path: string;
@@ -19,6 +20,7 @@ type BasicDir = {
 type EnvironmentSliceState = {
   basicDirs: BasicDir[];
   isVscodeInstalled: boolean;
+  isWindowsTerminalInstalled?: boolean;
 };
 
 const resolveBasicDirs = createAsyncThunk(
@@ -75,6 +77,10 @@ const resolveBasicDirs = createAsyncThunk(
   }
 );
 
+const loadEnvironment = createAsyncThunk("environment/loadEnvironment", async () => {
+  return await invoke(Command.LoadEnvironment);
+});
+
 const environmentSlice = createSlice({
   name: "environment",
   initialState: { basicDirs: [], isVscodeInstalled: false } as EnvironmentSliceState,
@@ -83,10 +89,16 @@ const environmentSlice = createSlice({
     builder.addCase(resolveBasicDirs.fulfilled, (state, action) => {
       state.basicDirs = action.payload;
     });
+
+    builder.addCase(loadEnvironment.fulfilled, (state, action) => {
+      state.isVscodeInstalled = action.payload.isVscodeInstalled;
+      state.isWindowsTerminalInstalled =
+        action.payload.isWindowsTerminalInstalled ?? null;
+    });
   }
 });
 
-export { resolveBasicDirs };
+export { loadEnvironment, resolveBasicDirs };
 export const environmentReducer = environmentSlice.reducer;
 
 export type EnvironmentState = ReturnType<typeof environmentReducer>;

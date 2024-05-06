@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 
-import { resolveBasicDirs } from "@redux/environment-slice";
+import { loadEnvironment, resolveBasicDirs } from "@redux/environment-slice";
 import { loadSettings } from "@redux/settings-slice";
 import { store } from "@redux/store";
 import App from "App";
@@ -9,6 +9,7 @@ import "./styles.css";
 
 const main = async () => {
   store.dispatch(resolveBasicDirs());
+  store.dispatch(loadEnvironment());
   store.dispatch(loadSettings());
 
   return ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

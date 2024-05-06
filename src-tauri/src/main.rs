@@ -6,6 +6,7 @@ mod disks;
 mod consts;
 mod settings;
 mod utils;
+mod environment;
 
 use file_system::{
   list_dir,
@@ -20,15 +21,16 @@ use file_system::{
 };
 use disks::poll_disks;
 use settings::{ load_settings, update_settings };
-use utils::close_window;
+use utils::{ close_window, create_window, close_all_windows };
+use environment::{
+  load_environment,
+  platform_impl::{ open_in_vscode, open_in_windows_terminal },
+};
 
-#[tokio::main]
-async fn main() {
+fn main() {
   env_logger::Builder
     ::from_env(env_logger::Env::default().default_filter_or("info"))
     .init();
-
-  tauri::async_runtime::set(tokio::runtime::Handle::current());
 
   tauri::Builder
     ::default()
@@ -47,7 +49,12 @@ async fn main() {
         unstar_entries,
         paste_entries,
         get_image_base64,
-        close_window
+        close_window,
+        create_window,
+        close_all_windows,
+        load_environment,
+        open_in_vscode,
+        open_in_windows_terminal
       ]
     )
     .on_page_load(|_window, _| {

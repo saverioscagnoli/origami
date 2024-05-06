@@ -16,7 +16,7 @@ import { useEffect } from "react";
 
 const App = () => {
   const { cd } = useCurrentDir();
-  const { basicDirs } = useEnvironment();
+  const { basicDirs, isVscodeInstalled } = useEnvironment();
 
   // Start Polling disks, evert X seconds (see backend consts)
   // So, if the user removes a disk, it will be removed from the sidebar

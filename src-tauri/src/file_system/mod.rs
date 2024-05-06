@@ -195,7 +195,7 @@ pub async fn paste_entries(
 
       WebviewWindowBuilder::new(
         &app,
-        "copy".to_string(),
+        "copy",
         WebviewUrl::App("copy.html".into())
       )
         .inner_size(400.0, 200.0)

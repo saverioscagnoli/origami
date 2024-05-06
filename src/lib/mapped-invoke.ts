@@ -1,3 +1,4 @@
+import { EnvironmentState } from "@redux/environment-slice";
 import { invoke as defaultInvoke } from "@tauri-apps/api/core";
 import { DirEntry } from "@typings/dir-entry";
 import { Command } from "@typings/enums";
@@ -79,6 +80,41 @@ type InvokeMap = {
    * @param label The label of the window to close
    */
   [Command.CloseWindow]: { args: { label: string }; returns: void };
+
+  /**
+   * Creates a new main window
+   */
+  [Command.CreateWindow]: { args: null; returns: void };
+
+  /**
+   * Quits the app
+   */
+  [Command.CloseAllWindows]: { args: null; returns: void };
+
+  /**
+   * Loads the environment state,
+   * such as if vscode is installed, terminal is available,
+   * Downloads, Documents, etc.
+   */
+  [Command.LoadEnvironment]: { args: null; returns: EnvironmentState };
+
+  /**
+   * Opens a directory in vscode
+   * @param dir The directory to open
+   * @returns [value, error] where value is the directory opened.
+   */
+  [Command.OpenInVscode]: { args: { dir: string }; returns: [string?, string?] };
+
+  /**
+   * Opens a directory in windows terminal
+   * @param dir The directory to open
+   * @returns [value, error] where value is the directory opened.
+   * (Windows only :3)
+   */
+  [Command.OpenInWindowsTerminal]: {
+    args: { dir: string };
+    returns: [string?, string?];
+  };
 };
 
 async function invoke<K extends Command>(command: K, args?: InvokeMap[K]["args"]) {

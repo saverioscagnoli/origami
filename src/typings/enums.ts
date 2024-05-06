@@ -11,7 +11,12 @@ enum Command {
   UnstarEntries = "unstar_entries",
   PasteEntries = "paste_entries",
   GetImageBase64 = "get_image_base64",
-  CloseWindow = "close_window"
+  CloseWindow = "close_window",
+  CreateWindow = "create_window",
+  CloseAllWindows = "close_all_windows",
+  LoadEnvironment = "load_environment",
+  OpenInVscode = "open_in_vscode",
+  OpenInWindowsTerminal = "open_in_windows_terminal"
 }
 
 enum BackendEvent {

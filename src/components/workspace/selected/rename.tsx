@@ -7,12 +7,12 @@ const RenameMenuItem = () => {
   const { selected } = useCurrentDir();
   const { setRenaming } = useGlobalStates();
 
-  const onClick = () => {
+  const onSelect = () => {
     setRenaming(selected.at(0));
   };
 
   return (
-    <ContextMenu.Item leftIcon={<Pencil1Icon />} onClick={onClick}>
+    <ContextMenu.Item leftIcon={<Pencil1Icon />} onSelect={onSelect}>
       Rename
     </ContextMenu.Item>
   );

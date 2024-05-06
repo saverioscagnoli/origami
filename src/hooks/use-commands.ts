@@ -91,13 +91,41 @@ function useCommands() {
     reload();
   };
 
+  const createWindow = () => {
+    invoke(Command.CreateWindow);
+  };
+
+  const closeAllWindows = () => {
+    invoke(Command.CloseAllWindows);
+  };
+
+  const openInVscode = async (dir: string) => {
+    const [_, error] = await invoke(Command.OpenInVscode, { dir });
+
+    if (error) {
+      setErrors([error]);
+    }
+  };
+
+  const openInWindowsTerminal = async (dir: string) => {
+    const [_, error] = await invoke(Command.OpenInWindowsTerminal, { dir });
+
+    if (error) {
+      setErrors([error]);
+    }
+  };
+
   return {
     renameEntry,
     deleteEntries,
     createEntry,
     starEntries,
     unstarEntries,
-    pasteEntries
+    pasteEntries,
+    createWindow,
+    closeAllWindows,
+    openInVscode,
+    openInWindowsTerminal
   };
 }
 
