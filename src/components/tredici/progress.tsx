@@ -1,31 +1,31 @@
-import * as RxProgress from "@radix-ui/react-progress";
 import { cn } from "@lib/utils";
-import { forwardRef } from "react";
+import * as RxProgress from "@radix-ui/react-progress";
 import { cva } from "class-variance-authority";
+import { forwardRef } from "react";
 
-import "@radix-ui/colors/plum.css";
 import "@radix-ui/colors/plum-dark.css";
+import "@radix-ui/colors/plum.css";
 
-import "@radix-ui/colors/teal.css";
 import "@radix-ui/colors/teal-dark.css";
+import "@radix-ui/colors/teal.css";
 
-import "@radix-ui/colors/grass.css";
 import "@radix-ui/colors/grass-dark.css";
+import "@radix-ui/colors/grass.css";
 
-import "@radix-ui/colors/red.css";
 import "@radix-ui/colors/red-dark.css";
+import "@radix-ui/colors/red.css";
 
-import "@radix-ui/colors/amber.css";
 import "@radix-ui/colors/amber-dark.css";
+import "@radix-ui/colors/amber.css";
 
-import "@radix-ui/colors/blue.css";
 import "@radix-ui/colors/blue-dark.css";
+import "@radix-ui/colors/blue.css";
 
-import "@radix-ui/colors/gray.css";
 import "@radix-ui/colors/gray-dark.css";
+import "@radix-ui/colors/gray.css";
 
-import "@radix-ui/colors/slate.css";
 import "@radix-ui/colors/slate-dark.css";
+import "@radix-ui/colors/slate.css";
 
 import "./progress.css";
 
@@ -54,11 +54,22 @@ const progressIndicatorVariants = cva(
 type ProgressProps = RxProgress.ProgressProps & {
   indefinite?: boolean;
   colorScheme?: ProgressColorScheme;
+  indicatorClassName?: string;
+  indicatorStyle?: React.CSSProperties;
 };
 
 const Progress = forwardRef<HTMLDivElement, ProgressProps>(
   (
-    { className, value, indefinite, colorScheme = "plum", max = 100, ...props },
+    {
+      className,
+      indicatorClassName,
+      indicatorStyle,
+      value,
+      indefinite,
+      colorScheme = "plum",
+      max = 100,
+      ...props
+    },
     ref
   ) => {
     value = value ?? 0;
@@ -81,11 +92,12 @@ const Progress = forwardRef<HTMLDivElement, ProgressProps>(
       >
         <RxProgress.Indicator
           className={progressIndicatorVariants({
-            className: cn(indefinite && "indefinite", className),
+            className: cn(indefinite && "indefinite", indicatorClassName),
             colorScheme
           })}
           style={{
-            transform: `translateX(-${100 - (value / max) * 100}%`
+            transform: `translateX(-${100 - (value / max) * 100}%`,
+            ...indicatorStyle
           }}
         />
       </RxProgress.Root>

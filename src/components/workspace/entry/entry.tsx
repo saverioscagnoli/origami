@@ -1,4 +1,5 @@
 import { useCurrentDir } from "@hooks/use-current-dir";
+import { useGlobalStates } from "@hooks/use-global-states";
 import { useSettings } from "@hooks/use-settings";
 import { cn } from "@lib/utils";
 import { DirEntry } from "@typings/dir-entry";
@@ -16,9 +17,21 @@ const Entry = memo<DirEntry>(entry => {
   const { name, path, isDir, isHidden, isSymlink, isStarred, lastModified, size } =
     entry;
 
+  const { cutting, copying } = useGlobalStates();
+
   const isSelected = useMemo(
     () => selected.findIndex(e => e.path === path) !== -1,
     [selected]
+  );
+
+  const isCutting = useMemo(
+    () => cutting.findIndex(e => e.path === path) !== -1,
+    [cutting]
+  );
+
+  const isCopying = useMemo(
+    () => copying.findIndex(e => e.path === path) !== -1,
+    [copying]
   );
 
   const addOrRemove = () => {
@@ -66,6 +79,7 @@ const Entry = memo<DirEntry>(entry => {
         "text-sm",
         !isSelected && "hover:bg-[--gray-3]",
         isSelected && "bg-[--gray-4]",
+        isCutting && "opacity-60",
         "group"
       )}
       onClick={onClick}
@@ -77,7 +91,13 @@ const Entry = memo<DirEntry>(entry => {
         )}
         <ListEntryName name={name} path={path} isDir={isDir} />
       </span>
-      <EntryFlags isHidden={isHidden} isSymlink={isSymlink} isStarred={isStarred} />
+      <EntryFlags
+        isHidden={isHidden}
+        isSymlink={isSymlink}
+        isStarred={isStarred}
+        isCutting={isCutting}
+        isCopying={isCopying}
+      />
       <EntryLastModified lastModified={lastModified} />
       <EntrySize isDir={isDir} size={size} />
     </div>
@@ -96,7 +116,11 @@ const Entry = memo<DirEntry>(entry => {
       onContextMenu={onContextMenu}
     >
       {showCheckboxes && (
-        <EntryCheckbox className={cn("absolute top-2 left-2")}  checked={isSelected} onCheckedChange={addOrRemove} />
+        <EntryCheckbox
+          className={cn("absolute top-2 left-2")}
+          checked={isSelected}
+          onCheckedChange={addOrRemove}
+        />
       )}
       <GridEntryName name={name} path={path} isDir={isDir} />
     </div>

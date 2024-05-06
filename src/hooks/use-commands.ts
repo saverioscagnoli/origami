@@ -4,7 +4,8 @@ import { useCurrentDir } from "./use-current-dir";
 import { useGlobalStates } from "./use-global-states";
 
 function useCommands() {
-  const { renaming, setRenaming, setErrors } = useGlobalStates();
+  const { renaming, setRenaming, setErrors, setCutting, setCopying } =
+    useGlobalStates();
   const { reload } = useCurrentDir();
 
   const renameEntry = async (newName: string) => {
@@ -68,7 +69,36 @@ function useCommands() {
     reload();
   };
 
-  return { renameEntry, deleteEntries, createEntry, starEntries, unstarEntries };
+  const pasteEntries = async (
+    paths: string[],
+    newDir: string,
+    isCutting: boolean
+  ) => {
+    setCutting([]);
+    setCopying([]);
+
+    const [_, errors] = await invoke(Command.PasteEntries, {
+      paths,
+      newDir,
+      isCutting
+    });
+
+    if (errors.length > 0) {
+      setErrors(errors);
+      return;
+    }
+
+    reload();
+  };
+
+  return {
+    renameEntry,
+    deleteEntries,
+    createEntry,
+    starEntries,
+    unstarEntries,
+    pasteEntries
+  };
 }
 
 export { useCommands };

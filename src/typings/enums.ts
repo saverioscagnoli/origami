@@ -9,11 +9,15 @@ enum Command {
   CreateEntry = "create_entry",
   StarEntries = "star_entries",
   UnstarEntries = "unstar_entries",
-  GetImageBase64 = "get_image_base64"
+  PasteEntries = "paste_entries",
+  GetImageBase64 = "get_image_base64",
+  CloseWindow = "close_window"
 }
 
 enum BackendEvent {
-  SendDisks = "send_disks"
+  SendDisks = "send_disks",
+  CopyProgress = "copy_progress",
+  CopyOver = "copy_over"
 }
 
 enum FrontendEvent {
@@ -29,4 +33,9 @@ enum BasicDirLabel {
   Pictures = "pictures"
 }
 
-export { BackendEvent, BasicDirLabel, Command, FrontendEvent };
+enum WindowLabel {
+  Main = "main",
+  Copy = "copy"
+}
+
+export { BackendEvent, BasicDirLabel, Command, FrontendEvent, WindowLabel };

@@ -2,7 +2,6 @@ import { useCommands } from "@hooks/use-commands";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { useGlobalStates } from "@hooks/use-global-states";
 import { useSettings } from "@hooks/use-settings";
-import { sep } from "@tauri-apps/api/path";
 import { DirEntry } from "@typings/dir-entry";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 
@@ -15,8 +14,18 @@ const checkInvalid = (
 
 function setupHotkeys() {
   const { showHidden, showCheckboxes, updateSettings } = useSettings();
-  const { renaming, creating, searching, setRenaming, setCreating, setSearching } =
-    useGlobalStates();
+  const {
+    renaming,
+    cutting,
+    setCutting,
+    copying,
+    setCopying,
+    creating,
+    searching,
+    setRenaming,
+    setCreating,
+    setSearching
+  } = useGlobalStates();
 
   /** Toggle show hidden */
   useHotkey(
@@ -44,7 +53,8 @@ function setupHotkeys() {
     [showCheckboxes, renaming, creating, searching]
   );
 
-  const { dir, entries, selected, replaceSelected, cd, goToParent } = useCurrentDir();
+  const { dir, entries, selected, replaceSelected, cd, goToParent } =
+    useCurrentDir();
 
   /** Rename hotekey */
   useHotkey(
@@ -59,6 +69,54 @@ function setupHotkeys() {
       }
     },
     [renaming, selected, creating, searching]
+  );
+
+  useHotkey(
+    [Modifier.Ctrl],
+    Key.KeyC,
+    e => {
+      if (checkInvalid(renaming, creating, searching, e.repeat)) return;
+      e.preventDefault();
+
+      setCopying(selected);
+    },
+    [renaming, creating, searching, copying, selected]
+  );
+
+  useHotkey(
+    [Modifier.Ctrl],
+    Key.KeyX,
+    e => {
+      if (checkInvalid(renaming, creating, searching, e.repeat)) return;
+      e.preventDefault();
+
+      setCutting(selected);
+    },
+    [cutting, renaming, creating, searching, selected]
+  );
+
+  const { pasteEntries } = useCommands();
+
+  useHotkey(
+    [Modifier.Ctrl],
+    Key.KeyV,
+    e => {
+      if (checkInvalid(renaming, creating, searching, e.repeat)) return;
+      e.preventDefault();
+
+      let paths: string[];
+      let isCutting = false;
+
+      if (cutting.length > 0) {
+        paths = cutting.map(e => e.path);
+        isCutting = true;
+      } else {
+        paths = copying.map(e => e.path);
+      }
+
+      pasteEntries(paths, dir, isCutting);
+    },
+    [cutting, renaming, creating, searching, copying, selected]
   );
 
   /** Select all hotkey */

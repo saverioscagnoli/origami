@@ -12,8 +12,8 @@
     "windows": [
       {
         "title": "origami",
-        "width": 800,
-        "height": 608,
+        "width": 1080,
+        "height": 820,
         "decorations": false
       }
     ],

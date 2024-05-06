@@ -2,11 +2,9 @@ import { ScrollArea } from "@components/tredici";
 import { useCurrentDir } from "@hooks/use-current-dir";
 import { useGlobalStates } from "@hooks/use-global-states";
 import { useSettings } from "@hooks/use-settings";
-import { invoke } from "@lib/mapped-invoke";
 import FilterWorker from "@lib/search-worker?worker";
 import { cn } from "@lib/utils";
 import { DirEntry } from "@typings/dir-entry";
-import { Command } from "@typings/enums";
 import { useEvent } from "@util-hooks/use-event";
 import {
   ComponentPropsWithoutRef,
@@ -24,7 +22,7 @@ import { SelectedEntriesContextMenu } from "./selected";
 const Workspace = () => {
   const { selected, entries, replaceSelected, cd, openFiles } = useCurrentDir();
   const { showHidden, view } = useSettings();
-  const { searching, errors, renaming } = useGlobalStates();
+  const { searching, errors, renaming, creating } = useGlobalStates();
 
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const workspaceRef = useRef<HTMLDivElement>(null);
@@ -193,7 +191,7 @@ const Workspace = () => {
             !e.shiftKey &&
             e.key.match(/^[a-zA-Z0-9]$/)
           ) {
-            if (errors !== null) return;
+            if (errors !== null || renaming !== null || creating.state) return;
 
             let entries = filtered.filter(entry =>
               entry.name.toLowerCase().startsWith(e.key.toLowerCase())

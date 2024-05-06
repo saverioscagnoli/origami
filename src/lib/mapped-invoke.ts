@@ -49,6 +49,18 @@ type InvokeMap = {
     returns: [string, string[]];
   };
 
+  /**
+   * Data for the paste entries command
+   * @param paths The paths to paste
+   * @param newDir The destination path
+   * @param isCutting Whether the operation is a cut or copy
+   * @returns A tuple containing the new paths and any errors
+   */
+  [Command.PasteEntries]: {
+    args: { paths: string[]; newDir: string; isCutting: boolean };
+    returns: [string[], string[]];
+  };
+
   [Command.LoadSettings]: { args: {}; returns: Settings };
   [Command.UpdateSettings]: {
     args: { key: keyof Settings; value: string };
@@ -61,6 +73,12 @@ type InvokeMap = {
    * @returns The base64 encoded image
    */
   [Command.GetImageBase64]: { args: { path: string }; returns: string };
+
+  /**
+   * Data for the close window command
+   * @param label The label of the window to close
+   */
+  [Command.CloseWindow]: { args: { label: string }; returns: void };
 };
 
 async function invoke<K extends Command>(command: K, args?: InvokeMap[K]["args"]) {
