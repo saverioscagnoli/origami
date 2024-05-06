@@ -12,9 +12,9 @@ dist
 dist-ssr
 *.local
 
-target
-
 # Editor directories and files
+.vscode/*
+!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
@@ -22,3 +22,5 @@ target
 *.njsproj
 *.sln
 *.sw?
+
+stats.html
