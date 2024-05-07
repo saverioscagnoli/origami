@@ -1,7 +1,11 @@
-import { ReactNode } from "react";
+import { JSX } from "solid-js";
 
 type ChildrenProps = {
-  children: ReactNode;
+  children: JSX.Element;
 };
 
-export type { ChildrenProps };
+type SizeProps = {
+  size: number;
+};
+
+export type { ChildrenProps, SizeProps };

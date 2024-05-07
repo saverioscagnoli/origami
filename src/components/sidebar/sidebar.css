@@ -1,0 +1,8 @@
+#sidebar {
+  /* Dimensions */
+  width: 25%;
+  height: 100%;
+
+  /* Border */
+  border-right: 1px solid var(--border-color);
+}

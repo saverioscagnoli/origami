@@ -1,94 +1,46 @@
 import { Bottombar } from "@components/bottombar";
-import { CreateDialog, ErrorDialog } from "@components/dialogs";
 import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
-import { useCurrentDir } from "@hooks/use-current-dir";
-import { useEnvironment } from "@hooks/use-environment";
-import { useSettings } from "@hooks/use-settings";
-import { setupHotkeys } from "@lib/hotkeys";
-import { invoke } from "@lib/mapped-invoke";
-import { cn } from "@lib/utils";
-import { emit } from "@tauri-apps/api/event";
-import { BasicDirLabel, Command, FrontendEvent } from "@typings/enums";
-import { useEvent } from "@util-hooks/use-event";
-import { useEffect } from "react";
+import { useCurrentDir } from "@contexts/current-dir";
+import { useCommand } from "@hooks/use-command";
+import { invoke } from "@tauri-apps/api/core";
+import { Command } from "@typings/enums";
+import { onMount } from "solid-js";
 
-const App = () => {
-  const { cd } = useCurrentDir();
-  const { basicDirs, isVscodeInstalled } = useEnvironment();
+function App() {
+  const { setDir, setEntries } = useCurrentDir();
 
-  // Start Polling disks, evert X seconds (see backend consts)
-  // So, if the user removes a disk, it will be removed from the sidebar
-  useEffect(() => {
-    invoke(Command.PollDisks);
-  }, []);
+  useCommand(Command.ListDir, payload => {
+    const [id, data, error, isFinished] = payload;
 
-  // Cd into the home directory when the app starts
-  useEffect(() => {
-    const home = basicDirs.find(bd => bd.label === BasicDirLabel.Home);
-
-    if (home) {
-      cd(home.path);
+    if (error) {
+      alert(error);
+      return;
     }
-  }, [basicDirs]);
 
-  useEvent("contextmenu", e => e.preventDefault());
+    if (isFinished) {
+      const [dir, entries] = data!;
 
-  const { theme } = useSettings();
-
-  // Change the theme based on the user's preference
-  useEffect(() => {
-    document.documentElement.classList.add("light", "dark");
-
-    switch (theme) {
-      case "light": {
-        document.documentElement.classList.remove("dark");
-        break;
-      }
-
-      case "dark": {
-        document.documentElement.classList.remove("light");
-        break;
-      }
-
-      case "system": {
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.add("light");
-        }
-      }
+      setDir(dir);
+      setEntries(entries);
     }
-  }, [theme]);
+  });
 
-  // Emit an event to cleanup the beckend when the app refreshes
-  useEvent(window, "beforeunload", () => emit(FrontendEvent.BeforeUnload, null));
-
-  setupHotkeys();
+  onMount(() => {
+    invoke(Command.ListDir, { dir: "C:\\" });
+  });
 
   return (
-    <div
-      className={cn(
-        "w-screen h-screen",
-        "select-none"
-        // os() === "linux" && "font-semibold"
-      )}
-    >
+    <div id="wrapper">
       <Topbar />
-      <div
-        className={cn("w-full h-[calc(100vh-3.5rem)]", "fixed top-8", "flex gap-0")}
-      >
-        <>
-          <ErrorDialog />
-          <CreateDialog />
-        </>
+      <Bottombar />
+      <div id="workspace-wrapper">
         <Sidebar />
         <Workspace />
       </div>
-      <Bottombar />
     </div>
   );
-};
+}
 
 export default App;

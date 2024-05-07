@@ -1,7 +1,7 @@
 {
-  "productName": "origami",
+  "productName": "spin",
   "version": "0.0.0",
-  "identifier": "origami.dev",
+  "identifier": "com.tauri.dev",
   "build": {
     "beforeDevCommand": "yarn dev",
     "devUrl": "http://localhost:1420",
@@ -11,9 +11,9 @@
   "app": {
     "windows": [
       {
-        "title": "origami",
-        "width": 1080,
-        "height": 820,
+        "title": "spin",
+        "width": 1000,
+        "height": 800,
         "decorations": false
       }
     ],

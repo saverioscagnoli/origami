@@ -1,29 +1,29 @@
-import { cn } from "@lib/utils";
-import { FC, MouseEventHandler, ReactNode } from "react";
+import { Component, JSXElement, createMemo } from "solid-js";
 
 type TopbarButtonProps = {
+  /* The button's unique identifier */
   id: string;
-  icon: ReactNode;
-  onClick: MouseEventHandler<HTMLButtonElement>;
+
+  /* Button Icon */
+  icon: JSXElement;
+
+  /* onClick handler */
+  onClick: () => void;
 
   /* Whether the button should be red */
   danger?: boolean;
 };
 
-const TopbarButton: FC<TopbarButtonProps> = ({ id, icon, onClick, danger }) => {
+const TopbarButton: Component<TopbarButtonProps> = ({
+  id,
+  icon,
+  onClick,
+  danger
+}) => {
+  const extraClass = createMemo(() => (danger ? "danger" : "normal"));
+
   return (
-    <button
-      id={id}
-      className={cn(
-        "w-10 h-full",
-        "inline-flex items-center justify-center",
-        danger
-          ? "hover:bg-[--red-9] hover:text-[--slate-1] dark:hover:text-[--slate-12]"
-          : "hover:bg-[--gray-3]",
-        "transition-colors duration-100"
-      )}
-      onClick={onClick}
-    >
+    <button id={id} class={`topbar-button ${extraClass()}`} onClick={onClick}>
       {icon}
     </button>
   );

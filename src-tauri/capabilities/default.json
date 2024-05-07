@@ -8,14 +8,14 @@
     "event:default",
     "window:default",
     "window:allow-start-dragging",
+    "window:allow-close",
     "window:allow-minimize",
     "window:allow-toggle-maximize",
-    "window:allow-close",
-    "webview:allow-webview-close",
     "app:default",
     "image:default",
     "resources:default",
     "menu:default",
-    "tray:default"
+    "tray:default",
+    "shell:allow-open"
   ]
 }

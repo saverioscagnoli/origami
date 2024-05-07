@@ -1,0 +1,83 @@
+#topbar {
+  /* Dimensions */
+  width: 100%;
+  height: 2rem;
+
+  /* Position */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  /* Display */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  /* Border */
+  border-bottom: 1px solid var(--border-color);
+}
+
+#topbar-dir-display {
+  /* Dimensions */
+  height: 100%;
+  width: 100%;
+
+  /* Display */
+  display: grid;
+  place-items: center;
+
+  /* Cursor */
+  cursor: default;
+
+  /* Text */
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+/* When the users starts dragging the window, change the cursor */
+#topbar-dir-display[data-tauri-drag-region]:active {
+  cursor: grabbing;
+}
+
+#topbar-button-group {
+  /* Dimensions */
+  width: fit-content;
+  height: 100%;
+
+  /* Display */
+  display: flex;
+  gap: 0;
+}
+
+.topbar-button {
+  all: unset;
+
+  /* Dimensions */
+  width: 2.5rem;
+  height: 100%;
+
+  /* Display */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Transition */
+  transition: background-color 100ms ease-in-out;
+}
+
+.topbar-button.normal:hover {
+  /* Color */
+  background-color: var(--gray-3);
+}
+
+.topbar-button.danger:hover {
+  /* Color */
+  background-color: var(--red-9);
+  color: var(--slate-1);
+}
+
+.dark > .topbar-button.danger:hover {
+  /* Color */
+  color: var(--slate-12);
+}
