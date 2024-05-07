@@ -10,6 +10,14 @@
   overflow: auto;
 }
 
+#virtual-list {
+  /* Dimensions */
+  width: 100%;
+
+  /* Position */
+  position: relative;
+}
+
 .entry {
   /* Dimensions */
   width: 100%;

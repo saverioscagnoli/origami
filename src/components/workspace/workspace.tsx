@@ -1,8 +1,8 @@
 import { useCurrentDir } from "@contexts/current-dir";
-
-import { VirtualList } from "@components/virtual-list/virtual-list";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { Entry } from "./entry";
+
+import { UnkeyedFor } from "@components/unkeyed-for";
 import "./workspace.css";
 
 const Workspace = () => {
@@ -11,26 +11,42 @@ const Workspace = () => {
   let parent!: HTMLDivElement;
 
   const virtualizer = createVirtualizer({
+    getScrollElement: () => parent,
+    estimateSize: () => 25,
     get count() {
       return entries().length;
     },
-    getScrollElement: () => parent,
-    estimateSize: () => 25
+    overscan: 5
   });
 
   return (
     <div id="workspace" ref={parent}>
-      <VirtualList
-        data={entries}
-        count={entries().length}
-        height={1000}
-        itemHeight={24}
+      <div
+        id="virtual-list"
+        style={{ height: `${virtualizer.getTotalSize()}px` }}
       >
-        {entry => <Entry {...entry} />}
-      </VirtualList>
+        <UnkeyedFor each={virtualizer.getVirtualItems()}>
+          {item => {
+            const entry = entries().at(item.index)!;
+
+            return (
+              <Entry
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  "min-height": `${item.size}px`,
+                  transform: `translateY(${item.start}px)`
+                }}
+                {...entry}
+              />
+            );
+          }}
+        </UnkeyedFor>
+      </div>
     </div>
   );
 };
 
 export { Workspace };
- 

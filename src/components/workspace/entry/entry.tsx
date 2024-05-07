@@ -9,17 +9,14 @@ import { formatBytes } from "@lib/utils";
 import { invoke } from "@tauri-apps/api/core";
 import { DirEntry } from "@typings/dir-entry";
 import { Command } from "@typings/enums";
-import { Component } from "solid-js";
+import { Component, JSX } from "solid-js";
 
-const Entry: Component<
-  DirEntry & { style: Record<string, string> }
-> = ({style, ...props}) => {
+const Entry: Component<DirEntry & { style: JSX.CSSProperties }> = props => {
   const isVisible = (flag: boolean) => (flag ? "visible" : "hidden");
-
   const onClick = () => invoke(Command.ListDir, { dir: props.path });
 
   return (
-    <div class="entry" onClick={onClick} style={style}>
+    <div class="entry" onClick={onClick} style={props.style}>
       <span class="entry-name-wrapper">
         <span class="entry-name-icon">
           {props.isDir ? <FolderIcon /> : <FileIcon />}
