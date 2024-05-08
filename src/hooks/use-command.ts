@@ -1,7 +1,7 @@
 import { listen } from "@tauri-apps/api/event";
 import { DirEntry } from "@typings/dir-entry";
-import { Command } from "@typings/enums";
-import { createEffect, onCleanup, onMount } from "solid-js";
+import { CommandName } from "@typings/enums";
+import { createEffect, onCleanup } from "solid-js";
 
 type BasePayload<T> = [
   /**
@@ -31,7 +31,7 @@ type CommandPayloadMap = {
    * @param dir The listed directory
    * @param entries The entries in the directory
    */
-  [Command.ListDir]: BasePayload<[dir: string, entries: DirEntry[]]>;
+  [CommandName.ListDir]: BasePayload<[dir: string, entries: DirEntry[]]>;
 };
 
 /**
@@ -39,7 +39,7 @@ type CommandPayloadMap = {
  * @param command The command to listen to
  * @param cb What should happen when data is received
  */
-function useCommand<K extends Command>(
+function useCommand<K extends CommandName>(
   command: K,
   cb: (payload: CommandPayloadMap[K]) => void
 ) {

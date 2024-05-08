@@ -1,13 +1,13 @@
 use std::path::Path;
 
 #[cfg(target_os = "windows")]
-pub async fn is_hidden<P: AsRef<Path>>(path: P) -> bool {
+pub fn is_hidden<P: AsRef<Path>>(path: P) -> bool {
     use crate::consts::FILE_ATTRIBUTE_HIDDEN;
     use std::os::windows::fs::MetadataExt;
 
     let path = path.as_ref();
 
-    let metadata = match tokio::fs::metadata(&path).await {
+    let metadata = match std::fs::metadata(&path) {
         Ok(meta) => meta,
         Err(_) => {
             return false;
@@ -18,7 +18,7 @@ pub async fn is_hidden<P: AsRef<Path>>(path: P) -> bool {
 }
 
 #[cfg(not(target_os = "windows"))]
-pub async fn is_hidden<P: AsRef<Path>>(path: P) -> bool {
+pub fn is_hidden<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
 
     path.file_name()

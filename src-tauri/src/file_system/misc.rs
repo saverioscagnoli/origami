@@ -2,19 +2,19 @@ use std::path::Path;
 
 use chrono::{DateTime, Utc};
 
-pub async fn is_symlink<P: AsRef<Path>>(path: P) -> bool {
+pub fn is_symlink<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
 
-    match tokio::fs::symlink_metadata(&path).await {
+    match std::fs::symlink_metadata(&path) {
         Ok(metadata) => metadata.file_type().is_symlink(),
         Err(_) => false,
     }
 }
 
-pub async fn last_modified<P: AsRef<Path>>(path: P) -> String {
+pub fn last_modified<P: AsRef<Path>>(path: P) -> String {
     let path = path.as_ref();
 
-    let metadata = match tokio::fs::metadata(&path).await {
+    let metadata = match std::fs::metadata(&path) {
         Ok(meta) => meta,
         Err(_) => {
             return "Unknown".into();
@@ -28,5 +28,7 @@ pub async fn last_modified<P: AsRef<Path>>(path: P) -> String {
         }
     };
 
-    DateTime::<Utc>::from(time).format("%d/%m/%Y %H:%M").to_string()
+    DateTime::<Utc>::from(time)
+        .format("%d/%m/%Y %H:%M")
+        .to_string()
 }

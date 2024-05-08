@@ -5,7 +5,7 @@ use crate::enums::Command;
 use super::dir;
 
 #[tauri::command]
-pub async fn list_dir(app: AppHandle, dir: String) {
+pub async fn list_dir(app: AppHandle, dir: String, id: u64) {
     tokio::spawn(async move {
         let path = app.path();
         let app_config_dir = path.app_config_dir().unwrap();
@@ -14,12 +14,12 @@ pub async fn list_dir(app: AppHandle, dir: String) {
 
         match entries {
             Ok(entries) => {
-                Command::ListDir(Some((dir.clone(), entries)), None, true).emit(&app);
+                Command::ListDir(id, Some((dir.clone(), entries)), None, true).emit(&app);
                 log::info!("Listed directory: {:?}", dir);
             }
 
             Err(err) => {
-                Command::ListDir(None, Some(err.to_string()), true).emit(&app);
+                Command::ListDir(id, None, Some(err.to_string()), true).emit(&app);
                 log::error!("Failed to list directory: {:?}", dir);
             }
         }

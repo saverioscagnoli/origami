@@ -16,20 +16,20 @@ use tauri::{AppHandle, Manager};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub enum Command {
-    ListDir(Option<(String, Vec<DirEntry>)>, Option<String>, bool),
+    ListDir(u64, Option<(String, Vec<DirEntry>)>, Option<String>, bool),
 }
 
 impl Command {
     pub fn as_str(&self) -> &str {
         match self {
-            Command::ListDir(_, _, _) => "list_dir",
+            Command::ListDir(_, _, _, _) => "list_dir",
         }
     }
 
     pub fn emit(&self, app: &AppHandle) {
         match self {
-            Command::ListDir(data, error, is_finished) => {
-                let _ = app.emit(self.as_str(), (0, data, error, is_finished));
+            Command::ListDir(id, data, error, is_finished) => {
+                let _ = app.emit(self.as_str(), (id, data, error, is_finished));
             }
         }
     }

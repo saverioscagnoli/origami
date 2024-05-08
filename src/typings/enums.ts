@@ -1,5 +1,13 @@
-enum Command {
+enum CommandName {
   ListDir = "list_dir"
 }
 
-export { Command };
+enum CommandStatus {
+  Ready = 0,
+  Pending = 1,
+  Success = 2,
+  Error = 3,
+  Abort = 4
+}
+
+export { CommandName, CommandStatus };

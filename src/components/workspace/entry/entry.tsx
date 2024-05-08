@@ -5,15 +5,22 @@ import {
   FolderIcon,
   StarFilledIcon
 } from "@components/icons";
+import { useCallstack } from "@contexts/callstack";
 import { formatBytes } from "@lib/utils";
-import { invoke } from "@tauri-apps/api/core";
 import { DirEntry } from "@typings/dir-entry";
-import { Command } from "@typings/enums";
+import { CommandName } from "@typings/enums";
 import { Component, JSX } from "solid-js";
 
 const Entry: Component<DirEntry & { style: JSX.CSSProperties }> = props => {
+  const { push } = useCallstack();
+
   const isVisible = (flag: boolean) => (flag ? "visible" : "hidden");
-  const onClick = () => invoke(Command.ListDir, { dir: props.path });
+
+  const onClick = () => {
+    if (props.isDir) {
+      push(CommandName.ListDir, { dir: props.path });
+    }
+  };
 
   return (
     <div class="entry" onClick={onClick} style={props.style}>
