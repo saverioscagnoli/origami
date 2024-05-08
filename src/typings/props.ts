@@ -4,4 +4,8 @@ type ChildrenProps = {
   children: ReactNode;
 };
 
-export type { ChildrenProps };
+type SizeProps = {
+  size: number;
+};
+
+export type { ChildrenProps, SizeProps };

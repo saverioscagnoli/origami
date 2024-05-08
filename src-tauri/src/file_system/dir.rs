@@ -1,96 +1,55 @@
-use std::time::Instant;
-use std::{ any::Any, io, path::Path };
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-use rayon::iter::{ ParallelBridge, ParallelIterator };
-use walkdir::WalkDir;
+use super::{file, misc, platform_impl, DirEntry};
+use crate::consts::STARRED_DIR_NAME;
+use std::{io, path::Path};
 
-use super::api::get_read_rate_mbps;
-use super::structs::CopyProgress;
+pub async fn list_dir<P: AsRef<Path>, Q: AsRef<Path>>(
+    dir: P,
+    app_config_dir: Q,
+) -> io::Result<Vec<DirEntry>> {
+    let dir = dir.as_ref();
+    let starred_dir = app_config_dir.as_ref().join(STARRED_DIR_NAME);
 
-use super::file::copy_file_with_progress;
+    let dir = std::fs::read_dir(&dir)?;
+    let dir = dir.collect::<io::Result<Vec<_>>>().unwrap();
 
-pub fn get_size<P: AsRef<Path>>(path: P) -> u64 {
-  let path = path.as_ref();
+    let mut entries: Vec<DirEntry> = dir
+        .par_iter()
+        .map(|entry| {
+            let path = entry.path();
+            let name = entry.file_name();
+            let is_dir = path.is_dir();
+            let is_hidden = platform_impl::is_hidden(&path);
+            let is_symlink = misc::is_symlink(&path);
+            let is_starred = starred_dir.join(&name).exists();
+            let last_modified = misc::last_modified(&path);
+            let size = file::get_size(&path);
 
-  WalkDir::new(&path)
-    .into_iter()
-    .par_bridge()
-    .filter_map(Result::ok)
-    .map(|entry|
-      entry
-        .metadata()
-        .map(|metadata| metadata.len())
-        .unwrap_or(0)
-    )
-    .sum()
-}
+            let entry = DirEntry {
+                path: path.to_string_lossy().to_string(),
+                name: name.to_string_lossy().to_string(),
+                is_dir,
+                is_hidden,
+                is_symlink,
+                is_starred,
+                last_modified,
+                size,
+            };
 
-pub fn copy_dir_with_progress<P: AsRef<Path>, Q: AsRef<Path>, F>(
-  from: P,
-  to: Q,
-  mut callback: F,
-  stagger: Option<u64>
-) -> io::Result<()>
-  where F: FnMut(CopyProgress) + Sync + Send
-{
-  let from = from.as_ref().to_path_buf();
-  let to = to.as_ref().to_path_buf();
+            entry
+        })
+        .collect::<Vec<_>>();
 
-  let mut stack = vec![(from.clone(), to)];
-  let total_size = get_size(from);
-  let mut total_copied_bytes: u64 = 0;
-
-  while let Some((from, to)) = stack.pop() {
-    if from.is_dir() {
-      std::fs::create_dir(&to)?;
-
-      for entry in std::fs::read_dir(from)? {
-        let entry = entry?;
-        let entry_path = entry.path();
-        let entry_name = entry.file_name();
-
-        let new_to = to.join(entry_name);
-
-        if entry_path.is_dir() {
-          stack.push((entry_path, new_to));
+    entries.sort_by(|a, b| {
+        if a.is_dir == b.is_dir {
+            a.name.to_lowercase().cmp(&b.name.to_lowercase())
+        } else if a.is_dir {
+            std::cmp::Ordering::Less
         } else {
-          let mut copied_bytes = 0;
-          copy_file_with_progress(
-            entry_path,
-            new_to,
-            &mut (|info: CopyProgress| {
-              copied_bytes = info.copied_bytes;
-
-              callback(CopyProgress {
-                total_bytes: total_size,
-                copied_bytes: total_copied_bytes + copied_bytes,
-                read_rate: info.read_rate,
-              });
-            }),
-            stagger
-          )?;
-          total_copied_bytes += copied_bytes;
+            std::cmp::Ordering::Greater
         }
-      }
-    } else {
-      let mut copied_bytes = 0;
-      copy_file_with_progress(
-        from,
-        to,
-        &mut (|info: CopyProgress| {
-          copied_bytes = info.copied_bytes;
+    });
 
-          callback(CopyProgress {
-            total_bytes: total_size,
-            copied_bytes: total_copied_bytes + copied_bytes,
-            read_rate: info.read_rate,
-          });
-        }),
-        stagger
-      )?;
-      total_copied_bytes += copied_bytes;
-    }
-  }
-
-  Ok(())
+    Ok(entries)
 }

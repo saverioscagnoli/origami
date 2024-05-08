@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -16,19 +16,18 @@
 
     /* Linting */
     "strict": true,
-    "noUncheckedIndexedAccess": false,
-    "strictNullChecks": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+
+    /* Paths */
     "baseUrl": "src",
     "paths": {
-      "@lib/*": ["lib/*"],
       "@components/*": ["components/*"],
       "@hooks/*": ["hooks/*"],
-      "@contexts/*": ["contexts/*"],
+      "@lib/*": ["lib/*"],
       "@typings/*": ["typings/*"],
-      "@redux/*": ["redux/*"]
+      "@zustand/*": ["zustand/*"]
     }
   },
   "include": ["src"],

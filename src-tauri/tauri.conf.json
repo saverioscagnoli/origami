@@ -1,20 +1,18 @@
 {
   "productName": "origami",
   "version": "0.0.0",
-  "identifier": "origami.dev",
+  "identifier": "com.tauri.dev",
   "build": {
     "beforeDevCommand": "yarn dev",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "yarn build",
     "frontendDist": "../dist"
   },
-  "app": {
-    "windows": [
+  "app": {"windows": [
       {
         "title": "origami",
-        "width": 1080,
-        "height": 820,
-        "decorations": false
+        "width": 800,
+        "height": 600
       }
     ],
     "security": {

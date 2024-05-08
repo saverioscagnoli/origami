@@ -1,12 +1,10 @@
 import react from "@vitejs/plugin-react";
-import million from "million/compiler";
-import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react(), tsconfigPaths(), million.vite({ auto: true }), visualizer()],
+  plugins: [react(), tsconfigPaths()],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
@@ -19,15 +17,6 @@ export default defineConfig(async () => ({
     watch: {
       // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"]
-    }
-  },
-
-  build: {
-    rollupOptions: {
-      input: {
-        main: "./index.html",
-        copy: "./copy.html"
-      }
     }
   }
 }));
