@@ -1,4 +1,8 @@
+#[cfg(target_os = "windows")]
 use std::fs::Metadata;
+
+#[cfg(not(target_os = "windows"))]
+use std::ffi::OsStr;
 
 #[cfg(target_os = "windows")]
 pub fn is_hidden(meta: &Metadata) -> bool {
@@ -10,7 +14,5 @@ pub fn is_hidden(meta: &Metadata) -> bool {
 
 #[cfg(not(target_os = "windows"))]
 pub fn is_hidden(name: &OsStr) -> bool {
-    use std::ffi::OsStr;
-
     name.to_string_lossy().starts_with('.')
 }
