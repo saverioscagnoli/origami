@@ -1,14 +1,24 @@
+import { Bottombar } from "@components/bottombar";
+import { Sidebar } from "@components/sidebar";
+import { Topbar } from "@components/topbar";
+import { Workspace } from "@components/workspace";
 import { useCommandResponse } from "@hooks/use-command-response";
+import { cn } from "@lib/utils";
 import { CommandName, CommandStatus } from "@typings/enums";
-import { useCurrentDir } from "@zustand/current-dir-slice";
-import { callstack } from "main";
+import { useCallstack } from "@zustand/callstack-store";
+import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEffect } from "react";
 
 function App() {
-  const [dir, setDir] = useCurrentDir(state => [state.dir, state.setDir]);
+  const [setDir, setEntries] = useCurrentDir(state => [state.setDir, state.setEntries]);
+
+  const [push, updateStatus] = useCallstack(state => [
+    state.push,
+    state.updateStatus
+  ]);
 
   useEffect(() => {
-    callstack.push(CommandName.ListDir, { dir: "C:\\" });
+    push(CommandName.ListDir, { dir: "C:\\" });
   }, []);
 
   useCommandResponse(CommandName.ListDir, payload => {
@@ -16,31 +26,37 @@ function App() {
 
     if (error) {
       console.error(error);
-      callstack.updateStatus(id, CommandStatus.Error);
+      updateStatus(id, CommandStatus.Error);
       return;
     }
 
     if (isFinished) {
-      callstack.updateStatus(id, CommandStatus.Success);
+      updateStatus(id, CommandStatus.Success);
 
       const [dir, entries] = data!;
 
-      console.log(dir, entries);
-
       setDir(dir);
+      setEntries(entries);
       return;
     }
   });
+
   return (
-    <div className="container">
-      <h1>Current directory: {dir}</h1>
-      <button
-        onClick={() =>
-          callstack.push(CommandName.ListDir, { dir: "C:\\Users\\Saverio" })
-        }
+    <div
+      className={cn(
+        "w-screen h-screen",
+        "select-none"
+        // os() === "linux" && "font-semibold"
+      )}
+    >
+      <Topbar />
+      <div
+        className={cn("w-full h-[calc(100vh-3.5rem)]", "fixed top-8", "flex gap-0")}
       >
-        Change dir
-      </button>
+        <Sidebar />
+        <Workspace />
+      </div>
+      <Bottombar />
     </div>
   );
 }
