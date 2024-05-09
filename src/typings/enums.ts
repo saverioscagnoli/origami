@@ -1,6 +1,8 @@
 enum CommandName {
+  PollDisks = "poll_disks",
   ListDir = "list_dir",
-  PollDisks = "poll_disks"
+  CreateEntry = "create_entry",
+  DeleteEntries = "delete_entries"
 }
 
 enum CommandStatus {
@@ -28,4 +30,4 @@ enum BasicDirLabel {
   Pictures = "pictures"
 }
 
-export { BackendEvent, CommandName, CommandStatus, FrontendEvent, BasicDirLabel };
+export { BackendEvent, BasicDirLabel, CommandName, CommandStatus, FrontendEvent };

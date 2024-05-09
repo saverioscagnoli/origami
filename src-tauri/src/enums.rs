@@ -17,12 +17,26 @@ use tauri::{AppHandle, Manager};
 #[serde(rename_all = "camelCase")]
 pub enum Command {
     ListDir(u64, Option<(String, Vec<DirEntry>)>, Option<String>, bool),
+
+    /**
+     * If not error, returns the DirEntry of the created entry.
+     * Used to update the frontend, instead of listing the directory again.
+     */
+    CreateEntry(u64, Option<DirEntry>, Option<String>, bool),
+
+    /**
+     * If not error, returns the list of deleted entries.
+     * Used to update the frontend, instead of listing the directory again.
+     */
+    DeleteEntries(u64, Option<String>, Option<String>, bool),
 }
 
 impl Command {
     pub fn as_str(&self) -> &str {
         match self {
             Command::ListDir(_, _, _, _) => "list_dir",
+            Command::CreateEntry(_, _, _, _) => "create_entry",
+            Command::DeleteEntries(_, _, _, _) => "delete_entries",
         }
     }
 
@@ -30,6 +44,12 @@ impl Command {
         match self {
             Command::ListDir(id, data, error, is_finished) => {
                 let _ = app.emit(self.as_str(), (id, data, error, is_finished));
+            }
+            Command::CreateEntry(id, data, error, is_finished) => {
+                let _ = app.emit(self.as_str(), (id, data, error, is_finished));
+            }
+            Command::DeleteEntries(id, deleted, errors, is_finished) => {
+                let _ = app.emit(self.as_str(), (id, deleted, errors, is_finished));
             }
         }
     }

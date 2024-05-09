@@ -12,6 +12,19 @@ type CommandArgsMap = {
    * Poll disks
    */
   [CommandName.PollDisks]: null;
+
+  /**
+   * Create entry
+   * @param path - Path to create
+   * @param isDir - Is directory
+   */
+  [CommandName.CreateEntry]: { path: string; isDir: boolean };
+
+  /**
+   * Delete entries
+   * @param paths - Paths to delete
+   */
+  [CommandName.DeleteEntries]: { paths: string[] };
 };
 
 async function invoke<K extends CommandName>(

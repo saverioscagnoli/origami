@@ -18,3 +18,56 @@ pub struct DirEntry {
     pub last_modified: String,
     pub size: u64,
 }
+
+use std::path::Path;
+
+
+/**
+ * Converts a path to a DirEntry.
+ */
+pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(path: P, starred_dir: Q) -> Option<DirEntry> {
+    let path = path.as_ref();
+    let starred_dir = starred_dir.as_ref();
+
+    let metadata = path.metadata();
+
+    if metadata.is_err() {
+        return None;
+    }
+
+    let metadata = metadata.unwrap();
+
+    let name = path.file_name();
+
+    if name.is_none() {
+        return None;
+    }
+
+    let name = name.unwrap();
+
+    let is_dir = metadata.is_dir();
+
+    #[cfg(target_os = "windows")]
+    let is_hidden = platform_impl::is_hidden(&metadata);
+
+    #[cfg(not(target_os = "windows"))]
+    let is_hidden = platform_impl::is_hidden(&name);
+
+    let is_symlink = misc::is_symlink(&metadata);
+    let is_starred = starred_dir.join(&name).exists();
+    let last_modified = misc::last_modified(&metadata);
+    let size = file::get_size(&metadata);
+
+    let entry = DirEntry {
+        path: path.to_string_lossy().to_string(),
+        name: name.to_string_lossy().to_string(),
+        is_dir,
+        is_hidden,
+        is_symlink,
+        is_starred,
+        last_modified,
+        size,
+    };
+
+    Some(entry)
+}

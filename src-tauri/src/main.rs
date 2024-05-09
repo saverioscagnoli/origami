@@ -7,7 +7,7 @@ mod enums;
 mod file_system;
 
 use disks::poll_disks;
-use file_system::commands::list_dir;
+use file_system::commands::{create_entry, delete_entries, list_dir};
 
 #[tokio::main]
 async fn main() {
@@ -18,7 +18,12 @@ async fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![list_dir, poll_disks])
+        .invoke_handler(tauri::generate_handler![
+            create_entry,
+            delete_entries,
+            list_dir,
+            poll_disks
+        ])
         .on_page_load(|_window, _| {
             // Open devtools in debug mode
             #[cfg(debug_assertions)]

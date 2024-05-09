@@ -5,9 +5,10 @@ import { useCurrentDir } from "@zustand/curent-dir-store";
 
 function listDirListen() {
   const updateStatus = useCallstack(state => state.updateStatus);
-  const [setDir, setEntries] = useCurrentDir(state => [
+  const [setDir, setEntries, replaceSelected] = useCurrentDir(state => [
     state.setDir,
-    state.setEntries
+    state.setEntries,
+    state.replaceSelected
   ]);
 
   useCommandResponse(CommandName.ListDir, payload => {
@@ -26,6 +27,7 @@ function listDirListen() {
 
       setDir(dir);
       setEntries(entries);
+      replaceSelected([]);
       return;
     }
   });

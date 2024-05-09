@@ -9,7 +9,7 @@ import { Entry } from "./entry";
 import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
-  const [entries] = useCurrentDir(state => [state.entries]);
+  const entries = useCurrentDir(state => state.entries);
 
   const parentRef = useRef<HTMLDivElement>(null);
 

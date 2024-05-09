@@ -1,3 +1,5 @@
+import { DirEntry } from "@typings/dir-entry";
+import { CreatingState } from "@zustand/global-state-store";
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -47,4 +49,26 @@ function percentage(part: number, total: number, decimals: number = 0): string {
   return parseFloat(((part / total) * 100).toFixed(decimals)) + "%";
 }
 
-export { cn, formatBytes, percentage };
+/**
+ * Checks if the hotkey is valid
+ * For valid, is intended that the hotkey should not be fired is the user is:
+ * 1 - Creating a new entry
+ * 2 - Renaming an entry
+ * 3 - The hotkey is being repeated
+ *
+ * For example, anytime the user is typing, the hotkey should not be fired.
+ *
+ * @param renaming The renaming state
+ * @param creating The creating state
+ * @param repeat If the hotkey is being repeated
+ * @returns a boolean indicating if the hotkey is valid
+ */
+function isHotkeyInvalid(
+  renaming: DirEntry | null = {} as DirEntry,
+  creating: CreatingState = {} as CreatingState,
+  repeat: boolean = true
+) {
+  return renaming || creating.state || repeat;
+}
+
+export { cn, formatBytes, isHotkeyInvalid, percentage };

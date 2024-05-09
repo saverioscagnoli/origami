@@ -1,6 +1,6 @@
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-use super::{file, misc, platform_impl, DirEntry};
+use super::DirEntry;
 use crate::consts::STARRED_DIR_NAME;
 use std::{io, path::Path};
 
@@ -16,43 +16,7 @@ pub async fn list_dir<P: AsRef<Path>, Q: AsRef<Path>>(
 
     let mut entries: Vec<DirEntry> = dir
         .par_iter()
-        .filter_map(|entry| {
-            let metadata = entry.metadata();
-
-            if metadata.is_err() {
-                return None;
-            }
-
-            let metadata = metadata.unwrap();
-
-            let path = entry.path();
-            let name = entry.file_name();
-            let is_dir = metadata.is_dir();
-
-            #[cfg(target_os = "windows")]
-            let is_hidden = platform_impl::is_hidden(&metadata);
-
-            #[cfg(not(target_os = "windows"))]
-            let is_hidden = platform_impl::is_hidden(&name);
-
-            let is_symlink = misc::is_symlink(&metadata);
-            let is_starred = starred_dir.join(&name).exists();
-            let last_modified = misc::last_modified(&metadata);
-            let size = file::get_size(&metadata);
-
-            let entry = DirEntry {
-                path: path.to_string_lossy().to_string(),
-                name: name.to_string_lossy().to_string(),
-                is_dir,
-                is_hidden,
-                is_symlink,
-                is_starred,
-                last_modified,
-                size,
-            };
-
-            Some(entry)
-        })
+        .filter_map(|entry| super::into_entry(entry.path(), &starred_dir))
         .collect::<Vec<_>>();
 
     entries.sort_by(|a, b| {
@@ -66,4 +30,12 @@ pub async fn list_dir<P: AsRef<Path>, Q: AsRef<Path>>(
     });
 
     Ok(entries)
+}
+
+pub async fn create_dir<P: AsRef<Path>>(path: P) -> io::Result<()> {
+    tokio::fs::create_dir_all(path).await
+}
+
+pub async fn delete_dir<P: AsRef<Path>>(path: P) -> io::Result<()> {
+    tokio::fs::remove_dir_all(path).await
 }

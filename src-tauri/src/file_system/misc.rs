@@ -1,6 +1,5 @@
-use std::fs::Metadata;
-
 use chrono::{DateTime, Utc};
+use std::fs::Metadata;
 
 pub fn is_symlink(meta: &Metadata) -> bool {
     meta.file_type().is_symlink()

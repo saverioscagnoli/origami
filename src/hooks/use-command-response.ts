@@ -38,6 +38,21 @@ type CommandPayloadMap = {
    * No data is returned, listener can be omitted.
    */
   [CommandName.PollDisks]: null;
+
+  /**
+   * @param path The path of the created entry
+   * @param isDir Whether the entry is a directory or not
+   *
+   * @returns The created entry
+   */
+  [CommandName.CreateEntry]: BasePayload<DirEntry>;
+
+  /**
+   * @param paths The paths of the deleted entries
+   *
+   * Sends data in chunks.
+   */
+  [CommandName.DeleteEntries]: BasePayload<string>;
 };
 
 /**

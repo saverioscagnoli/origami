@@ -68,7 +68,7 @@ const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
   };
 
   const onContextMenu = () => {
-    if (selected.length < 2 && selected.findIndex(e => e.path === path) === -1) {
+    if (selected.length < 2) {
       replaceSelected([entry]);
     } else {
       addSelected(entry);
