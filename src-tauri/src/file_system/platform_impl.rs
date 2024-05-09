@@ -1,27 +1,16 @@
-use std::path::Path;
+use std::fs::Metadata;
 
 #[cfg(target_os = "windows")]
-pub fn is_hidden<P: AsRef<Path>>(path: P) -> bool {
+pub fn is_hidden(meta: &Metadata) -> bool {
     use crate::consts::FILE_ATTRIBUTE_HIDDEN;
     use std::os::windows::fs::MetadataExt;
 
-    let path = path.as_ref();
-
-    let metadata = match std::fs::metadata(&path) {
-        Ok(meta) => meta,
-        Err(_) => {
-            return false;
-        }
-    };
-
-    metadata.file_attributes() & FILE_ATTRIBUTE_HIDDEN != 0
+    meta.file_attributes() & FILE_ATTRIBUTE_HIDDEN != 0
 }
 
-#[cfg(not(target_os = "windows"))]
-pub fn is_hidden<P: AsRef<Path>>(path: P) -> bool {
-    let path = path.as_ref();
+use std::ffi::OsStr;
 
-    path.file_name()
-        .map(|name| name.to_string_lossy().starts_with('.'))
-        .unwrap_or(false)
+#[cfg(not(target_os = "windows"))]
+pub fn is_hidden(name: &OsStr) -> bool {
+    name.to_string_lossy().starts_with('.')
 }

@@ -16,15 +16,29 @@ pub async fn list_dir<P: AsRef<Path>, Q: AsRef<Path>>(
 
     let mut entries: Vec<DirEntry> = dir
         .par_iter()
-        .map(|entry| {
+        .filter_map(|entry| {
+            let metadata = entry.metadata();
+
+            if metadata.is_err() {
+                return None;
+            }
+
+            let metadata = metadata.unwrap();
+
             let path = entry.path();
             let name = entry.file_name();
-            let is_dir = path.is_dir();
-            let is_hidden = platform_impl::is_hidden(&path);
-            let is_symlink = misc::is_symlink(&path);
+            let is_dir = metadata.is_dir();
+
+            #[cfg(target_os = "windows")]
+            let is_hidden = platform_impl::is_hidden(&metadata);
+
+            #[cfg(not(target_os = "windows"))]
+            let is_hidden = platform_impl::is_hidden(&name);
+
+            let is_symlink = misc::is_symlink(&metadata);
             let is_starred = starred_dir.join(&name).exists();
-            let last_modified = misc::last_modified(&path);
-            let size = file::get_size(&path);
+            let last_modified = misc::last_modified(&metadata);
+            let size = file::get_size(&metadata);
 
             let entry = DirEntry {
                 path: path.to_string_lossy().to_string(),
@@ -37,7 +51,7 @@ pub async fn list_dir<P: AsRef<Path>, Q: AsRef<Path>>(
                 size,
             };
 
-            entry
+            Some(entry)
         })
         .collect::<Vec<_>>();
 

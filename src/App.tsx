@@ -3,22 +3,33 @@ import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
 import { useCommandResponse } from "@hooks/use-command-response";
+import { invoke } from "@lib/mapped-invoke";
 import { cn } from "@lib/utils";
-import { CommandName, CommandStatus } from "@typings/enums";
+import { emit } from "@tauri-apps/api/event";
+import { CommandName, CommandStatus, FrontendEvent } from "@typings/enums";
+import { useEvent } from "@util-hooks/use-event";
 import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useEnvironment } from "@zustand/environment-store";
 import { useEffect } from "react";
 
 function App() {
-  const [setDir, setEntries] = useCurrentDir(state => [state.setDir, state.setEntries]);
+  const [setDir, setEntries] = useCurrentDir(state => [
+    state.setDir,
+    state.setEntries
+  ]);
 
   const [push, updateStatus] = useCallstack(state => [
     state.push,
     state.updateStatus
   ]);
 
+  const resolveBasicDirs = useEnvironment(state => state.resolveBasicdirs);
+
   useEffect(() => {
+    resolveBasicDirs();
     push(CommandName.ListDir, { dir: "C:\\" });
+    invoke(CommandName.PollDisks);
   }, []);
 
   useCommandResponse(CommandName.ListDir, payload => {
@@ -40,6 +51,8 @@ function App() {
       return;
     }
   });
+
+  useEvent(window, "beforeunload", () => emit(FrontendEvent.BeforeUnload));
 
   return (
     <div

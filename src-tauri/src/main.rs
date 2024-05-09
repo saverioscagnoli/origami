@@ -2,9 +2,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod consts;
+mod disks;
 mod enums;
 mod file_system;
 
+use disks::poll_disks;
 use file_system::commands::list_dir;
 
 #[tokio::main]
@@ -16,7 +18,7 @@ async fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![list_dir])
+        .invoke_handler(tauri::generate_handler![list_dir, poll_disks])
         .on_page_load(|_window, _| {
             // Open devtools in debug mode
             #[cfg(debug_assertions)]

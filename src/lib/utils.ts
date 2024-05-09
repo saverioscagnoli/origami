@@ -35,4 +35,16 @@ function formatBytes(bytes: number, decimals: number = 2): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
-export { cn, formatBytes };
+/**
+ * Returns the percentage of a part of a total.
+ *
+ * @param part The portion of the total.
+ * @param total The total value.
+ * @param decimals How many decimal places to round to.
+ * @returns A string representation of the percentage.
+ */
+function percentage(part: number, total: number, decimals: number = 0): string {
+  return parseFloat(((part / total) * 100).toFixed(decimals)) + "%";
+}
+
+export { cn, formatBytes, percentage };

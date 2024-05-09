@@ -1,27 +1,13 @@
-use std::path::Path;
+use std::fs::Metadata;
 
 use chrono::{DateTime, Utc};
 
-pub fn is_symlink<P: AsRef<Path>>(path: P) -> bool {
-    let path = path.as_ref();
-
-    match std::fs::symlink_metadata(&path) {
-        Ok(metadata) => metadata.file_type().is_symlink(),
-        Err(_) => false,
-    }
+pub fn is_symlink(meta: &Metadata) -> bool {
+    meta.file_type().is_symlink()
 }
 
-pub fn last_modified<P: AsRef<Path>>(path: P) -> String {
-    let path = path.as_ref();
-
-    let metadata = match std::fs::metadata(&path) {
-        Ok(meta) => meta,
-        Err(_) => {
-            return "Unknown".into();
-        }
-    };
-
-    let time = match metadata.modified() {
+pub fn last_modified(meta: &Metadata) -> String {
+    let time = match meta.modified() {
         Ok(time) => time,
         Err(_) => {
             return "Unknown".into();

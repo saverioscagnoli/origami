@@ -1,14 +1,9 @@
-use std::path::Path;
+use std::fs::Metadata;
 
-pub fn get_size<P: AsRef<Path>>(path: P) -> u64 {
-    let path = path.as_ref();
-
-    if path.is_dir() {
+pub fn get_size(meta: &Metadata) -> u64 {
+    if meta.is_dir() {
         return 0;
     } else {
-        match std::fs::metadata(path) {
-            Ok(metadata) => metadata.len(),
-            Err(_) => 0,
-        }
+        return meta.len();
     }
 }

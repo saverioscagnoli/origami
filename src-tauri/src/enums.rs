@@ -1,4 +1,4 @@
-use crate::file_system::DirEntry;
+use crate::{disks::Disk, file_system::DirEntry};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 
@@ -32,5 +32,53 @@ impl Command {
                 let _ = app.emit(self.as_str(), (id, data, error, is_finished));
             }
         }
+    }
+}
+
+/**
+ * This is for the events that get emitted from the backend to the frontend.
+ *
+ * The payload can be of any type, and the frontend should be able to handle it.
+ */
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum BackendEvent {
+    SendDisks(Vec<Disk>),
+}
+
+impl BackendEvent {
+    pub fn as_str(&self) -> &str {
+        match self {
+            BackendEvent::SendDisks(_) => "send_disks",
+        }
+    }
+
+    pub fn emit(&self, app: &AppHandle) {
+        match self {
+            BackendEvent::SendDisks(disks) => {
+                let _ = app.emit(self.as_str(), disks);
+            }
+        }
+    }
+}
+
+pub enum FrontendEvent {
+    BeforeUnload(),
+}
+
+impl FrontendEvent {
+    pub fn as_str(&self) -> &str {
+        match self {
+            FrontendEvent::BeforeUnload() => "before_unload",
+        }
+    }
+
+    pub fn listen<F>(&self, app: &AppHandle, callback: F) -> tauri::EventId
+    where
+        F: Fn() + Send + Sync + 'static,
+    {
+        app.listen(self.as_str(), move |_| {
+            callback();
+        })
     }
 }
