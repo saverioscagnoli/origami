@@ -4,7 +4,9 @@ import { cn } from "@lib/utils";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useRef } from "react";
+import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
+import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
   const [entries] = useCurrentDir(state => [state.entries]);
@@ -18,29 +20,33 @@ const Workspace = () => {
   });
 
   return (
-    <ScrollArea className={cn("w-full h-full")}>
-      <ScrollArea.Viewport
-        className={cn("w-full h-full", "rounded-[inherit]")}
-        ref={parentRef}
-      >
-        <div
-          className={cn("w-full", "relative")}
-          style={{ height: `${virtualizer.getTotalSize()}px` }}
+    <EmptySpaceContextMenu>
+      <ScrollArea className={cn("w-full h-full")}>
+        <ScrollArea.Viewport
+          className={cn("w-full h-full", "rounded-[inherit]")}
+          ref={parentRef}
         >
-          <For of={virtualizer.getVirtualItems()}>
-            {item => (
-              <Entry
-                key={item.key}
-                height={item.size}
-                transform={item.start}
-                {...entries.at(item.index)!}
-              />
-            )}
-          </For>
-        </div>
-        <ScrollArea.Scrollbar className={cn("mr-1")} />
-      </ScrollArea.Viewport>
-    </ScrollArea>
+          <SelectedEntriesContextMenu>
+            <div
+              className={cn("w-full", "relative")}
+              style={{ height: `${virtualizer.getTotalSize()}px` }}
+            >
+              <For of={virtualizer.getVirtualItems()}>
+                {item => (
+                  <Entry
+                    key={item.key}
+                    height={item.size}
+                    transform={item.start}
+                    {...entries.at(item.index)!}
+                  />
+                )}
+              </For>
+            </div>
+          </SelectedEntriesContextMenu>
+          <ScrollArea.Scrollbar className={cn("mr-1")} />
+        </ScrollArea.Viewport>
+      </ScrollArea>
+    </EmptySpaceContextMenu>
   );
 };
 

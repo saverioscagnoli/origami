@@ -3,7 +3,8 @@ import { DirEntry } from "@typings/dir-entry";
 import { CommandName } from "@typings/enums";
 import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { FC, MouseEventHandler, useMemo } from "react";
+import { useSettings } from "@zustand/settings-store";
+import { MouseEventHandler, memo, useMemo } from "react";
 import { EntryCheckbox } from "./checkbox";
 import { EntryFlags } from "./flags";
 import { EntryLastModified } from "./last-modified";
@@ -15,7 +16,7 @@ type EntryProps = DirEntry & {
   transform: number;
 };
 
-const Entry: FC<EntryProps> = ({ height, transform, ...entry }) => {
+const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
   const { name, path, isDir, isHidden, isSymlink, isStarred, lastModified, size } =
     entry;
 
@@ -66,6 +67,16 @@ const Entry: FC<EntryProps> = ({ height, transform, ...entry }) => {
     }
   };
 
+  const onContextMenu = () => {
+    if (selected.length < 2 && selected.findIndex(e => e.path === path) === -1) {
+      replaceSelected([entry]);
+    } else {
+      addSelected(entry);
+    }
+  };
+
+  const showCheckboxes = useSettings(state => state.showCheckboxes);
+
   return (
     <div
       className={cn(
@@ -82,9 +93,12 @@ const Entry: FC<EntryProps> = ({ height, transform, ...entry }) => {
       )}
       style={{ height, transform: `translateY(${transform}px)` }}
       onClick={onClick}
+      onContextMenu={onContextMenu}
     >
       <span className={cn("flex items-center justify-start text-start gap-1.5")}>
-        <EntryCheckbox checked={isSelected} onCheckedChange={onCheckedChange} />
+        {showCheckboxes && (
+          <EntryCheckbox checked={isSelected} onCheckedChange={onCheckedChange} />
+        )}
         <EntryName {...{ name, path, isDir }} />
       </span>
       <EntryFlags {...{ isHidden, isSymlink, isStarred }} />
@@ -92,6 +106,6 @@ const Entry: FC<EntryProps> = ({ height, transform, ...entry }) => {
       <EntrySize {...{ isDir, size }} />
     </div>
   );
-};
+});
 
 export { Entry };

@@ -1,11 +1,14 @@
-import { CallstackWrapper } from "@zustand/callstack-store";
+import { CallstackWatcher } from "@zustand/callstack-store";
+import { ThemeWatcher } from "@zustand/settings-store";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 
 import "./styles.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <CallstackWrapper>
-    <App />
-  </CallstackWrapper>
+  <ThemeWatcher>
+    <CallstackWatcher>
+      <App />
+    </CallstackWatcher>
+  </ThemeWatcher>
 );

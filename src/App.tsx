@@ -2,57 +2,53 @@ import { Bottombar } from "@components/bottombar";
 import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
-import { useCommandResponse } from "@hooks/use-command-response";
+import { startCommandListeners } from "@lib/command-listeners";
 import { invoke } from "@lib/mapped-invoke";
 import { cn } from "@lib/utils";
 import { emit } from "@tauri-apps/api/event";
-import { CommandName, CommandStatus, FrontendEvent } from "@typings/enums";
+import { BasicDirLabel, CommandName, FrontendEvent } from "@typings/enums";
 import { useEvent } from "@util-hooks/use-event";
 import { useCallstack } from "@zustand/callstack-store";
-import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEnvironment } from "@zustand/environment-store";
 import { useEffect } from "react";
 
 function App() {
-  const [setDir, setEntries] = useCurrentDir(state => [
-    state.setDir,
-    state.setEntries
+  const [basicDirs, resolveBasicDirs] = useEnvironment(state => [
+    state.basicDirs,
+    state.resolveBasicdirs
   ]);
 
-  const [push, updateStatus] = useCallstack(state => [
-    state.push,
-    state.updateStatus
-  ]);
-
-  const resolveBasicDirs = useEnvironment(state => state.resolveBasicdirs);
-
+  /**
+   * On app start.
+   * Reslve basic user directories.
+   * Start disk polling.
+   */
   useEffect(() => {
     resolveBasicDirs();
-    push(CommandName.ListDir, { dir: "C:\\" });
     invoke(CommandName.PollDisks);
   }, []);
 
-  useCommandResponse(CommandName.ListDir, payload => {
-    const [id, data, error, isFinished] = payload;
+  const push = useCallstack(state => state.push);
 
-    if (error) {
-      console.error(error);
-      updateStatus(id, CommandStatus.Error);
-      return;
+  /**
+   * On basic directories resolved (app start).
+   * Cd into home directory.
+   */
+  useEffect(() => {
+    const home = basicDirs.find(dir => dir.label === BasicDirLabel.Home);
+
+    if (home) {
+      push(CommandName.ListDir, { dir: home.path });
     }
+  }, [basicDirs]);
 
-    if (isFinished) {
-      updateStatus(id, CommandStatus.Success);
-
-      const [dir, entries] = data!;
-
-      setDir(dir);
-      setEntries(entries);
-      return;
-    }
-  });
+  /**
+   * Start command listeners.
+   */
+  startCommandListeners();
 
   useEvent(window, "beforeunload", () => emit(FrontendEvent.BeforeUnload));
+  useEvent("contextmenu", e => e.preventDefault());
 
   return (
     <div

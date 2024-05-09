@@ -3,10 +3,14 @@ import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useMemo } from "react";
 
 const Bottombar = () => {
-  const entries = useCurrentDir(state => state.entries);
+  const [entries, selected] = useCurrentDir(state => [
+    state.entries,
+    state.selected
+  ]);
 
   const total = useMemo(() => entries.length, [entries]);
   const hidden = useMemo(() => entries.filter(e => e.isHidden).length, [entries]);
+  const selectedCount = useMemo(() => selected.length, [selected]);
 
   return (
     <div
@@ -21,6 +25,7 @@ const Bottombar = () => {
     >
       <p>
         {total} Items ({hidden} Hidden)
+        {selectedCount > 0 && ` - ${selectedCount} Selected`}
       </p>
     </div>
   );

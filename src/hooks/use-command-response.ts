@@ -17,7 +17,7 @@ type BasePayload<T> = [
   /**
    * The error the command encountered, if any
    */
-  error: Error | null,
+  error: string | null,
 
   /**
    * Whether the command is finished or not
@@ -32,6 +32,12 @@ type CommandPayloadMap = {
    * @param entries The entries in the directory
    */
   [CommandName.ListDir]: BasePayload<[dir: string, entries: DirEntry[]]>;
+
+  /**
+   * Starts polling the disks.
+   * No data is returned, listener can be omitted.
+   */
+  [CommandName.PollDisks]: null;
 };
 
 /**

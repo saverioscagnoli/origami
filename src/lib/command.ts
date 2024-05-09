@@ -1,5 +1,6 @@
 import { CommandName, CommandStatus } from "@typings/enums";
-import { CommandArgsMap, invoke } from "./mapped-invoke";
+import { CommandArgsMap } from "./mapped-invoke";
+import { invoke } from "@tauri-apps/api/core";
 
 class Command<T extends CommandName> {
   private id: number;

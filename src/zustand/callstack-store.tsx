@@ -57,7 +57,7 @@ const useCallstack = create<CallstackStore>()(set => ({
   }
 }));
 
-const CallstackWrapper: FC<ChildrenProps> = ({ children }) => {
+const CallstackWatcher: FC<ChildrenProps> = ({ children }) => {
   /**
    * useEffect that watch for changes on the callstack,
    * updating it accordingly.
@@ -98,4 +98,4 @@ const CallstackWrapper: FC<ChildrenProps> = ({ children }) => {
   return <>{children}</>;
 };
 
-export { CallstackWrapper, useCallstack };
+export { CallstackWatcher, useCallstack };

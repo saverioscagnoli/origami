@@ -13,6 +13,7 @@ const BasicDirsMenuItems = () => {
     <For of={basicDirs}>
       {({ path, icon }) => (
         <Menubar.Item
+          key={path}
           leftIcon={icon}
           onSelect={() => push(CommandName.ListDir, { dir: path })}
         >
