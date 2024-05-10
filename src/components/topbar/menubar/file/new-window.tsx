@@ -1,8 +1,18 @@
 import { Menubar } from "@components/tredici";
+import { invoke } from "@lib/mapped-invoke";
 import { OpenInNewWindowIcon } from "@radix-ui/react-icons";
+import { CommandName } from "@typings/enums";
 
 const NewWindowMenuItem = () => {
-  return <Menubar.Item leftIcon={<OpenInNewWindowIcon />}>New Window</Menubar.Item>;
+  const onSelect = () => {
+    invoke(CommandName.SpawnMainWindow);
+  };
+
+  return (
+    <Menubar.Item leftIcon={<OpenInNewWindowIcon />} onSelect={onSelect}>
+      New Window
+    </Menubar.Item>
+  );
 };
 
 export { NewWindowMenuItem };

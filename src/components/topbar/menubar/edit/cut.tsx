@@ -1,8 +1,24 @@
 import { Menubar } from "@components/tredici";
 import { ScissorsIcon } from "@radix-ui/react-icons";
+import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-state-store";
+import { useMemo } from "react";
 
 const CutMenuItem = () => {
-  return <Menubar.Item leftIcon={<ScissorsIcon />}>Cut</Menubar.Item>;
+  const selected = useCurrentDir(state => state.selected);
+  const setClipboard = useGlobalStates(state => state.setClipboard);
+
+  const canCut = useMemo(() => selected.length > 0, [selected]);
+
+  const onSelect = () => {
+    setClipboard({ entries: selected, cut: true });
+  };
+
+  return (
+    <Menubar.Item leftIcon={<ScissorsIcon />} disabled={!canCut} onSelect={onSelect}>
+      Cut
+    </Menubar.Item>
+  );
 };
 
 export { CutMenuItem };

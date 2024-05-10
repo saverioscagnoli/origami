@@ -3,6 +3,7 @@ import { DirEntry } from "@typings/dir-entry";
 import { CommandName } from "@typings/enums";
 import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-state-store";
 import { useSettings } from "@zustand/settings-store";
 import { MouseEventHandler, memo, useMemo } from "react";
 import { EntryCheckbox } from "./checkbox";
@@ -79,6 +80,16 @@ const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
 
   const showCheckboxes = useSettings(state => state.showCheckboxes);
 
+  const clipboard = useGlobalStates(state => state.clipboard);
+
+  const inClipboard = useMemo(
+    () => clipboard.entries.findIndex(e => e.path === path) !== -1,
+    [clipboard]
+  );
+
+  const isCutting = useMemo(() => inClipboard && clipboard.cut, [clipboard]);
+  const isCopying = useMemo(() => inClipboard && !clipboard.cut, [clipboard]);
+
   return (
     <div
       className={cn(
@@ -87,6 +98,7 @@ const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
         "grid grid-cols-[1.25fr,1fr,1fr,1fr] items-center gap-6",
         "px-2",
         "text-sm",
+        "cursor-default",
         {
           "hover:bg-[--gray-3]": !isSelected,
           "bg-[--gray-4]": isSelected
@@ -103,7 +115,7 @@ const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
         )}
         <EntryName {...{ name, path, isDir }} />
       </span>
-      <EntryFlags {...{ isHidden, isSymlink, isStarred }} />
+      <EntryFlags {...{ isHidden, isSymlink, isStarred, isCutting, isCopying }} />
       <EntryLastModified lastModified={lastModified} />
       <EntrySize {...{ isDir, size }} />
     </div>

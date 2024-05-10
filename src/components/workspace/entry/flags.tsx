@@ -1,21 +1,21 @@
 import { cn } from "@lib/utils";
-import { ArrowLeftIcon, EyeClosedIcon, StarFilledIcon } from "@radix-ui/react-icons";
+import { ArrowLeftIcon, ClipboardIcon, EyeClosedIcon, ScissorsIcon, StarFilledIcon } from "@radix-ui/react-icons";
 import { FC } from "react";
 
 type EntryFlagsProps = {
   isHidden: boolean;
   isSymlink: boolean;
   isStarred: boolean;
-  //   isCutting: boolean;
-  //   isCopying: boolean;
+  isCutting: boolean;
+  isCopying: boolean;
 };
 
 const EntryFlags: FC<EntryFlagsProps> = ({
   isHidden,
   isSymlink,
-  isStarred
-  //   isCutting,
-  //   isCopying
+  isStarred,
+  isCutting,
+  isCopying
 }) => {
   return (
     <span className={cn("flex items-center gap-2")}>
@@ -43,8 +43,8 @@ const EntryFlags: FC<EntryFlagsProps> = ({
         <StarFilledIcon />
       </span>
 
-      {/* <span
-        className={cn("hidden", {
+      <span
+        className={cn("invisible", {
           "visible": isCutting
         })}
       >
@@ -52,12 +52,12 @@ const EntryFlags: FC<EntryFlagsProps> = ({
       </span>
 
       <span
-        className={cn("hidden", {
+        className={cn("invisible", {
           "visible": isCopying
         })}
       >
         <ClipboardIcon />
-      </span> */}
+      </span>
     </span>
   );
 };

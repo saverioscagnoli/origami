@@ -71,6 +71,16 @@ type CommandPayloadMap = {
    * (Sent in chunks)
    */
   [CommandName.PasteEntries]: BasePayload<DirEntry>;
+
+  /**
+   * Doesnt return anything.
+   */
+  [CommandName.SpawnMainWindow]: null;
+
+  /**
+   * Doesnt return anything.
+   */
+  [CommandName.CloseAllWindows]: null;
 };
 
 /**

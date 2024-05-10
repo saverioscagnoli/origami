@@ -43,8 +43,21 @@ type CommandArgsMap = {
    * Paste entries
    * @param paths - Paths to paste
    * @param dest - Destination path
+   * @param cut - Whether the entries were cut
    */
-  [CommandName.PasteEntries]: { paths: string[]; dest: string };
+  [CommandName.PasteEntries]: { paths: string[]; dest: string; cut: boolean };
+
+  /**
+   * Spawns another window.
+   * No args needed
+   */
+  [CommandName.SpawnMainWindow]: null;
+
+  /**
+   * Closes all windows and exits the app.
+   * No args needed.
+   */
+  [CommandName.CloseAllWindows]: null;
 };
 
 async function invoke<K extends CommandName>(

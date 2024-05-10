@@ -4,9 +4,12 @@
 //                            //
 ////////////////////////////////
 
+import { copyEntriesHotkey } from "./copy-entries";
 import { createNewDirHotkey } from "./create-dir";
 import { createNewFileHotkey } from "./create-file";
+import { cutEntriesHotkey } from "./cut-entries";
 import { deleteEntriesHotkey } from "./delete-entries";
+import { pasteEntriesHotkey } from "./paste-entries";
 import { reloadHotkey } from "./reload";
 import { renameEntryHotkey } from "./rename-entry";
 import { selectAllHotkey } from "./select-all";
@@ -29,6 +32,9 @@ function startHotkeyListeners() {
   toggleHiddenHotkey();
   toggleCheckboxesHotkey();
   renameEntryHotkey();
+  copyEntriesHotkey();
+  cutEntriesHotkey();
+  pasteEntriesHotkey();
 }
 
 export { startHotkeyListeners };

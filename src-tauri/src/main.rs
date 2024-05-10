@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod app_window;
 mod consts;
 mod disks;
 mod enums;
@@ -10,6 +11,7 @@ use disks::poll_disks;
 use file_system::commands::{
     create_entry, delete_entries, list_dir, open_files, paste_entries, rename_entry,
 };
+use app_window::{spawn_main_window, close_all_windows};
 
 #[tokio::main]
 async fn main() {
@@ -27,7 +29,9 @@ async fn main() {
             open_files,
             paste_entries,
             rename_entry,
-            poll_disks
+            poll_disks,
+            spawn_main_window,
+            close_all_windows
         ])
         .on_page_load(|_window, _| {
             #[cfg(debug_assertions)]

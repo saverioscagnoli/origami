@@ -5,7 +5,10 @@ enum CommandName {
   DeleteEntries = "delete_entries",
   RenameEntry = "rename_entry",
   OpenFiles = "open_files",
-  PasteEntries = "paste_entries"
+  PasteEntries = "paste_entries",
+
+  SpawnMainWindow = "spawn_main_window",
+  CloseAllWindows = "close_all_windows"
 }
 
 enum CommandStatus {

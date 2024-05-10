@@ -15,11 +15,11 @@ const PasteMenuItem = () => {
     state.setClipboard
   ]);
 
-  const canPaste = useMemo(() => clipboard.entries.length > 0, [clipboard.entries]);
+  const canPaste = useMemo(() => clipboard.entries.length > 0, [clipboard]);
 
   const onSelect = () => {
     const paths = clipboard.entries.map(e => e.path);
-    push(CommandName.PasteEntries, { paths, dest: dir });
+    push(CommandName.PasteEntries, { paths, dest: dir, cut: clipboard.cut });
     setClipboard({ entries: [], cut: false });
   };
 

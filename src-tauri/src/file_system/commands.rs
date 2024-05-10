@@ -161,7 +161,7 @@ pub async fn open_files(app: AppHandle, paths: Vec<String>, id: u64) {
 }
 
 #[tauri::command]
-pub async fn paste_entries(app: AppHandle, paths: Vec<String>, dest: String, id: u64) {
+pub async fn paste_entries(app: AppHandle, paths: Vec<String>, dest: String, cut: bool, id: u64) {
     let path_resolver = app.path();
     let starred_dir = path_resolver
         .app_config_dir()
@@ -188,9 +188,17 @@ pub async fn paste_entries(app: AppHandle, paths: Vec<String>, dest: String, id:
             }
 
             let res = if from.is_dir() {
-                dir::copy_dir(&from, &to).await
+                if cut {
+                    misc::rename_entry(&from, &to).await
+                } else {
+                    dir::copy_dir(&from, &to).await
+                }
             } else {
-                file::copy_file(&from, &to).await
+                if cut {
+                    misc::rename_entry(&from, &to).await
+                } else {
+                    file::copy_file(&from, &to).await
+                }
             };
 
             match res {
