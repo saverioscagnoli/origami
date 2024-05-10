@@ -7,7 +7,9 @@ mod enums;
 mod file_system;
 
 use disks::poll_disks;
-use file_system::commands::{create_entry, delete_entries, list_dir, open_files, rename_entry};
+use file_system::commands::{
+    create_entry, delete_entries, list_dir, open_files, paste_entries, rename_entry,
+};
 
 #[tokio::main]
 async fn main() {
@@ -23,13 +25,14 @@ async fn main() {
             delete_entries,
             list_dir,
             open_files,
+            paste_entries,
             rename_entry,
             poll_disks
         ])
         .on_page_load(|_window, _| {
-            // Open devtools in debug mode
             #[cfg(debug_assertions)]
             {
+                // Open devtools in debug mode
                 _window.open_devtools();
             }
         })

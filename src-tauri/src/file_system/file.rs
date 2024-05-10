@@ -15,3 +15,7 @@ pub async fn create_file<P: AsRef<Path>>(path: P) -> io::Result<()> {
 pub async fn delete_file<P: AsRef<Path>>(path: P) -> io::Result<()> {
     tokio::fs::remove_file(path).await
 }
+
+pub async fn copy_file<P: AsRef<Path>, Q: AsRef<Path>>(from: P, to: Q) -> io::Result<()> {
+    tokio::fs::copy(from, to).await.map(|_| ())
+}

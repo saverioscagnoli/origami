@@ -38,6 +38,13 @@ type CommandArgsMap = {
    * @param paths - Paths to open
    */
   [CommandName.OpenFiles]: { paths: string[] };
+
+  /**
+   * Paste entries
+   * @param paths - Paths to paste
+   * @param dest - Destination path
+   */
+  [CommandName.PasteEntries]: { paths: string[]; dest: string };
 };
 
 async function invoke<K extends CommandName>(

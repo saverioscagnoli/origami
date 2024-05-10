@@ -104,6 +104,12 @@ pub async fn delete_entries(app: AppHandle, paths: Vec<String>, id: u64) {
 
 #[tauri::command]
 pub async fn rename_entry(app: AppHandle, old_path: String, new_name: String, id: u64) {
+    let path_resolver = app.path();
+    let starred_dir = path_resolver
+        .app_config_dir()
+        .unwrap()
+        .join(STARRED_DIR_NAME);
+
     tokio::spawn(async move {
         let old_path_buf = Path::new(&old_path);
         let new_path = old_path_buf.with_file_name(&new_name);
@@ -112,13 +118,7 @@ pub async fn rename_entry(app: AppHandle, old_path: String, new_name: String, id
 
         match res {
             Ok(_) => {
-                let path_resolver = app.path();
-                let starred_dir = path_resolver
-                    .app_config_dir()
-                    .unwrap()
-                    .join(STARRED_DIR_NAME);
-
-                let entry = file_system::into_entry(&new_path, starred_dir).unwrap();
+                let entry = file_system::into_entry(&new_path, &starred_dir).unwrap();
                 Command::RenameEntry(id, Some((old_path.clone(), entry)), None, true).emit(&app);
 
                 log::info!("Renamed entry: {:?} to {:?}", old_path, new_path);
@@ -154,6 +154,61 @@ pub async fn open_files(app: AppHandle, paths: Vec<String>, id: u64) {
                 Err(err) => {
                     Command::OpenFiles(id, None, Some(err.to_string()), is_last).emit(&app);
                     log::error!("Failed to open file: {:?}", path);
+                }
+            }
+        }
+    });
+}
+
+#[tauri::command]
+pub async fn paste_entries(app: AppHandle, paths: Vec<String>, dest: String, id: u64) {
+    let path_resolver = app.path();
+    let starred_dir = path_resolver
+        .app_config_dir()
+        .unwrap()
+        .join(STARRED_DIR_NAME);
+
+    tokio::spawn(async move {
+        for (i, path) in paths.iter().enumerate() {
+            let is_last = i == paths.len() - 1;
+            let from = Path::new(&path);
+            let mut to = Path::new(&dest).join(from.file_name().unwrap());
+
+            let mut counter = 1;
+
+            while to.exists() {
+                let mut new_name = to.file_stem().unwrap().to_os_string();
+                new_name.push(format!(" ({})", counter));
+                if let Some(extension) = to.extension() {
+                    new_name.push(".");
+                    new_name.push(extension);
+                }
+                to.set_file_name(new_name);
+                counter += 1;
+            }
+
+            let res = if from.is_dir() {
+                dir::copy_dir(&from, &to).await
+            } else {
+                file::copy_file(&from, &to).await
+            };
+
+            match res {
+                Ok(_) => {
+                    let entry = file_system::into_entry(&to, &starred_dir).unwrap();
+                    Command::PasteEntries(id, Some(entry), None, is_last).emit(&app);
+
+                    log::info!("Pasted entry: {:?} to {:?}", path, dest);
+                }
+
+                Err(err) => {
+                    Command::PasteEntries(id, None, Some(err.to_string()), is_last).emit(&app);
+                    log::error!(
+                        "Failed to paste entry: {:?} to {:?} - {:?}",
+                        path,
+                        dest,
+                        err
+                    );
                 }
             }
         }

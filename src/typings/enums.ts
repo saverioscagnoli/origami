@@ -4,7 +4,8 @@ enum CommandName {
   CreateEntry = "create_entry",
   DeleteEntries = "delete_entries",
   RenameEntry = "rename_entry",
-  OpenFiles = "open_files"
+  OpenFiles = "open_files",
+  PasteEntries = "paste_entries"
 }
 
 enum CommandStatus {

@@ -65,6 +65,12 @@ type CommandPayloadMap = {
    * (Sent in chunks)
    */
   [CommandName.OpenFiles]: BasePayload<string>;
+
+  /**
+   * @param entry the last pasted entry
+   * (Sent in chunks)
+   */
+  [CommandName.PasteEntries]: BasePayload<DirEntry>;
 };
 
 /**

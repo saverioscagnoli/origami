@@ -39,6 +39,12 @@ pub enum Command {
      * If not error, return the path of each file that was opened.
      */
     OpenFiles(u64, Option<String>, Option<String>, bool),
+
+    /**
+     * If not error return the current copied DirEntry
+     * (Sent in chunks)
+     */
+    PasteEntries(u64, Option<DirEntry>, Option<String>, bool),
 }
 
 impl Command {
@@ -49,6 +55,7 @@ impl Command {
             Command::DeleteEntries(_, _, _, _) => "delete_entries",
             Command::RenameEntry(_, _, _, _) => "rename_entry",
             Command::OpenFiles(_, _, _, _) => "open_files",
+            Command::PasteEntries(_, _, _, _) => "paste_entries",
         }
     }
 
@@ -68,6 +75,9 @@ impl Command {
             }
             Command::OpenFiles(id, paths, error, is_finished) => {
                 let _ = app.emit(self.as_str(), (id, paths, error, is_finished));
+            }
+            Command::PasteEntries(id, entry, error, is_finished) => {
+                let _ = app.emit(self.as_str(), (id, entry, error, is_finished));
             }
         }
     }

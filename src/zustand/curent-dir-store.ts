@@ -30,6 +30,7 @@ interface CurrentDirStore {
   setDir: (dir: string) => void;
   entries: DirEntry[];
   setEntries: (entries: DirEntry[]) => void;
+  addEntries: (entries: DirEntry[]) => void;
   removeEntries: (paths: string[]) => void;
   selected: DirEntry[];
   addSelected: (entry: DirEntry) => void;
@@ -43,6 +44,14 @@ const useCurrentDir = create<CurrentDirStore>()(set => ({
   setDir: dir => set({ dir }),
   entries: [],
   setEntries: entries => set({ entries }),
+  addEntries: entries =>
+    set(state => {
+      if (state.entries.every(e => !entries.some(en => en.path === e.path))) {
+        return { entries: [...state.entries, ...entries] };
+      }
+
+      return state;
+    }),
   removeEntries: paths =>
     set(state => ({ entries: state.entries.filter(e => !paths.includes(e.path)) })),
   selected: [],

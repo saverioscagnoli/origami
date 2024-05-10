@@ -1,6 +1,6 @@
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-use super::DirEntry;
+use super::{file, DirEntry};
 use crate::consts::STARRED_DIR_NAME;
 use std::{io, path::Path};
 
@@ -38,4 +38,26 @@ pub async fn create_dir<P: AsRef<Path>>(path: P) -> io::Result<()> {
 
 pub async fn delete_dir<P: AsRef<Path>>(path: P) -> io::Result<()> {
     tokio::fs::remove_dir_all(path).await
+}
+
+pub async fn copy_dir<P: AsRef<Path>, Q: AsRef<Path>>(path: P, to: Q) -> io::Result<()> {
+    let mut stack = vec![path.as_ref().to_path_buf()];
+
+    while let Some(from) = stack.pop() {
+        let to = to.as_ref().join(from.strip_prefix(path.as_ref()).unwrap());
+
+        if from.is_dir() {
+            tokio::fs::create_dir(&to).await?;
+            
+            stack.extend(
+                std::fs::read_dir(&from)?
+                    .map(|entry| entry.unwrap().path())
+                    .collect::<Vec<_>>(),
+            );
+        } else {
+            file::copy_file(&from, &to).await?;
+        }
+    }
+
+    Ok(())
 }
