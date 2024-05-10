@@ -19,7 +19,7 @@ function deleteEntriesHotkey() {
   useHotkey(
     Key.Delete,
     e => {
-      if (isHotkeyInvalid(renaming, creating, e.repeat)) return;
+      if (isHotkeyInvalid({ renaming, creating, repeat: e.repeat })) return;
 
       e.preventDefault();
 

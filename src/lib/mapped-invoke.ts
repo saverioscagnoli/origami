@@ -25,6 +25,13 @@ type CommandArgsMap = {
    * @param paths - Paths to delete
    */
   [CommandName.DeleteEntries]: { paths: string[] };
+
+  /**
+   * Renames an entry IN THE CURRENT DIRECTORY
+   * @param oldPath - Old path
+   * @param newName - New name
+   */
+  [CommandName.RenameEntry]: { oldPath: string; newName: string };
 };
 
 async function invoke<K extends CommandName>(

@@ -21,7 +21,7 @@ function selectAllHotkey() {
     [Modifier.Ctrl],
     Key.A,
     e => {
-      if (isHotkeyInvalid(renaming, creating, e.repeat)) return;
+      if (isHotkeyInvalid({ renaming, creating, repeat: e.repeat })) return;
 
       e.preventDefault();
       replaceSelected(entries);

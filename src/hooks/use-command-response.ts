@@ -53,6 +53,12 @@ type CommandPayloadMap = {
    * Sends data in chunks.
    */
   [CommandName.DeleteEntries]: BasePayload<string>;
+
+  /**
+   * @param oldPath The old path of the renamed entry
+   * @param newEntry The new entry
+   */
+  [CommandName.RenameEntry]: BasePayload<[oldPath: string, newEntry: DirEntry]>;
 };
 
 /**

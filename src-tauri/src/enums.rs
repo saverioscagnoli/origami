@@ -29,6 +29,11 @@ pub enum Command {
      * Used to update the frontend, instead of listing the directory again.
      */
     DeleteEntries(u64, Option<String>, Option<String>, bool),
+
+    /**
+     * If not error, returns the old path and the new DirEntry.
+     */
+    RenameEntry(u64, Option<(String, DirEntry)>, Option<String>, bool),
 }
 
 impl Command {
@@ -37,6 +42,7 @@ impl Command {
             Command::ListDir(_, _, _, _) => "list_dir",
             Command::CreateEntry(_, _, _, _) => "create_entry",
             Command::DeleteEntries(_, _, _, _) => "delete_entries",
+            Command::RenameEntry(_, _, _, _) => "rename_entry",
         }
     }
 
@@ -50,6 +56,9 @@ impl Command {
             }
             Command::DeleteEntries(id, deleted, errors, is_finished) => {
                 let _ = app.emit(self.as_str(), (id, deleted, errors, is_finished));
+            }
+            Command::RenameEntry(id, path, error, is_finished) => {
+                let _ = app.emit(self.as_str(), (id, path, error, is_finished));
             }
         }
     }

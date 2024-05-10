@@ -19,7 +19,7 @@ function createNewFileHotkey() {
     [Modifier.Ctrl],
     Key.N,
     e => {
-      if (isHotkeyInvalid(renaming, creating, e.repeat)) return;
+      if (isHotkeyInvalid({ renaming, creating, repeat: e.repeat })) return;
 
       e.preventDefault();
       setCreating({ state: true, isDir: false });

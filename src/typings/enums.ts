@@ -2,7 +2,8 @@ enum CommandName {
   PollDisks = "poll_disks",
   ListDir = "list_dir",
   CreateEntry = "create_entry",
-  DeleteEntries = "delete_entries"
+  DeleteEntries = "delete_entries",
+  RenameEntry = "rename_entry"
 }
 
 enum CommandStatus {

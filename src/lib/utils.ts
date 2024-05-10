@@ -63,12 +63,16 @@ function percentage(part: number, total: number, decimals: number = 0): string {
  * @param repeat If the hotkey is being repeated
  * @returns a boolean indicating if the hotkey is valid
  */
-function isHotkeyInvalid(
-  renaming: DirEntry | null = {} as DirEntry,
-  creating: CreatingState = {} as CreatingState,
-  repeat: boolean = true
-) {
-  return renaming || creating.state || repeat;
+function isHotkeyInvalid(args: {
+  renaming?: DirEntry | null;
+  creating?: CreatingState;
+  repeat?: boolean;
+}) {
+  args.renaming ?? {};
+  args.creating ?? {};
+  args.repeat ?? false;
+
+  return args.renaming || args.creating?.state || args.repeat;
 }
 
 export { cn, formatBytes, isHotkeyInvalid, percentage };

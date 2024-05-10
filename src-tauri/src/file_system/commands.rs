@@ -1,5 +1,5 @@
-use super::{dir, file};
-use crate::{consts::STARRED_DIR_NAME, enums::Command};
+use super::{dir, file, misc};
+use crate::{consts::STARRED_DIR_NAME, enums::Command, file_system};
 use std::path::Path;
 use tauri::{AppHandle, Manager};
 
@@ -97,6 +97,41 @@ pub async fn delete_entries(app: AppHandle, paths: Vec<String>, id: u64) {
                     Command::DeleteEntries(id, None, Some(err.to_string()), is_last).emit(&app);
                     log::error!("Failed to delete entry: {:?}", path);
                 }
+            }
+        }
+    });
+}
+
+#[tauri::command]
+pub async fn rename_entry(app: AppHandle, old_path: String, new_name: String, id: u64) {
+    tokio::spawn(async move {
+        let old_path_buf = Path::new(&old_path);
+        let new_path = old_path_buf.with_file_name(&new_name);
+
+        let res = misc::rename_entry(&old_path, &new_path).await;
+
+        match res {
+            Ok(_) => {
+                let path_resolver = app.path();
+                let starred_dir = path_resolver
+                    .app_config_dir()
+                    .unwrap()
+                    .join(STARRED_DIR_NAME);
+
+                let entry = file_system::into_entry(&new_path, starred_dir).unwrap();
+                Command::RenameEntry(id, Some((old_path.clone(), entry)), None, true).emit(&app);
+
+                log::info!("Renamed entry: {:?} to {:?}", old_path, new_path);
+            }
+
+            Err(err) => {
+                Command::RenameEntry(id, None, Some(err.to_string()), true).emit(&app);
+                log::error!(
+                    "Failed to rename entry: {:?} to {:?} - {:?}",
+                    old_path,
+                    new_path,
+                    err
+                );
             }
         }
     });

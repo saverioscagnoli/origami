@@ -3,7 +3,8 @@ import { ScrollArea } from "@components/tredici";
 import { cn } from "@lib/utils";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { useRef } from "react";
+import { useSettings } from "@zustand/settings-store";
+import { useMemo, useRef } from "react";
 import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
 import { SelectedEntriesContextMenu } from "./selected";
@@ -13,8 +14,19 @@ const Workspace = () => {
 
   const parentRef = useRef<HTMLDivElement>(null);
 
+  const showHidden = useSettings(state => state.showHidden);
+
+  /**
+   * Filter entries, based on:
+   * - Hidden files
+   */
+  const filtered = useMemo(
+    () => entries.filter(e => !e.isHidden || showHidden),
+    [entries, showHidden]
+  );
+
   const virtualizer = useVirtualizer({
-    count: entries.length,
+    count: filtered.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 24
   });
@@ -32,14 +44,18 @@ const Workspace = () => {
               style={{ height: `${virtualizer.getTotalSize()}px` }}
             >
               <For of={virtualizer.getVirtualItems()}>
-                {item => (
-                  <Entry
-                    key={item.key}
-                    height={item.size}
-                    transform={item.start}
-                    {...entries.at(item.index)!}
-                  />
-                )}
+                {item => {
+                  const entry = filtered.at(item.index)!;
+
+                  return (
+                    <Entry
+                      key={entry.path}
+                      height={item.size}
+                      transform={item.start}
+                      {...entry}
+                    />
+                  );
+                }}
               </For>
             </div>
           </SelectedEntriesContextMenu>
