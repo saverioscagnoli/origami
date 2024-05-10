@@ -3,7 +3,8 @@ enum CommandName {
   ListDir = "list_dir",
   CreateEntry = "create_entry",
   DeleteEntries = "delete_entries",
-  RenameEntry = "rename_entry"
+  RenameEntry = "rename_entry",
+  OpenFiles = "open_files"
 }
 
 enum CommandStatus {

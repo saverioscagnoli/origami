@@ -59,6 +59,12 @@ type CommandPayloadMap = {
    * @param newEntry The new entry
    */
   [CommandName.RenameEntry]: BasePayload<[oldPath: string, newEntry: DirEntry]>;
+
+  /**
+   * @param path The path of the opened file
+   * (Sent in chunks)
+   */
+  [CommandName.OpenFiles]: BasePayload<string>;
 };
 
 /**

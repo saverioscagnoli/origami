@@ -1,6 +1,7 @@
 import { createEntryListen } from "./create-entry";
 import { deleteEntriesListen } from "./delete-entries";
 import { listDirListen } from "./list-dir";
+import { openFilesListen } from "./open-files";
 import { renameEntryListen } from "./rename-entry";
 
 ////////////////////////////////
@@ -23,6 +24,7 @@ function startCommandListeners() {
   createEntryListen();
   deleteEntriesListen();
   renameEntryListen();
+  openFilesListen();
 }
 
 export { startCommandListeners };

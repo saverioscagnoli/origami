@@ -34,6 +34,11 @@ pub enum Command {
      * If not error, returns the old path and the new DirEntry.
      */
     RenameEntry(u64, Option<(String, DirEntry)>, Option<String>, bool),
+
+    /**
+     * If not error, return the path of each file that was opened.
+     */
+    OpenFiles(u64, Option<String>, Option<String>, bool),
 }
 
 impl Command {
@@ -43,6 +48,7 @@ impl Command {
             Command::CreateEntry(_, _, _, _) => "create_entry",
             Command::DeleteEntries(_, _, _, _) => "delete_entries",
             Command::RenameEntry(_, _, _, _) => "rename_entry",
+            Command::OpenFiles(_, _, _, _) => "open_files",
         }
     }
 
@@ -59,6 +65,9 @@ impl Command {
             }
             Command::RenameEntry(id, path, error, is_finished) => {
                 let _ = app.emit(self.as_str(), (id, path, error, is_finished));
+            }
+            Command::OpenFiles(id, paths, error, is_finished) => {
+                let _ = app.emit(self.as_str(), (id, paths, error, is_finished));
             }
         }
     }

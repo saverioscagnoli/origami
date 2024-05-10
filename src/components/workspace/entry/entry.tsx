@@ -55,6 +55,8 @@ const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
     } else if (e.detail === 2) {
       if (isDir) {
         push(CommandName.ListDir, { dir: path });
+      } else {
+        push(CommandName.OpenFiles, { paths: [path] });
       }
     }
   };

@@ -1,4 +1,4 @@
-use super::{dir, file, misc};
+use super::{dir, file, misc, platform_impl};
 use crate::{consts::STARRED_DIR_NAME, enums::Command, file_system};
 use std::path::Path;
 use tauri::{AppHandle, Manager};
@@ -132,6 +132,29 @@ pub async fn rename_entry(app: AppHandle, old_path: String, new_name: String, id
                     new_path,
                     err
                 );
+            }
+        }
+    });
+}
+
+#[tauri::command]
+pub async fn open_files(app: AppHandle, paths: Vec<String>, id: u64) {
+    tokio::spawn(async move {
+        for (i, path) in paths.iter().enumerate() {
+            let is_last = i == paths.len() - 1;
+
+            let res = platform_impl::open_file(&path);
+
+            match res {
+                Ok(_) => {
+                    Command::OpenFiles(id, Some(path.to_string()), None, is_last).emit(&app);
+                    log::info!("Opened file: {:?}", path);
+                }
+
+                Err(err) => {
+                    Command::OpenFiles(id, None, Some(err.to_string()), is_last).emit(&app);
+                    log::error!("Failed to open file: {:?}", path);
+                }
             }
         }
     });

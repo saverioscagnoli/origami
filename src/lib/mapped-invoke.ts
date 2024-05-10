@@ -32,6 +32,12 @@ type CommandArgsMap = {
    * @param newName - New name
    */
   [CommandName.RenameEntry]: { oldPath: string; newName: string };
+
+  /**
+   * Open files
+   * @param paths - Paths to open
+   */
+  [CommandName.OpenFiles]: { paths: string[] };
 };
 
 async function invoke<K extends CommandName>(
