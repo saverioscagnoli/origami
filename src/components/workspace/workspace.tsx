@@ -1,20 +1,18 @@
-import { For } from "@components/for";
 import { ScrollArea } from "@components/tredici";
 import { cn } from "@lib/utils";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useSettings } from "@zustand/settings-store";
-import { useMemo, useRef } from "react";
+import { ComponentPropsWithoutRef, forwardRef, useMemo, useState } from "react";
+import { Virtuoso, VirtuosoGrid } from "react-virtuoso";
 import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
 import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
   const entries = useCurrentDir(state => state.entries);
+  const [view, showHidden] = useSettings(s => [s.view, s.showHidden]);
 
-  const parentRef = useRef<HTMLDivElement>(null);
-
-  const showHidden = useSettings(state => state.showHidden);
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
 
   /**
    * Filter entries, based on:
@@ -25,45 +23,71 @@ const Workspace = () => {
     [entries, showHidden]
   );
 
-  const virtualizer = useVirtualizer({
-    count: filtered.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 24
-  });
-
   return (
     <EmptySpaceContextMenu>
-      <ScrollArea className={cn("w-full h-full")}>
+      <ScrollArea className={cn("w-full h-full", "relative")} id="workspace">
         <ScrollArea.Viewport
           className={cn("w-full h-full", "rounded-[inherit]")}
-          ref={parentRef}
+          ref={setScrollRef}
         >
-          <SelectedEntriesContextMenu>
-            <div
-              className={cn("w-full", "relative")}
-              style={{ height: `${virtualizer.getTotalSize()}px` }}
-            >
-              <For of={virtualizer.getVirtualItems()}>
-                {item => {
-                  const entry = filtered.at(item.index)!;
-
-                  return (
-                    <Entry
-                      key={entry.path}
-                      height={item.size}
-                      transform={item.start}
-                      {...entry}
-                    />
-                  );
-                }}
-              </For>
-            </div>
-          </SelectedEntriesContextMenu>
+          {view === "list" ? (
+            <Virtuoso
+              data={filtered}
+              totalCount={filtered.length}
+              fixedItemHeight={24}
+              customScrollParent={scrollRef ?? undefined}
+              itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
+              components={listComponents}
+            />
+          ) : (
+            <VirtuosoGrid
+              data={filtered}
+              totalCount={filtered.length}
+              customScrollParent={scrollRef ?? undefined}
+              itemContent={(_, entry) => (
+                <SelectedEntriesContextMenu>
+                  <Entry key={entry.name} {...entry} />
+                </SelectedEntriesContextMenu>
+              )}
+              components={gridComponents}
+            />
+          )}
           <ScrollArea.Scrollbar className={cn("mr-1")} />
         </ScrollArea.Viewport>
       </ScrollArea>
     </EmptySpaceContextMenu>
   );
+};
+
+const listComponents = {
+  List: forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>((props, ref) => {
+    return (
+      <SelectedEntriesContextMenu>
+        <div {...props} ref={ref} />
+      </SelectedEntriesContextMenu>
+    );
+  })
+};
+
+const gridComponents = {
+  List: forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>(
+    ({ className, children, ...props }, ref) => (
+      <div className={cn("flex flex-wrap", className)} {...props} ref={ref}>
+        {children}
+      </div>
+    )
+  ),
+  Item: forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>(
+    ({ className, children, ...props }, ref) => (
+      <div
+        className={cn("flex flex-none content-stretch", "p-3", className)}
+        {...props}
+        ref={ref}
+      >
+        {children}
+      </div>
+    )
+  )
 };
 
 export { Workspace };

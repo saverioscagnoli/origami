@@ -11,27 +11,51 @@ type EntryNameProps = {
   isDir: boolean;
 };
 
-const EntryName: FC<EntryNameProps> = ({ name, path: _, isDir }) => {
+const ListEntryName: FC<EntryNameProps> = ({ name, path, isDir }) => {
   return (
-    <RenamePopover name={name}>
-      <span className={cn("flex items-center gap-1.5")}>
+    <span className={cn("flex items-center gap-1.5")}>
+      <RenamePopover name={name}>
         <span className={cn("min-w-4")}>
           {isDir ? (
             <FolderIcon />
           ) : (
-            fileIconMap.get(name.split(".").pop()!) ?? (
-              <FileIcon className="w-full h-full" />
-            )
+            fileIconMap.get(name.split(".").pop().toLowerCase()) ?? <FileIcon />
           )}
         </span>
-        <p
-          className={cn("w-32 md:w-40 lg:w-52 xl:w-64", "curso-default", "truncate")}
-        >
-          {name}
-        </p>
-      </span>
-    </RenamePopover>
+      </RenamePopover>
+      <p
+        className={cn("w-32 md:w-40 lg:w-52 xl:w-64", "cursor-default", "truncate")}
+      >
+        {name}
+      </p>
+    </span>
   );
 };
 
-export { EntryName };
+const GridEntryName: FC<EntryNameProps> = ({ name, path, isDir }) => {
+  return (
+    <span
+      className={cn(
+        "w-full h-full",
+        "flex flex-col items-center justify-center gap-2"
+      )}
+    >
+      <span className={"w-16 h-16"}>
+        {isDir ? (
+          <FolderIcon className={cn("w-full h-full")} />
+        ) : (
+          fileIconMap.get(name.split(".").pop().toLowerCase()) ?? (
+            <FileIcon className={cn("w-full h-full")} />
+          )
+        )}
+      </span>
+      <RenamePopover name={name}>
+        <p className={cn("w-full", "cursor-default", "truncate", "text-center")}>
+          {name}
+        </p>
+      </RenamePopover>
+    </span>
+  );
+};
+
+export { GridEntryName, ListEntryName };

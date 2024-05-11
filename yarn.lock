@@ -901,19 +901,7 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.17.2.tgz#5a2d08b81e8064b34242d5cc9973ef8dd1e60503"
   integrity sha512-TGGO7v7qOq4CYmSBVEYpI1Y5xDuCEnbVC5Vth8mOsW0gDSzxNrVERPc790IGHsrT2dQSimgMr9Ub3Y1Jci5/8w==
 
-"@tanstack/react-virtual@^3.5.0":
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-virtual/-/react-virtual-3.5.0.tgz#873b5b77cf78af563a4a11e6251ed51ee8868132"
-  integrity sha512-rtvo7KwuIvqK9zb0VZ5IL7fiJAEnG+0EiFZz8FUOs+2mhGqdGmjKIaT1XU7Zq0eFqL0jonLlhbayJI/J2SA/Bw==
-  dependencies:
-    "@tanstack/virtual-core" "3.5.0"
-
-"@tanstack/virtual-core@3.5.0":
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/virtual-core/-/virtual-core-3.5.0.tgz#108208d0f1d75271300bc5560cf9a85a1fa01e89"
-  integrity sha512-KnPRCkQTyqhanNC0K63GBG3wA8I+D1fQuVnAvcBF8f13akOKeQp1gSbu6f77zCxhEk727iV5oQnbHLYzHrECLg==
-
-"@tauri-apps/api@2.0.0-beta.11", "@tauri-apps/api@>=2.0.0-beta.0":
+"@tauri-apps/api@>=2.0.0-beta.0":
   version "2.0.0-beta.11"
   resolved "https://registry.yarnpkg.com/@tauri-apps/api/-/api-2.0.0-beta.11.tgz#7ec6f6f007da4e55315270619448ce39fd11b4e3"
   integrity sha512-wJRY+fBUm3KpqZDHMIz5HRv+1vlnvRJ/dFxiyY3NlINTx2qXqDou5qWYcP1CuZXsd39InWVPV3FAZvno/kGCkA==
@@ -984,13 +972,6 @@
     "@tauri-apps/cli-win32-ia32-msvc" "2.0.0-beta.16"
     "@tauri-apps/cli-win32-x64-msvc" "2.0.0-beta.16"
 
-"@tauri-apps/plugin-shell@>=2.0.0-beta.0":
-  version "2.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-shell/-/plugin-shell-2.0.0-beta.3.tgz#1e1abd0b2d61f9bb3a24d69dc9cc639d7e3753c3"
-  integrity sha512-iSFKUJzmdBE194J0q2O3nWgO86tApVsB9kKD4UkB4YNGTIz09hgeXsOIEo3bMfJEmQe54H/zPBzPo9TeuZZFGA==
-  dependencies:
-    "@tauri-apps/api" "2.0.0-beta.11"
-
 "@types/babel__core@^7.20.5":
   version "7.20.5"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.20.5.tgz#3df15f27ba85319caa07ba08d0721889bb39c017"
@@ -1060,11 +1041,6 @@
   integrity sha512-XBNjzbERUErsmpw9slzGXa+8b9HByHhviof5ALnAuD4LIC4q86DF/t39ioZ6ngYP/Xv4spo0Caa4/JwcLmLeJA==
   dependencies:
     "@util-hooks/use-event" "^1.0.8"
-
-"@util-hooks/use-tauri-event@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@util-hooks/use-tauri-event/-/use-tauri-event-1.0.0.tgz#f39597f90444fd586b0dcf1c67fc573db8ab1669"
-  integrity sha512-IJmWT1zMV2AkaU96X5WIL6Mz+28ppflSyl/iJYZAkOzsYKO/QfeeDQm8DQ0xw3fPyEEYp18NNyiwFitYwKoAhQ==
 
 "@vitejs/plugin-react@^4.2.1":
   version "4.2.1"
@@ -1872,6 +1848,11 @@ react-style-singleton@^2.2.1:
     get-nonce "^1.0.0"
     invariant "^2.2.4"
     tslib "^2.0.0"
+
+react-virtuoso@^4.7.10:
+  version "4.7.10"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-4.7.10.tgz#6d4e951d4a62b57f012e411fbb8a16ff84d3732b"
+  integrity sha512-l+fnBf/G1Fp6pHCnhFq2Ra4lkZtT6c5XrS9rCS0OA6de7WGLZviCo0y61CUZZG79TeAw3L7O4czeNPiqh9CIrg==
 
 react@^18.2.0:
   version "18.3.1"

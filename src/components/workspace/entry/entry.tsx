@@ -9,15 +9,10 @@ import { MouseEventHandler, memo, useMemo } from "react";
 import { EntryCheckbox } from "./checkbox";
 import { EntryFlags } from "./flags";
 import { EntryLastModified } from "./last-modified";
-import { EntryName } from "./name";
+import { GridEntryName, ListEntryName } from "./name";
 import { EntrySize } from "./size";
 
-type EntryProps = DirEntry & {
-  height: number;
-  transform: number;
-};
-
-const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
+const Entry = memo<DirEntry>(entry => {
   const { name, path, isDir, isHidden, isSymlink, isStarred, lastModified, size } =
     entry;
 
@@ -78,7 +73,7 @@ const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
     }
   };
 
-  const showCheckboxes = useSettings(state => state.showCheckboxes);
+  const [view, showCheckboxes] = useSettings(s => [s.view, s.showCheckboxes]);
 
   const clipboard = useGlobalStates(state => state.clipboard);
 
@@ -90,11 +85,10 @@ const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
   const isCutting = useMemo(() => inClipboard && clipboard.cut, [clipboard]);
   const isCopying = useMemo(() => inClipboard && !clipboard.cut, [clipboard]);
 
-  return (
+  return view === "list" ? (
     <div
       className={cn(
-        "w-full",
-        "absolute top-0 left-0",
+        "w-full h-6",
         "grid grid-cols-[1.25fr,1fr,1fr,1fr] items-center gap-6",
         "px-2",
         "text-sm",
@@ -105,7 +99,6 @@ const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
         },
         "group"
       )}
-      style={{ height, transform: `translateY(${transform}px)` }}
       onClick={onClick}
       onContextMenu={onContextMenu}
     >
@@ -113,11 +106,34 @@ const Entry = memo<EntryProps>(({ height, transform, ...entry }) => {
         {showCheckboxes && (
           <EntryCheckbox checked={isSelected} onCheckedChange={onCheckedChange} />
         )}
-        <EntryName {...{ name, path, isDir }} />
+        <ListEntryName {...{ name, path, isDir }} />
       </span>
       <EntryFlags {...{ isHidden, isSymlink, isStarred, isCutting, isCopying }} />
       <EntryLastModified lastModified={lastModified} />
       <EntrySize {...{ isDir, size }} />
+    </div>
+  ) : (
+    <div
+      className={cn(
+        "w-28 h-28",
+        "p-2",
+        "rounded-sm",
+        "relative",
+        !isSelected && "hover:bg-[--gray-3]",
+        isSelected && "bg-[--gray-4]",
+        "group"
+      )}
+      onClick={onClick}
+      onContextMenu={onContextMenu}
+    >
+      {showCheckboxes && (
+        <EntryCheckbox
+          className={cn("absolute top-2 left-2")}
+          checked={isSelected}
+          onCheckedChange={onCheckedChange}
+        />
+      )}
+      <GridEntryName {...{ name, path, isDir }} />
     </div>
   );
 });
