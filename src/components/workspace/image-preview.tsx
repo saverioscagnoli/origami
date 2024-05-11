@@ -45,7 +45,9 @@ const ImagePreview = () => {
         "border  border-[--gray-6]",
         "absolute bottom-4 right-4",
         "z-40",
-        (isLoading || base64 !== "") && "!block",
+        {
+          "!block": isLoading || base64 !== ""
+        },
         "hidden"
       )}
     >
@@ -61,10 +63,7 @@ const ImagePreview = () => {
         {isLoading ? (
           <Spinner size={40} />
         ) : (
-          <img
-            src={`data:image/png;base64,${base64}`}
-            alt="preview"
-          />
+          <img src={`data:image/png;base64,${base64}`} alt="preview" />
         )}
       </span>
     </div>

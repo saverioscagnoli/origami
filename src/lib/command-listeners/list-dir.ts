@@ -2,9 +2,11 @@ import { useCommandResponse } from "@hooks/use-command-response";
 import { CommandName, CommandStatus } from "@typings/enums";
 import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-state-store";
 
 function listDirListen() {
   const updateStatus = useCallstack(state => state.updateStatus);
+  const setSearching = useGlobalStates(state => state.setSearching);
   const [setDir, setEntries, replaceSelected] = useCurrentDir(state => [
     state.setDir,
     state.setEntries,
@@ -27,6 +29,7 @@ function listDirListen() {
 
       setDir(dir);
       setEntries(entries);
+      setSearching({ query: "" });
       replaceSelected([]);
       return;
     }

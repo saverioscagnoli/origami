@@ -93,6 +93,16 @@ type CommandPayloadMap = {
    * (Sent in chunks)
    */
   [CommandName.UnstarEntries]: BasePayload<DirEntry>;
+
+  /**
+   * This command does not use the payload.
+   */
+  [CommandName.GetImageBase64]: null;
+
+  /**
+   * @param entries The filtered entries
+   */
+  [CommandName.FilterEnties]: BasePayload<DirEntry[]>;
 };
 
 /**

@@ -1,4 +1,5 @@
 import { invoke as defaultInvoke } from "@tauri-apps/api/core";
+import { DirEntry } from "@typings/dir-entry";
 import { CommandName } from "@typings/enums";
 
 type CommandArgsMap = {
@@ -76,6 +77,13 @@ type CommandArgsMap = {
    * @param path - Path to image
    */
   [CommandName.GetImageBase64]: { path: string };
+
+  /**
+   * Filter entries
+   * @param entries - Entries to filter
+   * @param query - Filter query
+   */
+  [CommandName.FilterEnties]: { entries: DirEntry[]; query: string };
 };
 
 async function invoke<K extends CommandName>(

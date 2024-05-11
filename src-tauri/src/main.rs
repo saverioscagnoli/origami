@@ -12,8 +12,8 @@ use app_windows::{close_all_windows, spawn_main_window};
 use consts::STARRED_DIR_NAME;
 use disks::poll_disks;
 use file_system::commands::{
-    create_entry, delete_entries, get_image_base64, list_dir, open_files, paste_entries,
-    rename_entry, star_entries, unstar_entries,
+    create_entry, delete_entries,  get_image_base64, list_dir, open_files,
+    paste_entries, rename_entry, star_entries, unstar_entries,
 };
 use settings::{load_settings, update_settings};
 use tauri::{AppHandle, Manager};

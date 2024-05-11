@@ -1,5 +1,5 @@
 import { DirEntry } from "@typings/dir-entry";
-import { CreatingState } from "@zustand/global-state-store";
+import { CreatingState, SearchingState } from "@zustand/global-state-store";
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -66,13 +66,42 @@ function percentage(part: number, total: number, decimals: number = 0): string {
 function isHotkeyInvalid(args: {
   renaming?: DirEntry | null;
   creating?: CreatingState;
+  searching?: SearchingState;
   repeat?: boolean;
 }) {
   args.renaming ?? {};
-  args.creating ?? {};
+  args.creating?.state ?? {};
+  args.searching?.state ?? {};
   args.repeat ?? false;
 
-  return args.renaming || args.creating?.state || args.repeat;
+  return (
+    args.renaming || args.creating?.state || args.searching?.state || args.repeat
+  );
 }
+/**
+ * Filter entries, based on a search query using a worker.
+ *
+ * @param entries The entries to filter
+ * @param query The search query
+ * @param worker The filter worker
+ * @returns A promise that resolves to the filtered entries
+ */
+const filter = async (
+  entries: DirEntry[],
+  query: string,
+  worker: Worker
+): Promise<DirEntry[]> => {
+  return new Promise((res, rej) => {
+    worker.postMessage([entries, query]);
 
-export { cn, formatBytes, isHotkeyInvalid, percentage };
+    worker.onmessage = e => {
+      res(e.data);
+    };
+
+    worker.onerror = e => {
+      rej(e);
+    };
+  });
+};
+
+export { cn, filter, formatBytes, isHotkeyInvalid, percentage };

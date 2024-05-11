@@ -8,6 +8,7 @@ enum CommandName {
   PasteEntries = "paste_entries",
   StarEntries = "star_entries",
   UnstarEntries = "unstar_entries",
+  FilterEnties = "filter_entries",
 
   SpawnMainWindow = "spawn_main_window",
   CloseAllWindows = "close_all_windows",

@@ -31,6 +31,11 @@ type CreatingState = {
   isDir: boolean;
 };
 
+type SearchingState = {
+  state: boolean;
+  query: string;
+};
+
 interface GlobalStatesStore {
   clipboard: Clipboard;
   setClipboard: (clipboard: Clipboard) => void;
@@ -38,6 +43,8 @@ interface GlobalStatesStore {
   setCreating: (creating: Partial<CreatingState>) => void;
   renaming: DirEntry | null;
   setRenaming: (renaming: DirEntry | null) => void;
+  searching: SearchingState;
+  setSearching: (searching: Partial<SearchingState>) => void;
 }
 
 const useGlobalStates = create<GlobalStatesStore>(set => ({
@@ -47,8 +54,11 @@ const useGlobalStates = create<GlobalStatesStore>(set => ({
   setCreating: creating =>
     set(state => ({ creating: { ...state.creating, ...creating } })),
   renaming: null,
-  setRenaming: renaming => set({ renaming })
+  setRenaming: renaming => set({ renaming }),
+  searching: { state: false, query: "" },
+  setSearching: searching =>
+    set(state => ({ searching: { ...state.searching, ...searching } }))
 }));
 
 export { useGlobalStates };
-export type { Clipboard, CreatingState, GlobalStatesStore };
+export type { Clipboard, CreatingState, GlobalStatesStore, SearchingState };

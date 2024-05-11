@@ -1,28 +1,55 @@
 import { ScrollArea } from "@components/tredici";
-import { cn } from "@lib/utils";
+import FilterWorker from "@lib/search-worker?worker";
+import { cn, filter } from "@lib/utils";
+import { DirEntry } from "@typings/dir-entry";
 import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-state-store";
 import { useSettings } from "@zustand/settings-store";
-import { ComponentPropsWithoutRef, forwardRef, useMemo, useState } from "react";
+import {
+  ComponentPropsWithoutRef,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 import { Virtuoso, VirtuosoGrid } from "react-virtuoso";
 import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
-import { SelectedEntriesContextMenu } from "./selected";
 import { ImagePreview } from "./image-preview";
+import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
   const entries = useCurrentDir(state => state.entries);
   const [view, showHidden] = useSettings(s => [s.view, s.showHidden]);
+  const searching = useGlobalStates(state => state.searching);
 
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
 
   /**
-   * Filter entries, based on:
-   * - Hidden files
+   * Create a second state for filtered entries.
    */
-  const filtered = useMemo(
-    () => entries.filter(e => !e.isHidden || showHidden),
-    [entries, showHidden]
-  );
+  const [filtered, setFiltered] = useState<DirEntry[]>(entries);
+
+  /**
+   * Define the web worker for filtering entries.
+   */
+  const worker = useMemo(() => new FilterWorker(), []);
+
+  /**
+   * Every time any of the dependencies change, filter the entries.
+   * The first if filter even if the searching state if off, to make
+   * filtered entries remain the when the user presses enter, so they can access them using the keyboard, or when the click
+   * on the entries they dont reset
+   */
+  useEffect(() => {
+    let filtered = entries.filter(e => showHidden || !e.isHidden);
+
+    if (searching.state || searching.query !== "") {
+      filter(filtered, searching.query, worker).then(setFiltered);
+    } else {
+      setFiltered(filtered);
+    }
+  }, [entries, showHidden, searching]);
 
   return (
     <EmptySpaceContextMenu>

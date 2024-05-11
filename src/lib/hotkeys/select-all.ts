@@ -15,18 +15,22 @@ function selectAllHotkey() {
     state.replaceSelected
   ]);
 
-  const [creating, renaming] = useGlobalStates(s => [s.creating, s.renaming]);
-
+  const [renaming, creating, searching] = useGlobalStates(state => [
+    state.renaming,
+    state.creating,
+    state.searching
+  ]);
   useHotkey(
     [Modifier.Ctrl],
     Key.A,
     e => {
-      if (isHotkeyInvalid({ renaming, creating, repeat: e.repeat })) return;
+      if (isHotkeyInvalid({ renaming, creating, searching, repeat: e.repeat }))
+        return;
 
       e.preventDefault();
       replaceSelected(entries);
     },
-    [entries, selected, creating, renaming]
+    [entries, selected, creating, renaming, searching]
   );
 }
 

@@ -10,22 +10,24 @@ import { useGlobalStates } from "@zustand/global-state-store";
 
 function cutEntriesHotkey() {
   const selected = useCurrentDir(state => state.selected);
-  const [renaming, creating, setClipboard] = useGlobalStates(s => [
-    s.renaming,
-    s.creating,
-    s.setClipboard
+  const [renaming, creating, searching, setClipboard] = useGlobalStates(state => [
+    state.renaming,
+    state.creating,
+    state.searching,
+    state.setClipboard
   ]);
 
   useHotkey(
     [Modifier.Ctrl],
     Key.X,
     e => {
-      if (isHotkeyInvalid({ renaming, creating, repeat: e.repeat })) return;
+      if (isHotkeyInvalid({ renaming, creating, searching, repeat: e.repeat }))
+        return;
 
       e.preventDefault();
       setClipboard({ entries: selected, cut: true });
     },
-    [selected, creating, renaming]
+    [selected, creating, renaming, searching]
   );
 }
 

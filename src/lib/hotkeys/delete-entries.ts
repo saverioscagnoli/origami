@@ -14,19 +14,24 @@ import { useGlobalStates } from "@zustand/global-state-store";
 function deleteEntriesHotkey() {
   const push = useCallstack(state => state.push);
   const selected = useCurrentDir(state => state.selected);
-  const [renaming, creating] = useGlobalStates(s => [s.renaming, s.creating]);
+  const [renaming, creating, searching] = useGlobalStates(state => [
+    state.renaming,
+    state.creating,
+    state.searching
+  ]);
 
   useHotkey(
     Key.Delete,
     e => {
-      if (isHotkeyInvalid({ renaming, creating, repeat: e.repeat })) return;
+      if (isHotkeyInvalid({ renaming, creating, searching, repeat: e.repeat }))
+        return;
 
       e.preventDefault();
 
       const paths = selected.map(entry => entry.path);
       push(CommandName.DeleteEntries, { paths });
     },
-    [selected, renaming, creating]
+    [selected, renaming, creating, searching]
   );
 }
 

@@ -9,22 +9,23 @@ import { useGlobalStates } from "@zustand/global-state-store";
  */
 
 function createNewFileHotkey() {
-  const [creating, setCreating, renaming] = useGlobalStates(s => [
-    s.creating,
-    s.setCreating,
-    s.renaming
+  const [renaming, creating, searching, setCreating] = useGlobalStates(state => [
+    state.renaming,
+    state.creating,
+    state.searching,
+    state.setCreating
   ]);
-
   useHotkey(
     [Modifier.Ctrl],
     Key.N,
     e => {
-      if (isHotkeyInvalid({ renaming, creating, repeat: e.repeat })) return;
+      if (isHotkeyInvalid({ renaming, creating, searching, repeat: e.repeat }))
+        return;
 
       e.preventDefault();
       setCreating({ state: true, isDir: false });
     },
-    [creating, renaming]
+    [creating, renaming, searching]
   );
 }
 

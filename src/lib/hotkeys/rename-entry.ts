@@ -9,10 +9,11 @@ import { useGlobalStates } from "@zustand/global-state-store";
  * @default F2
  */
 function renameEntryHotkey() {
-  const [renaming, setRenaming, creating] = useGlobalStates(s => [
-    s.renaming,
-    s.setRenaming,
-    s.creating
+  const [renaming, creating, searching, setRenaming] = useGlobalStates(state => [
+    state.renaming,
+    state.creating,
+    state.searching,
+    state.setRenaming
   ]);
 
   const selected = useCurrentDir(state => state.selected);
@@ -21,13 +22,14 @@ function renameEntryHotkey() {
     Key.F2,
     e => {
       e.preventDefault();
-      if (isHotkeyInvalid({ renaming, creating, repeat: e.repeat })) return;
+      if (isHotkeyInvalid({ renaming, creating, searching, repeat: e.repeat }))
+        return;
 
       if (selected.length === 1) {
         setRenaming(selected.at(0)!);
       }
     },
-    [renaming, creating, selected]
+    [renaming, creating, selected, searching]
   );
 }
 
