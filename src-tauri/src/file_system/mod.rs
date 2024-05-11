@@ -21,7 +21,6 @@ pub struct DirEntry {
 
 use std::path::Path;
 
-
 /**
  * Converts a path to a DirEntry.
  */
@@ -70,4 +69,51 @@ pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(path: P, starred_dir: Q) -> Op
     };
 
     Some(entry)
+}
+
+use std::io;
+
+pub fn copy_items_with_progress<P: AsRef<Path>, Q: AsRef<Path>, R: AsRef<Path>, F, G>(
+    from: Vec<P>,
+    to: Q,
+    starred_dir: R,
+    mut callback: F,
+    mut on_entry_copied: G,
+) -> io::Result<()>
+where
+    F: FnMut(u64, usize) + Sync + Send,
+    G: FnMut(DirEntry, bool) + Sync + Send,
+{
+    let to = to.as_ref();
+    let total_size: u64 = from.iter().map(|path| dir::get_size(path)).sum();
+
+    let mut copied_size = 0;
+
+    for (i, path) in from.iter().enumerate() {
+        let path = path.as_ref();
+        let name = path.file_name().unwrap();
+        let new_path = to.join(name);
+
+        let mut current_copied_size = 0;
+
+        if path.is_dir() {
+            dir::copy_dir_with_progress(path, &new_path, |_total, copied| {
+                current_copied_size = copied;
+                callback(total_size, copied_size + current_copied_size);
+            })?;
+        } else {
+            file::copy_file_with_progress(path, &new_path, |_total, copied| {
+                current_copied_size = copied;
+                callback(total_size, copied_size + current_copied_size);
+            });
+        }
+
+        copied_size += current_copied_size;
+
+        let new_path = to.join(name);
+        let entry = into_entry(new_path, &starred_dir).unwrap();
+        on_entry_copied(entry, i == from.len() - 1);
+    }
+
+    Ok(())
 }

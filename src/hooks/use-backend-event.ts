@@ -1,6 +1,7 @@
+import { getCurrent } from "@tauri-apps/api/webview";
 import { Disk } from "@typings/disk";
 import { BackendEvent } from "@typings/enums";
-import { buildMappedTauriEventHook } from "@util-hooks/use-tauri-event";
+import { DependencyList, useEffect } from "react";
 
 type BackendEventMap = {
   /**
@@ -8,8 +9,33 @@ type BackendEventMap = {
    * The payload is an array of disks, used to update the view.
    */
   [BackendEvent.SendDisks]: Disk[];
+
+  /**
+   * This event is emitted when a copy operation is in progress.
+   */
+  [BackendEvent.CopyProgress]: [total: number, copied: number];
+
+  /**
+   * This event is emitted when a copy operation is over.
+   * The payload is the time it took to copy the files.
+   */
+  [BackendEvent.CopyOver]: number;
 };
 
-const useBackendEvent = buildMappedTauriEventHook<BackendEventMap>();
+function useBackendEvent<K extends BackendEvent>(
+  event: K,
+  cb: (payload: BackendEventMap[K]) => void,
+  deps: DependencyList = []
+) {
+  useEffect(() => {
+    const promise = getCurrent().listen<BackendEventMap[K]>(event, event =>
+      cb(event.payload)
+    );
+
+    return () => {
+      promise.then(dispose => dispose());
+    };
+  }, deps);
+}
 
 export { useBackendEvent };

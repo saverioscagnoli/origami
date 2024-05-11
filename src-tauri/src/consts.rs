@@ -11,3 +11,6 @@ pub const POLL_DISKS_INTERVAL_SECONDS: u64 = 1;
 #[cfg(target_os = "windows")]
 /* Create no window flag for windows, for example when executing a command via Command::new */
 pub const FLAG_CREATE_NO_WINDOW: u32 = 0x08000000;
+
+/* Copy size threshold, files bigger than this size will be copied in a separate thread */
+pub const COPY_SIZE_THRESHOLD: u64 = 500000000;

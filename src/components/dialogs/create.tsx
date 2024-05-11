@@ -1,5 +1,8 @@
+import { FolderIcon } from "@components/icons";
 import { Dialog, Input } from "@components/tredici";
+import { fileIconMap } from "@lib/file-icon-map";
 import { cn } from "@lib/utils";
+import { FileIcon } from "@radix-ui/react-icons";
 import { join } from "@tauri-apps/api/path";
 import { CommandName } from "@typings/enums";
 import { useCallstack } from "@zustand/callstack-store";
@@ -34,10 +37,12 @@ const CreateDialog = () => {
 
   const onKeyDown: KeyboardEventHandler = async e => {
     if (e.key === "Enter") {
-      const path = await join(dir, name);
-      push(CommandName.CreateEntry, { path, isDir });
+      if (name !== "") {
+        const path = await join(dir, name);
+        push(CommandName.CreateEntry, { path, isDir });
+        setName("");
+      }
 
-      setName("");
       setCreating({ state: false });
     }
   };
@@ -46,14 +51,25 @@ const CreateDialog = () => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className={cn("w-1/3")}>
         <Dialog.Title>Create {isDir ? "Folder" : "File"}</Dialog.Title>
-        <Input
-          className={cn("mt-2", "font-normal")}
-          spellCheck={false}
-          value={name}
-          onValueChange={setName}
-          onKeyDown={onKeyDown}
-          ref={inputRef}
-        />
+        <div className={cn("flex items-center gap-4", "mt-2")}>
+          <span className={cn("w-10 h-10")}>
+            {isDir ? (
+              <FolderIcon className={cn("w-full h-full")} />
+            ) : (
+              fileIconMap.get(name.split(".").pop() ?? "") ?? (
+                <FileIcon className={cn("w-full h-full")} />
+              )
+            )}
+          </span>
+          <Input
+            className={cn("w-full", "font-normal")}
+            spellCheck={false}
+            value={name}
+            onValueChange={setName}
+            onKeyDown={onKeyDown}
+            ref={inputRef}
+          />
+        </div>
         <Dialog.Close />
       </Dialog.Content>
     </Dialog>

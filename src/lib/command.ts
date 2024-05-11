@@ -1,6 +1,7 @@
+import { invoke } from "@tauri-apps/api/core";
+import { getCurrent } from "@tauri-apps/api/window";
 import { CommandName, CommandStatus } from "@typings/enums";
 import { CommandArgsMap } from "./mapped-invoke";
-import { invoke } from "@tauri-apps/api/core";
 
 class Command<T extends CommandName> {
   private id: number;
@@ -28,7 +29,9 @@ class Command<T extends CommandName> {
   }
 
   public invoke() {
-    invoke.bind(this)(this.name, { ...this.args, id: this.getID() });
+    const { label } = getCurrent();
+
+    invoke.bind(this)(this.name, { ...this.args, id: this.getID(), label });
   }
 
   public isFinished(): boolean {

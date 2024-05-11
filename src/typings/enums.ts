@@ -24,7 +24,9 @@ enum FrontendEvent {
 }
 
 enum BackendEvent {
-  SendDisks = "send_disks"
+  SendDisks = "send_disks",
+  CopyProgress  = "copy_progress",
+  CopyOver = "copy_over",
 }
 
 enum BasicDirLabel {

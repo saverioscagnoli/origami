@@ -1,4 +1,4 @@
-import { listen } from "@tauri-apps/api/event";
+import { getCurrent } from "@tauri-apps/api/webview";
 import { DirEntry } from "@typings/dir-entry";
 import { CommandName } from "@typings/enums";
 import { DependencyList, useEffect } from "react";
@@ -94,7 +94,7 @@ function useCommandResponse<K extends CommandName>(
   deps: DependencyList = []
 ) {
   useEffect(() => {
-    const promise = listen<CommandPayloadMap[K]>(command, event =>
+    const promise = getCurrent().listen<CommandPayloadMap[K]>(command, event =>
       cb(event.payload)
     );
 

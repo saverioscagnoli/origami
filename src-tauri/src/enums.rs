@@ -59,25 +59,25 @@ impl Command {
         }
     }
 
-    pub fn emit(&self, app: &AppHandle) {
+    pub fn emit(&self, app: &AppHandle, label: String) {
         match self {
             Command::ListDir(id, data, error, is_finished) => {
-                let _ = app.emit(self.as_str(), (id, data, error, is_finished));
+                let _ = app.emit_to(label, self.as_str(), (id, data, error, is_finished));
             }
             Command::CreateEntry(id, data, error, is_finished) => {
-                let _ = app.emit(self.as_str(), (id, data, error, is_finished));
+                let _ = app.emit_to(label, self.as_str(), (id, data, error, is_finished));
             }
             Command::DeleteEntries(id, deleted, errors, is_finished) => {
-                let _ = app.emit(self.as_str(), (id, deleted, errors, is_finished));
+                let _ = app.emit_to(label, self.as_str(), (id, deleted, errors, is_finished));
             }
             Command::RenameEntry(id, path, error, is_finished) => {
-                let _ = app.emit(self.as_str(), (id, path, error, is_finished));
+                let _ = app.emit_to(label, self.as_str(), (id, path, error, is_finished));
             }
             Command::OpenFiles(id, paths, error, is_finished) => {
-                let _ = app.emit(self.as_str(), (id, paths, error, is_finished));
+                let _ = app.emit_to(label, self.as_str(), (id, paths, error, is_finished));
             }
             Command::PasteEntries(id, entry, error, is_finished) => {
-                let _ = app.emit(self.as_str(), (id, entry, error, is_finished));
+                let _ = app.emit_to(label, self.as_str(), (id, entry, error, is_finished));
             }
         }
     }
@@ -92,12 +92,16 @@ impl Command {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum BackendEvent {
     SendDisks(Vec<Disk>),
+    CopyProgress(u64, usize),
+    CopyOver(u64),
 }
 
 impl BackendEvent {
     pub fn as_str(&self) -> &str {
         match self {
             BackendEvent::SendDisks(_) => "send_disks",
+            BackendEvent::CopyProgress(_, _) => "copy_progress",
+            BackendEvent::CopyOver(_) => "copy_over",
         }
     }
 
@@ -105,6 +109,26 @@ impl BackendEvent {
         match self {
             BackendEvent::SendDisks(disks) => {
                 let _ = app.emit(self.as_str(), disks);
+            }
+            BackendEvent::CopyProgress(copied, total) => {
+                let _ = app.emit(self.as_str(), (copied, total));
+            }
+            BackendEvent::CopyOver(id) => {
+                let _ = app.emit(self.as_str(), id);
+            }
+        }
+    }
+
+    pub fn emit_to(&self, app: &AppHandle, label: String) {
+        match self {
+            BackendEvent::SendDisks(disks) => {
+                let _ = app.emit_to(label, self.as_str(), disks);
+            }
+            BackendEvent::CopyProgress(copied, total) => {
+                let _ = app.emit_to(label, self.as_str(), (copied, total));
+            }
+            BackendEvent::CopyOver(id) => {
+                let _ = app.emit_to(label, self.as_str(), id);
             }
         }
     }

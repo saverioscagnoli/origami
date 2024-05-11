@@ -32,6 +32,20 @@ pub async fn list_dir<P: AsRef<Path>, Q: AsRef<Path>>(
     Ok(entries)
 }
 
+use rayon::iter::ParallelBridge;
+use walkdir::WalkDir;
+
+pub fn get_size<P: AsRef<Path>>(path: P) -> u64 {
+    let path = path.as_ref();
+
+    WalkDir::new(&path)
+        .into_iter()
+        .par_bridge()
+        .filter_map(Result::ok)
+        .map(|entry| entry.metadata().map(|metadata| metadata.len()).unwrap_or(0))
+        .sum()
+}
+
 pub async fn create_dir<P: AsRef<Path>>(path: P) -> io::Result<()> {
     tokio::fs::create_dir_all(path).await
 }
@@ -48,7 +62,7 @@ pub async fn copy_dir<P: AsRef<Path>, Q: AsRef<Path>>(path: P, to: Q) -> io::Res
 
         if from.is_dir() {
             tokio::fs::create_dir(&to).await?;
-            
+
             stack.extend(
                 std::fs::read_dir(&from)?
                     .map(|entry| entry.unwrap().path())
@@ -56,6 +70,42 @@ pub async fn copy_dir<P: AsRef<Path>, Q: AsRef<Path>>(path: P, to: Q) -> io::Res
             );
         } else {
             file::copy_file(&from, &to).await?;
+        }
+    }
+
+    Ok(())
+}
+
+pub fn copy_dir_with_progress<P: AsRef<Path>, Q: AsRef<Path>, F>(
+    from: P,
+    to: Q,
+    mut callback: F,
+) -> io::Result<()>
+where
+    F: FnMut(u64, usize) + Sync + Send,
+{
+    let from = from.as_ref();
+    let to = to.as_ref();
+
+    let total_size = get_size(from);
+    let mut total_copied_bytes: usize = 0;
+
+    for entry in WalkDir::new(from).into_iter().filter_map(|e| e.ok()) {
+        let source_path = entry.path();
+        let relative_path = source_path.strip_prefix(from).unwrap();
+        let target_path = to.join(relative_path);
+
+        if source_path.is_dir() {
+            std::fs::create_dir_all(&target_path)?;
+        } else {
+            let mut copied_bytes = 0;
+
+            file::copy_file_with_progress(source_path, &target_path, |_total, copied| {
+                copied_bytes = copied;
+                callback(total_size, total_copied_bytes + copied_bytes);
+            });
+
+            total_copied_bytes += copied_bytes;
         }
     }
 
