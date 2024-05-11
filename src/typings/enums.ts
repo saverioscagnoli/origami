@@ -10,7 +10,8 @@ enum CommandName {
   UnstarEntries = "unstar_entries",
 
   SpawnMainWindow = "spawn_main_window",
-  CloseAllWindows = "close_all_windows"
+  CloseAllWindows = "close_all_windows",
+  GetImageBase64 = "get_image_base64",
 }
 
 enum CommandStatus {

@@ -70,6 +70,12 @@ type CommandArgsMap = {
    * @param paths - Paths to unstar
    */
   [CommandName.UnstarEntries]: { paths: string[] };
+
+  /**
+   * Get image base64
+   * @param path - Path to image
+   */
+  [CommandName.GetImageBase64]: { path: string };
 };
 
 async function invoke<K extends CommandName>(

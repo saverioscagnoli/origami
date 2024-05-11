@@ -29,6 +29,7 @@ interface SettingsStore {
   view: View;
   showHidden: boolean;
   showCheckboxes: boolean;
+  loadSettings: (settings: Omit<SettingsStore, "updateSettings">) => void;
   updateSettings: (settings: Partial<Omit<SettingsStore, "updateSettings">>) => void;
 }
 
@@ -37,6 +38,9 @@ const useSettings = create<SettingsStore>()(set => ({
   view: "list",
   showCheckboxes: true,
   showHidden: false,
+  loadSettings: settings => {
+    set(state => ({ ...state, ...settings }));
+  },
   updateSettings: settings => {
     set(state => ({ ...state, ...settings }));
 
@@ -49,10 +53,14 @@ const useSettings = create<SettingsStore>()(set => ({
 }));
 
 const ThemeWatcher: FC<ChildrenProps> = ({ children }) => {
-  const [theme, updateSettings] = useSettings(s => [s.theme, s.updateSettings]);
+  const [theme, loadSettings, updateSettings] = useSettings(s => [
+    s.theme,
+    s.loadSettings,
+    s.updateSettings
+  ]);
 
   useEffect(() => {
-    invoke<SettingsStore>("load_settings").then(updateSettings);
+    invoke<SettingsStore>("load_settings").then(loadSettings);
   }, []);
 
   useEffect(() => {

@@ -7,6 +7,7 @@ import { Virtuoso, VirtuosoGrid } from "react-virtuoso";
 import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
 import { SelectedEntriesContextMenu } from "./selected";
+import { ImagePreview } from "./image-preview";
 
 const Workspace = () => {
   const entries = useCurrentDir(state => state.entries);
@@ -30,28 +31,32 @@ const Workspace = () => {
           className={cn("w-full h-full", "rounded-[inherit]")}
           ref={setScrollRef}
         >
-          {view === "list" ? (
-            <Virtuoso
-              data={filtered}
-              totalCount={filtered.length}
-              fixedItemHeight={24}
-              customScrollParent={scrollRef ?? undefined}
-              itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
-              components={listComponents}
-            />
-          ) : (
-            <VirtuosoGrid
-              data={filtered}
-              totalCount={filtered.length}
-              customScrollParent={scrollRef ?? undefined}
-              itemContent={(_, entry) => (
-                <SelectedEntriesContextMenu>
-                  <Entry key={entry.name} {...entry} />
-                </SelectedEntriesContextMenu>
-              )}
-              components={gridComponents}
-            />
-          )}
+          <>
+            {view === "list" ? (
+              <Virtuoso
+                data={filtered}
+                totalCount={filtered.length}
+                fixedItemHeight={24}
+                customScrollParent={scrollRef ?? undefined}
+                itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
+                components={listComponents}
+              />
+            ) : (
+              <VirtuosoGrid
+                data={filtered}
+                totalCount={filtered.length}
+                customScrollParent={scrollRef ?? undefined}
+                itemContent={(_, entry) => (
+                  <SelectedEntriesContextMenu>
+                    <Entry key={entry.name} {...entry} />
+                  </SelectedEntriesContextMenu>
+                )}
+                components={gridComponents}
+              />
+            )}
+            <ImagePreview />
+          </>
+
           <ScrollArea.Scrollbar className={cn("mr-1")} />
         </ScrollArea.Viewport>
       </ScrollArea>

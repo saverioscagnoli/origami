@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose, Engine};
 use chrono::{DateTime, Utc};
 use std::{fs::Metadata, io, path::Path};
 
@@ -23,4 +24,8 @@ pub async fn rename_entry<P: AsRef<Path>, Q: AsRef<Path>>(
     new_path: Q,
 ) -> io::Result<()> {
     tokio::fs::rename(old_path, new_path).await
+}
+
+pub async fn image_to_base64(img: Vec<u8>) -> String {
+    general_purpose::STANDARD.encode(&img)
 }

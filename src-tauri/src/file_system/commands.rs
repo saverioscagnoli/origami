@@ -404,3 +404,12 @@ pub async fn unstar_entries(app: AppHandle, paths: Vec<String>, id: u64, label: 
         }
     });
 }
+
+#[tauri::command]
+pub async fn get_image_base64(path: String) -> Result<String, ()> {
+    let image = std::fs::read(&path).map_err(|_| ())?;
+
+    let base64 = misc::image_to_base64(image).await;
+
+    Ok(base64)
+}
