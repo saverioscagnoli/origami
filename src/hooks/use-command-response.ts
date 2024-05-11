@@ -81,6 +81,18 @@ type CommandPayloadMap = {
    * Doesnt return anything.
    */
   [CommandName.CloseAllWindows]: null;
+
+  /**
+   * @param entry The starred entry
+   * (Sent in chunks)
+   */
+  [CommandName.StarEntries]: BasePayload<DirEntry>;
+
+  /**
+   * @param entry The unstarred entry
+   * (Sent in chunks)
+   */
+  [CommandName.UnstarEntries]: BasePayload<DirEntry>;
 };
 
 /**

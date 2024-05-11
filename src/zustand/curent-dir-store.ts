@@ -17,6 +17,8 @@ import { create } from "zustand";
  * @property {function} setDir - A function to set the current directory path.
  * @property {DirEntry[]} entries - The list of entries in the current directory.
  * @property {function} setEntries - A function to set the list of entries in the current directory.
+ * @property {function} replaceEntries - A function to replace an entry in the current directory.
+ * @property {function} addEntries - A function to add entries to the current directory.
  * @property {function} removeEntries - A function to remove entries from the current directory.
  * @property {DirEntry[]} selected - The list of selected entries in the current directory.
  * @property {function} addSelected - A function to add an entry to the selected list.
@@ -30,6 +32,7 @@ interface CurrentDirStore {
   setDir: (dir: string) => void;
   entries: DirEntry[];
   setEntries: (entries: DirEntry[]) => void;
+  replaceEntries: (entries: DirEntry[]) => void;
   addEntries: (entries: DirEntry[]) => void;
   removeEntries: (paths: string[]) => void;
   selected: DirEntry[];
@@ -44,6 +47,22 @@ const useCurrentDir = create<CurrentDirStore>()(set => ({
   setDir: dir => set({ dir }),
   entries: [],
   setEntries: entries => set({ entries }),
+  replaceEntries: entries => {
+    set(state => {
+      const oldEntries = [...state.entries];
+
+      for (const entry of entries) {
+        const index = oldEntries.findIndex(e => e.path === entry.path);
+
+        if (index !== -1) {
+          oldEntries[index] = entry;
+        }
+      }
+
+      return { entries: oldEntries };
+    });
+  },
+
   addEntries: entries =>
     set(state => {
       if (state.entries.every(e => !entries.some(en => en.path === e.path))) {

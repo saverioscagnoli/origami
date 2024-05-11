@@ -45,6 +45,18 @@ pub enum Command {
      * (Sent in chunks)
      */
     PasteEntries(u64, Option<DirEntry>, Option<String>, bool),
+
+    /**
+     * If not error, returns the current copied DirEntry
+     * (Sent in chunks)
+     */
+    StarEntries(u64, Option<DirEntry>, Option<String>, bool),
+
+    /**
+     * If not error, returns the current copied DirEntry
+     * (Sent in chunks)
+     */
+    UnstarEntries(u64, Option<DirEntry>, Option<String>, bool),
 }
 
 impl Command {
@@ -56,6 +68,8 @@ impl Command {
             Command::RenameEntry(_, _, _, _) => "rename_entry",
             Command::OpenFiles(_, _, _, _) => "open_files",
             Command::PasteEntries(_, _, _, _) => "paste_entries",
+            Command::StarEntries(_, _, _, _) => "star_entries",
+            Command::UnstarEntries(_, _, _, _) => "unstar_entries",
         }
     }
 
@@ -78,6 +92,12 @@ impl Command {
             }
             Command::PasteEntries(id, entry, error, is_finished) => {
                 let _ = app.emit_to(label, self.as_str(), (id, entry, error, is_finished));
+            }
+            Command::StarEntries(id, path, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (id, path, error, is_finished));
+            }
+            Command::UnstarEntries(id, path, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (id, path, error, is_finished));
             }
         }
     }

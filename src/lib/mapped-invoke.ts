@@ -58,6 +58,18 @@ type CommandArgsMap = {
    * No args needed.
    */
   [CommandName.CloseAllWindows]: null;
+
+  /**
+   * Adds entries to starred list.
+   * @param paths - Paths to star
+   */
+  [CommandName.StarEntries]: { paths: string[] };
+
+  /**
+   * Removes entries from starred list.
+   * @param paths - Paths to unstar
+   */
+  [CommandName.UnstarEntries]: { paths: string[] };
 };
 
 async function invoke<K extends CommandName>(

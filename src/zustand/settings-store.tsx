@@ -1,3 +1,4 @@
+import { invoke } from "@tauri-apps/api/core";
 import { ChildrenProps } from "@typings/props";
 import { FC, useEffect } from "react";
 import { create } from "zustand";
@@ -36,11 +37,23 @@ const useSettings = create<SettingsStore>()(set => ({
   view: "list",
   showCheckboxes: true,
   showHidden: false,
-  updateSettings: settings => set(state => ({ ...state, ...settings }))
+  updateSettings: settings => {
+    set(state => ({ ...state, ...settings }));
+
+    for (const key in settings) {
+      if (settings[key] !== undefined) {
+        invoke("update_settings", { key, value: `${settings[key]}` });
+      }
+    }
+  }
 }));
 
 const ThemeWatcher: FC<ChildrenProps> = ({ children }) => {
-  const theme = useSettings(state => state.theme);
+  const [theme, updateSettings] = useSettings(s => [s.theme, s.updateSettings]);
+
+  useEffect(() => {
+    invoke<SettingsStore>("load_settings").then(updateSettings);
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.add("light", "dark");

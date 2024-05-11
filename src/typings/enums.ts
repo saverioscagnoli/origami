@@ -6,6 +6,8 @@ enum CommandName {
   RenameEntry = "rename_entry",
   OpenFiles = "open_files",
   PasteEntries = "paste_entries",
+  StarEntries = "star_entries",
+  UnstarEntries = "unstar_entries",
 
   SpawnMainWindow = "spawn_main_window",
   CloseAllWindows = "close_all_windows"
@@ -25,8 +27,8 @@ enum FrontendEvent {
 
 enum BackendEvent {
   SendDisks = "send_disks",
-  CopyProgress  = "copy_progress",
-  CopyOver = "copy_over",
+  CopyProgress = "copy_progress",
+  CopyOver = "copy_over"
 }
 
 enum BasicDirLabel {

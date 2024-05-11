@@ -4,6 +4,8 @@ import { listDirListen } from "./list-dir";
 import { openFilesListen } from "./open-files";
 import { pasteEntriesListen } from "./paste-entries";
 import { renameEntryListen } from "./rename-entry";
+import { starEntriesListen } from "./star-entries";
+import { unstarEntryListen } from "./unstar-entry";
 
 ////////////////////////////////
 //                            //
@@ -27,6 +29,9 @@ function startCommandListeners() {
   renameEntryListen();
   openFilesListen();
   pasteEntriesListen();
+  starEntriesListen();
+  unstarEntryListen();
+  
 }
 
 export { startCommandListeners };

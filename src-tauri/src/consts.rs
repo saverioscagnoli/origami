@@ -14,3 +14,6 @@ pub const FLAG_CREATE_NO_WINDOW: u32 = 0x08000000;
 
 /* Copy size threshold, files bigger than this size will be copied in a separate thread */
 pub const COPY_SIZE_THRESHOLD: u64 = 500000000;
+
+/* Settings file name, found in the app config dir */
+pub const SETTINGS_FILE_NAME: &str = "settings.json";

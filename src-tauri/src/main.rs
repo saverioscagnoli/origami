@@ -6,12 +6,17 @@ mod consts;
 mod disks;
 mod enums;
 mod file_system;
+mod settings;
 
+use app_windows::{close_all_windows, spawn_main_window};
+use consts::STARRED_DIR_NAME;
 use disks::poll_disks;
 use file_system::commands::{
-    create_entry, delete_entries, list_dir, open_files, paste_entries, rename_entry,
+    create_entry, delete_entries, list_dir, open_files, paste_entries, rename_entry, star_entries,
+    unstar_entries,
 };
-use app_windows::{spawn_main_window, close_all_windows};
+use settings::{load_settings, update_settings};
+use tauri::{AppHandle, Manager};
 
 #[tokio::main]
 async fn main() {
@@ -29,10 +34,20 @@ async fn main() {
             open_files,
             paste_entries,
             rename_entry,
+            star_entries,
+            unstar_entries,
             poll_disks,
             spawn_main_window,
-            close_all_windows
+            close_all_windows,
+            load_settings,
+            update_settings
         ])
+        .setup(|app| {
+            let handle = app.handle();
+            init(handle);
+
+            Ok(())
+        })
         .on_page_load(|_window, _| {
             #[cfg(debug_assertions)]
             {
@@ -42,4 +57,13 @@ async fn main() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn init(app: &AppHandle) {
+    let path = app.path();
+    let starred_dir = path.app_config_dir().unwrap().join(STARRED_DIR_NAME);
+
+    if !starred_dir.exists() {
+        std::fs::create_dir_all(&starred_dir).unwrap();
+    }
 }

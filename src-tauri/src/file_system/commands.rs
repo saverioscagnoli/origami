@@ -82,6 +82,12 @@ pub async fn create_entry(app: AppHandle, path: String, is_dir: bool, id: u64, l
 pub async fn delete_entries(app: AppHandle, paths: Vec<String>, id: u64, label: String) {
     let label_clone = label.clone();
 
+    let path_resolver = app.path();
+    let starred_dir = path_resolver
+        .app_config_dir()
+        .unwrap()
+        .join(STARRED_DIR_NAME);
+
     tokio::spawn(async move {
         for (i, path) in paths.iter().enumerate() {
             let path_buf = Path::new(&path);
@@ -94,6 +100,16 @@ pub async fn delete_entries(app: AppHandle, paths: Vec<String>, id: u64, label: 
             } else {
                 file::delete_file(&path).await
             };
+
+            let starred_path = starred_dir.join(path_buf.file_name().unwrap());
+
+            if starred_path.exists() {
+                if starred_path.is_dir() {
+                    let _ = dir::delete_dir(&starred_path).await;
+                } else {
+                    let _ = file::delete_file(&starred_path).await;
+                }
+            }
 
             match res {
                 Ok(_) => {
@@ -302,4 +318,89 @@ pub async fn paste_entries(
             }
         });
     }
+}
+
+#[tauri::command]
+pub async fn star_entries(app: AppHandle, paths: Vec<String>, id: u64, label: String) {
+    let path_resolver = app.path();
+    let starred_dir = path_resolver
+        .app_config_dir()
+        .unwrap()
+        .join(STARRED_DIR_NAME);
+
+    let label_clone = label.clone();
+
+    tokio::spawn(async move {
+        for (i, path) in paths.iter().enumerate() {
+            let path = Path::new(&path);
+            let file_name = path.file_name().unwrap();
+
+            let is_last = i == paths.len() - 1;
+
+            let starred_path = starred_dir.join(file_name);
+
+            match platform_impl::create_symlink(&path, &starred_path) {
+                Ok(_) => {
+                    let entry = file_system::into_entry(&path, &starred_dir).unwrap();
+
+                    Command::StarEntries(id, Some(entry), None, is_last)
+                        .emit(&app, label_clone.clone());
+                    log::info!("Starred entry: {:?}", path);
+                }
+
+                Err(err) => {
+                    Command::StarEntries(id, None, Some(err.to_string()), is_last)
+                        .emit(&app, label_clone.clone());
+                    log::error!("Failed to star entry: {:?} - {:?}", path, err);
+                }
+            }
+        }
+    });
+}
+
+#[tauri::command]
+pub async fn unstar_entries(app: AppHandle, paths: Vec<String>, id: u64, label: String) {
+    let path_resolver = app.path();
+    let starred_dir = path_resolver
+        .app_config_dir()
+        .unwrap()
+        .join(STARRED_DIR_NAME);
+
+    let label_clone = label.clone();
+
+    tokio::spawn(async move {
+        for (i, path) in paths.iter().enumerate() {
+            let path = Path::new(&path);
+            let file_name = path.file_name().unwrap();
+
+            let is_last = i == paths.len() - 1;
+
+            let starred_path = starred_dir.join(file_name);
+
+            let res = if starred_path.is_dir() {
+                dir::delete_dir(&starred_path).await
+            } else {
+                file::delete_file(&starred_path).await
+            };
+
+            match res {
+                Ok(_) => {
+                    Command::UnstarEntries(
+                        id,
+                        Some(file_system::into_entry(&path, &starred_dir).unwrap()),
+                        None,
+                        is_last,
+                    )
+                    .emit(&app, label_clone.clone());
+                    log::info!("Unstarred entry: {:?}", path);
+                }
+
+                Err(err) => {
+                    Command::UnstarEntries(id, None, Some(err.to_string()), is_last)
+                        .emit(&app, label_clone.clone());
+                    log::error!("Failed to unstar entry: {:?} - {:?}", path, err);
+                }
+            }
+        }
+    });
 }
