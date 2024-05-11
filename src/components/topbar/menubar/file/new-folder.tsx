@@ -1,6 +1,6 @@
 import { FolderIcon } from "@components/icons";
 import { Menubar } from "@components/tredici";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 const NewFolderMenuItem = () => {
   const setCreating = useGlobalStates(state => state.setCreating);

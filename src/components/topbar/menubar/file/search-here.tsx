@@ -1,12 +1,12 @@
 import { Menubar } from "@components/tredici";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 const SearchHereMenuItem = () => {
   const setSearching = useGlobalStates(state => state.setSearching);
 
   const onSelect = () => {
-    setSearching({ state: true });
+    setSearching({ state: true, where: "here" });
   };
 
   return (

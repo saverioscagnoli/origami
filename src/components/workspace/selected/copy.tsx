@@ -1,7 +1,7 @@
 import { ContextMenu } from "@components/tredici";
 import { CopyIcon } from "@radix-ui/react-icons";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 const CopyMenuItem = () => {
   const selected = useCurrentDir(state => state.selected);

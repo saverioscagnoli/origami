@@ -3,7 +3,7 @@ import { StarFilledIcon } from "@radix-ui/react-icons";
 import { BasicDirLabel } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEnvironment } from "@zustand/environment-store";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 import { useMemo } from "react";
 import { SearchInput } from "./search-input";
 

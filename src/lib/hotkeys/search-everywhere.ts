@@ -3,12 +3,11 @@ import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 import { useGlobalStates } from "@zustand/global-states-store";
 
 /**
- * Start searching in the current directory.
+ * Start searching everywhere.
  *
- * @default Ctrl + F
+ * @default Ctrl + Shift + F
  */
-
-function searchHereHotkey() {
+function searchEverywhereHotkey() {
   const [renaming, creating, searching, setSearching] = useGlobalStates(state => [
     state.renaming,
     state.creating,
@@ -17,7 +16,7 @@ function searchHereHotkey() {
   ]);
 
   useHotkey(
-    [Modifier.Ctrl],
+    [Modifier.Ctrl, Modifier.Shift],
     Key.F,
     e => {
       e.preventDefault();
@@ -27,11 +26,11 @@ function searchHereHotkey() {
       if (searching.state) {
         setSearching({ state: false });
       } else {
-        setSearching({ state: true, query: "", where: "here" });
+        setSearching({ state: true, query: "", where: "everywhere" });
       }
     },
     [renaming, creating, searching]
   );
 }
 
-export { searchHereHotkey };
+export { searchEverywhereHotkey };

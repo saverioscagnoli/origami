@@ -4,6 +4,7 @@ import { listDirListen } from "./list-dir";
 import { openFilesListen } from "./open-files";
 import { pasteEntriesListen } from "./paste-entries";
 import { renameEntryListen } from "./rename-entry";
+import { searchEverywhereListen } from "./search-everywhere";
 import { starEntriesListen } from "./star-entries";
 import { unstarEntryListen } from "./unstar-entry";
 
@@ -31,6 +32,7 @@ function startCommandListeners() {
   pasteEntriesListen();
   starEntriesListen();
   unstarEntryListen();
+  searchEverywhereListen();
   
 }
 

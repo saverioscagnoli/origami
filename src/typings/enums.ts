@@ -13,6 +13,8 @@ enum CommandName {
   SpawnMainWindow = "spawn_main_window",
   CloseAllWindows = "close_all_windows",
   GetImageBase64 = "get_image_base64",
+  BuildIndex = "build_index",
+  SearchEverywhere = "search_everywhere"
 }
 
 enum CommandStatus {

@@ -3,7 +3,7 @@ import { CommandName } from "@typings/enums";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 /**
  * Pastes entries IN THE CURRENT DIRECTORY

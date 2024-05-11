@@ -57,6 +57,12 @@ pub enum Command {
      * (Sent in chunks)
      */
     UnstarEntries(u64, Option<DirEntry>, Option<String>, bool),
+
+
+    /**
+     * If not error, return the found paths.
+     */
+    SearchEverywhere(u64, Option<Vec<DirEntry>>, Option<String>, bool),
 }
 
 impl Command {
@@ -70,6 +76,7 @@ impl Command {
             Command::PasteEntries(_, _, _, _) => "paste_entries",
             Command::StarEntries(_, _, _, _) => "star_entries",
             Command::UnstarEntries(_, _, _, _) => "unstar_entries",
+            Command::SearchEverywhere(_, _, _, _) => "search_everywhere",
         }
     }
 
@@ -98,6 +105,9 @@ impl Command {
             }
             Command::UnstarEntries(id, path, error, is_finished) => {
                 let _ = app.emit_to(label, self.as_str(), (id, path, error, is_finished));
+            }
+            Command::SearchEverywhere(id, paths, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (id, paths, error, is_finished));
             }
         }
     }

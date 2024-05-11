@@ -1,6 +1,6 @@
 import { isHotkeyInvalid } from "@lib/utils";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 /**
  * Create a new directory in the current directory.

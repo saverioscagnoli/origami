@@ -1,7 +1,7 @@
 import { FolderIcon } from "@components/icons";
 import { ContextMenu } from "@components/tredici";
 import { FileIcon, PlusIcon } from "@radix-ui/react-icons";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 const NewMenuItem = () => {
   const setCreating = useGlobalStates(state => state.setCreating);

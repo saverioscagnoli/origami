@@ -1,6 +1,6 @@
 import { Menubar } from "@components/tredici";
 import { FilePlusIcon } from "@radix-ui/react-icons";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 const NewFileMenuItem = () => {
   const setCreating = useGlobalStates(state => state.setCreating);

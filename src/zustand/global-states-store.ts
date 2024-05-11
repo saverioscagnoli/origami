@@ -34,6 +34,7 @@ type CreatingState = {
 type SearchingState = {
   state: boolean;
   query: string;
+  where: "here" | "everywhere";
 };
 
 interface GlobalStatesStore {
@@ -55,7 +56,7 @@ const useGlobalStates = create<GlobalStatesStore>(set => ({
     set(state => ({ creating: { ...state.creating, ...creating } })),
   renaming: null,
   setRenaming: renaming => set({ renaming }),
-  searching: { state: false, query: "" },
+  searching: { state: false, query: "", where: "here" },
   setSearching: searching =>
     set(state => ({ searching: { ...state.searching, ...searching } }))
 }));

@@ -1,5 +1,5 @@
 import { DirEntry } from "@typings/dir-entry";
-import { CreatingState, SearchingState } from "@zustand/global-state-store";
+import { CreatingState, SearchingState } from "@zustand/global-states-store";
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 

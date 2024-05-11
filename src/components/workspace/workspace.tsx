@@ -3,7 +3,7 @@ import FilterWorker from "@lib/search-worker?worker";
 import { cn, filter } from "@lib/utils";
 import { DirEntry } from "@typings/dir-entry";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 import { useSettings } from "@zustand/settings-store";
 import {
   ComponentPropsWithoutRef,
@@ -44,7 +44,7 @@ const Workspace = () => {
   useEffect(() => {
     let filtered = entries.filter(e => showHidden || !e.isHidden);
 
-    if (searching.state || searching.query !== "") {
+    if ((searching.state || searching.query !== "") && searching.where === "here") {
       filter(filtered, searching.query, worker).then(setFiltered);
     } else {
       setFiltered(filtered);

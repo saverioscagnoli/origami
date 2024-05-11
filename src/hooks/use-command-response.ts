@@ -103,6 +103,16 @@ type CommandPayloadMap = {
    * @param entries The filtered entries
    */
   [CommandName.FilterEnties]: BasePayload<DirEntry[]>;
+
+  /**
+   * This command does not use the payload.
+   */
+  [CommandName.BuildIndex]: null;
+
+  /**
+   * Returms the paths
+   */
+  [CommandName.SearchEverywhere]: BasePayload<DirEntry[]>;
 };
 
 /**

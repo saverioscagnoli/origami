@@ -1,6 +1,9 @@
 import { Input } from "@components/tredici";
 import { cn } from "@lib/utils";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { CommandName } from "@typings/enums";
+import { useCallstack } from "@zustand/callstack-store";
+import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 import { KeyboardEventHandler, useEffect, useRef } from "react";
 
 const SearchInput = () => {
@@ -8,6 +11,8 @@ const SearchInput = () => {
     state.searching,
     state.setSearching
   ]);
+
+  const setEntries = useCurrentDir(state => state.setEntries);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -29,7 +34,15 @@ const SearchInput = () => {
 
   const onKeyDown: KeyboardEventHandler = e => {
     switch (e.key) {
-      case "Enter":
+      case "Enter": {
+        stopSearching();
+
+        if (searching.where === "everywhere" && searching.query !== "") {
+          push(CommandName.SearchEverywhere, { query: searching.query });
+        }
+
+        break;
+      }
       case "Escape": {
         stopSearching();
         break;
@@ -37,7 +50,9 @@ const SearchInput = () => {
     }
   };
 
-  const onValueChange = (query: string) => {
+  const push = useCallstack(state => state.push);
+
+  const onValueChange = async (query: string) => {
     setSearching({ query });
   };
 

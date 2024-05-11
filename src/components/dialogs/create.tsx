@@ -7,7 +7,7 @@ import { join } from "@tauri-apps/api/path";
 import { CommandName } from "@typings/enums";
 import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
 
 const CreateDialog = () => {

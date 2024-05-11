@@ -1,7 +1,7 @@
 import { Menubar } from "@components/tredici";
 import { ScissorsIcon } from "@radix-ui/react-icons";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 import { useMemo } from "react";
 
 const CutMenuItem = () => {

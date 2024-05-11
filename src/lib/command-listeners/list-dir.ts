@@ -2,7 +2,7 @@ import { useCommandResponse } from "@hooks/use-command-response";
 import { CommandName, CommandStatus } from "@typings/enums";
 import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 function listDirListen() {
   const updateStatus = useCallstack(state => state.updateStatus);

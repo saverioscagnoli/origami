@@ -4,7 +4,7 @@ import { CommandName } from "@typings/enums";
 import { ChildrenProps } from "@typings/props";
 import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 import {
   FC,
   KeyboardEventHandler,

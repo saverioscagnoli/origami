@@ -28,6 +28,7 @@ function App() {
   useEffect(() => {
     resolveBasicDirs();
     invoke(CommandName.PollDisks);
+    invoke(CommandName.BuildIndex);
   }, []);
 
   const push = useCallstack(state => state.push);

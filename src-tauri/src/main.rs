@@ -5,15 +5,19 @@ mod app_windows;
 mod consts;
 mod disks;
 mod enums;
+mod file_indexing;
 mod file_system;
 mod settings;
+
+use std::thread;
 
 use app_windows::{close_all_windows, spawn_main_window};
 use consts::STARRED_DIR_NAME;
 use disks::poll_disks;
+use file_indexing::{search_everywhere, Index};
 use file_system::commands::{
-    create_entry, delete_entries,  get_image_base64, list_dir, open_files,
-    paste_entries, rename_entry, star_entries, unstar_entries,
+    create_entry, delete_entries, get_image_base64, list_dir, open_files, paste_entries,
+    rename_entry, star_entries, unstar_entries,
 };
 use settings::{load_settings, update_settings};
 use tauri::{AppHandle, Manager};
@@ -26,7 +30,6 @@ async fn main() {
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             create_entry,
             delete_entries,
@@ -41,7 +44,9 @@ async fn main() {
             spawn_main_window,
             close_all_windows,
             load_settings,
-            update_settings
+            update_settings,
+            build_index,
+            search_everywhere
         ])
         .setup(|app| {
             let handle = app.handle();
@@ -67,4 +72,13 @@ fn init(app: &AppHandle) {
     if !starred_dir.exists() {
         std::fs::create_dir_all(&starred_dir).unwrap();
     }
+}
+
+#[tauri::command]
+async fn build_index(app: AppHandle) {
+    thread::spawn(move || {
+        let index = Index::build(&app);
+
+        app.manage(index);
+    });
 }

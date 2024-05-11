@@ -1,7 +1,7 @@
 import { isHotkeyInvalid } from "@lib/utils";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 import { useCurrentDir } from "@zustand/curent-dir-store";
-import { useGlobalStates } from "@zustand/global-state-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 /**
  * Select all entries in the current directory.

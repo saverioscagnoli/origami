@@ -84,6 +84,17 @@ type CommandArgsMap = {
    * @param query - Filter query
    */
   [CommandName.FilterEnties]: { entries: DirEntry[]; query: string };
+
+  /**
+   * Build index
+   */
+  [CommandName.BuildIndex]: null;
+
+  /**
+   * Search everywhere
+   * @param query - Search query
+   */
+  [CommandName.SearchEverywhere]: { query: string };
 };
 
 async function invoke<K extends CommandName>(
