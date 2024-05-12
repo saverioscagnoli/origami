@@ -14,7 +14,8 @@ enum CommandName {
   CloseAllWindows = "close_all_windows",
   GetImageBase64 = "get_image_base64",
   BuildIndex = "build_index",
-  SearchEverywhere = "search_everywhere"
+  SearchEverywhere = "search_everywhere",
+  WatchDiskChanges = "watch_disk_changes",
 }
 
 enum CommandStatus {

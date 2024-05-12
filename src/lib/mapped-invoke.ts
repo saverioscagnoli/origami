@@ -95,6 +95,11 @@ type CommandArgsMap = {
    * @param query - Search query
    */
   [CommandName.SearchEverywhere]: { query: string };
+
+  /**
+   * Watch disk changes
+   */
+  [CommandName.WatchDiskChanges]: null;
 };
 
 async function invoke<K extends CommandName>(

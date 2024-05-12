@@ -1,4 +1,4 @@
-use crate::{disks::Disk, file_system::DirEntry};
+use crate::{disks::Disk, file_indexing::RestrictedDirEntry, file_system::DirEntry};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 
@@ -62,7 +62,7 @@ pub enum Command {
     /**
      * If not error, return the found paths.
      */
-    SearchEverywhere(u64, Option<Vec<DirEntry>>, Option<String>, bool),
+    SearchEverywhere(u64, Option<Vec<RestrictedDirEntry>>, Option<String>, bool),
 }
 
 impl Command {

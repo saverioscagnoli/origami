@@ -17,3 +17,6 @@ pub const COPY_SIZE_THRESHOLD: u64 = 500000000;
 
 /* Settings file name, found in the app config dir */
 pub const SETTINGS_FILE_NAME: &str = "settings.json";
+
+/* Index file name, found in the app config dir */
+pub const INDEX_FILE_NAME: &str = "index.json";

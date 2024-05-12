@@ -28,7 +28,7 @@ function App() {
   useEffect(() => {
     resolveBasicDirs();
     invoke(CommandName.PollDisks);
-    invoke(CommandName.BuildIndex);
+    invoke(CommandName.BuildIndex).then(() => invoke(CommandName.WatchDiskChanges));
   }, []);
 
   const push = useCallstack(state => state.push);

@@ -113,6 +113,11 @@ type CommandPayloadMap = {
    * Returms the paths
    */
   [CommandName.SearchEverywhere]: BasePayload<DirEntry[]>;
+
+  /**
+   * This command does not use the payload.
+   */
+  [CommandName.WatchDiskChanges]: null;
 };
 
 /**

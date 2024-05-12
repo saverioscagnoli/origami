@@ -20,6 +20,7 @@ type BackendEventMap = {
    * The payload is the time it took to copy the files.
    */
   [BackendEvent.CopyOver]: number;
+  
 };
 
 function useBackendEvent<K extends BackendEvent>(
