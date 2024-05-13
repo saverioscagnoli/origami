@@ -1,33 +1,40 @@
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use rayon::iter::ParallelIterator;
 
 use super::{file, DirEntry};
-use crate::consts::STARRED_DIR_NAME;
 use std::{io, path::Path};
 
-pub async fn list_dir<P: AsRef<Path>, Q: AsRef<Path>>(
+pub fn list_dir<P: AsRef<Path>, Q: AsRef<Path>, F>(
     dir: P,
-    app_config_dir: Q,
-) -> io::Result<Vec<DirEntry>> {
+    starred_dir: Q,
+    mut callback: F,
+) -> io::Result<Vec<DirEntry>>
+where
+    F: FnMut(Vec<DirEntry>) + Sync + Send,
+{
     let dir = dir.as_ref();
-    let starred_dir = app_config_dir.as_ref().join(STARRED_DIR_NAME);
+    let starred_dir = starred_dir.as_ref();
+
+    let chunk_size = 1000;
 
     let dir = std::fs::read_dir(&dir)?;
-    let dir = dir.collect::<io::Result<Vec<_>>>().unwrap();
 
-    let mut entries: Vec<DirEntry> = dir
-        .par_iter()
-        .filter_map(|entry| super::into_entry(entry.path(), &starred_dir))
-        .collect::<Vec<_>>();
+    let mut entries = Vec::new();
 
-    entries.sort_by(|a, b| {
-        if a.is_dir == b.is_dir {
-            a.name.to_lowercase().cmp(&b.name.to_lowercase())
-        } else if a.is_dir {
-            std::cmp::Ordering::Less
-        } else {
-            std::cmp::Ordering::Greater
+    for (i, entry) in dir.enumerate() {
+        let entry = entry?;
+        let path = entry.path();
+
+        let entry = super::into_entry(&path, Some(starred_dir));
+
+        if let Some(entry) = entry {
+            entries.push(entry);
         }
-    });
+
+        if i > 0 && i % chunk_size == 0 {
+            callback(entries.clone());
+            entries.clear();
+        }
+    }
 
     Ok(entries)
 }

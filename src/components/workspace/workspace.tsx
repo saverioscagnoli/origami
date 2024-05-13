@@ -49,7 +49,13 @@ const Workspace = () => {
    * on the entries they dont reset
    */
   useEffect(() => {
-    let filtered = entries.filter(e => showHidden || !e.isHidden);
+    let filtered = entries
+      .filter(e => showHidden || !e.isHidden)
+      .sort((a, b) => {
+        if (a.isDir && !b.isDir) return -1;
+        if (!a.isDir && b.isDir) return 1;
+        return a.name.localeCompare(b.name);
+      });
 
     if ((searching.state || searching.query !== "") && searching.where === "here") {
       filter(filtered, searching.query, worker).then(setFiltered);

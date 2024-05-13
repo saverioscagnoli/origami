@@ -24,9 +24,11 @@ use std::path::Path;
 /**
  * Converts a path to a DirEntry.
  */
-pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(path: P, starred_dir: Q) -> Option<DirEntry> {
+pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(
+    path: P,
+    starred_dir: Option<Q>,
+) -> Option<DirEntry> {
     let path = path.as_ref();
-    let starred_dir = starred_dir.as_ref();
 
     let metadata = path.metadata();
 
@@ -53,7 +55,11 @@ pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(path: P, starred_dir: Q) -> Op
     let is_hidden = platform_impl::is_hidden(&name);
 
     let is_symlink = misc::is_symlink(&metadata);
-    let is_starred = starred_dir.join(&name).exists();
+    let is_starred = if starred_dir.is_some() {
+        starred_dir.unwrap().as_ref().join(&name).exists()
+    } else {
+        false
+    };
     let last_modified = misc::last_modified(&metadata);
     let size = file::get_size(&metadata);
 
@@ -111,7 +117,7 @@ where
         copied_size += current_copied_size;
 
         let new_path = to.join(name);
-        let entry = into_entry(new_path, &starred_dir).unwrap();
+        let entry = into_entry(new_path, Some(&starred_dir)).unwrap();
         on_entry_copied(entry, i == from.len() - 1);
     }
 

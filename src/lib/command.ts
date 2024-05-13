@@ -20,6 +20,10 @@ class Command<T extends CommandName> {
     return this.id;
   }
 
+  public getName(): CommandName {
+    return this.name;
+  }
+
   public getStatus(): CommandStatus {
     return this.status;
   }
