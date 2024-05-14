@@ -54,6 +54,7 @@ const SearchInput = () => {
       size="sm"
       className={cn("!w-64", "!font-normal")}
       spellCheck={false}
+      autoComplete="off"
       value={searching.query}
       onValueChange={onValueChange}
       onKeyDown={onKeyDown}

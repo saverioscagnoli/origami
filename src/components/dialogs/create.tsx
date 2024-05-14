@@ -63,6 +63,7 @@ const CreateDialog = () => {
           <Input
             className={cn("w-full", "font-normal")}
             spellCheck={false}
+            autoComplete="off"
             value={name}
             onValueChange={setName}
             onKeyDown={onKeyDown}

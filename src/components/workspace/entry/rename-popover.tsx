@@ -67,9 +67,10 @@ const RenamePopover: FC<RenamePopoverProps> = ({ children, name }) => {
         <div className={cn("w-full flex items-center gap-2")}>
           <Input
             size="sm"
+            spellCheck={false}
+            autoComplete="off"
             value={value}
             onValueChange={setValue}
-            spellCheck={false}
             onKeyDown={onKeyDown}
             ref={inputRef}
           />

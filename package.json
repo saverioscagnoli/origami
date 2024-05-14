@@ -20,7 +20,6 @@
     "@radix-ui/react-popover": "^1.0.7",
     "@radix-ui/react-progress": "^1.0.3",
     "@radix-ui/react-scroll-area": "^1.0.5",
-    "@tanstack/react-virtual": "^3.5.0",
     "@tauri-apps/api": ">=2.0.0-beta.0",
     "@util-hooks/use-event": "^1.0.8",
     "@util-hooks/use-hotkey": "^2.0.0",
@@ -46,7 +45,6 @@
     "tailwindcss": "^3.4.3",
     "typescript": "^5.0.2",
     "vite": "^5.0.0",
-    "vite-plugin-chunk-split": "^0.5.0",
     "vite-tsconfig-paths": "^4.3.2"
   }
 }
