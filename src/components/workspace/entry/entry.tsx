@@ -97,6 +97,7 @@ const Entry = memo<DirEntry>(entry => {
         },
         "group"
       )}
+      draggable
       onClick={onClick}
       onContextMenu={onContextMenu}
     >

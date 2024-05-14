@@ -65,7 +65,7 @@ const Workspace = () => {
 
   return (
     <EmptySpaceContextMenu>
-      <ScrollArea className={cn("w-full h-full", "relative")} id="workspace">
+      <ScrollArea id="workspace" className={cn("w-full h-full", "relative")}     >
         <ScrollArea.Viewport
           className={cn("w-full h-full", "rounded-[inherit]")}
           ref={setScrollRef}

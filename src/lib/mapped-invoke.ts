@@ -7,8 +7,9 @@ type CommandArgsMap = {
   /**
    * List directory
    * @param dir - Directory to list
+   * @param affectsHistory - Whether this command affects history
    */
-  [CommandName.ListDir]: { dir: string };
+  [CommandName.ListDir]: { dir: string; affectsHistory?: boolean };
 
   /**
    * Poll disks

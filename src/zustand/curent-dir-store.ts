@@ -1,4 +1,6 @@
+import { invoke } from "@lib/mapped-invoke";
 import { DirEntry } from "@typings/dir-entry";
+import { CommandName } from "@typings/enums";
 import { create } from "zustand";
 
 ////////////////////////////////
@@ -40,11 +42,34 @@ interface CurrentDirStore {
   removeSelected: (entry: DirEntry) => void;
   replaceSelected: (entry: DirEntry[]) => void;
   clearSelected: () => void;
+  history: string[];
+  historyIndex: number;
+  goBack: () => void;
+  goForward: () => void;
 }
 
 const useCurrentDir = create<CurrentDirStore>()(set => ({
   dir: "",
-  setDir: dir => set({ dir }),
+  setDir: (dir: string, affectsHistory: boolean = true) =>
+    set(state => {
+      let newHistory = [...state.history];
+      let newHistoryIndex = state.historyIndex;
+
+      const existingIndex = newHistory.indexOf(dir);
+
+      if (existingIndex !== -1) {
+        newHistoryIndex = existingIndex;
+      } else {
+        if (newHistoryIndex !== newHistory.length - 1) {
+          newHistory = newHistory.slice(0, newHistoryIndex + 1);
+        }
+
+        newHistory.push(dir);
+        newHistoryIndex = newHistory.length - 1;
+      }
+
+      return { dir, history: newHistory, historyIndex: newHistoryIndex };
+    }),
   entries: [],
   setEntries: entries => set({ entries }),
   replaceEntries: entries => {
@@ -85,7 +110,35 @@ const useCurrentDir = create<CurrentDirStore>()(set => ({
   removeSelected: entry =>
     set(state => ({ selected: state.selected.filter(e => e.path !== entry.path) })),
   replaceSelected: entries => set({ selected: entries }),
-  clearSelected: () => set({ selected: [] })
+  clearSelected: () => set({ selected: [] }),
+  history: [],
+  historyIndex: -1,
+  goBack: () =>
+    set(state => {
+      if (state.historyIndex > 0) {
+        const newHistoryIndex = state.historyIndex - 1;
+        const newDir = state.history.at(newHistoryIndex);
+
+        invoke(CommandName.ListDir, { dir: newDir });
+
+        return {
+          historyIndex: newHistoryIndex
+        };
+      }
+    }),
+  goForward: () =>
+    set(state => {
+      if (state.historyIndex < state.history.length - 1) {
+        const newHistoryIndex = state.historyIndex + 1;
+        const newDir = state.history.at(newHistoryIndex);
+
+        invoke(CommandName.ListDir, { dir: newDir });
+
+        return {
+          historyIndex: newHistoryIndex
+        };
+      }
+    })
 }));
 
 export { useCurrentDir };

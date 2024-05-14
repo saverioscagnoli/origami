@@ -30,7 +30,6 @@ function App() {
     state.resolveBasicdirs
   ]);
 
-
   /**
    * On app start.
    * Reslve basic user directories.

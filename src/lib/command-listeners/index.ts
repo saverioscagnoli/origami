@@ -1,5 +1,7 @@
 import { createEntryListen } from "./create-entry";
 import { deleteEntriesListen } from "./delete-entries";
+import { goBackHotkey } from "./go-back";
+import { goForwardHotkey } from "./go-forward";
 import { listDirListen } from "./list-dir";
 import { loadCSSModulesListen } from "./load-css-modules";
 import { openFilesListen } from "./open-files";
@@ -35,6 +37,8 @@ function startCommandListeners() {
   unstarEntryListen();
   searchEverywhereListen();
   loadCSSModulesListen();
+  goBackHotkey();
+  goForwardHotkey();
 }
 
 export { startCommandListeners };
