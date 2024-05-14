@@ -6,7 +6,7 @@ import { CommandName } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEffect, useState } from "react";
 
-const validImages = ["jpg", "jpeg", "png", "gif", "webp"];
+const validImages = ["jpg", "jpeg", "png", "gif", "webp", "ico", "bmp"];
 
 const ImagePreview = () => {
   const selected = useCurrentDir(state => state.selected);
