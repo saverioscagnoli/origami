@@ -6,21 +6,18 @@ mod consts;
 mod disks;
 mod enums;
 mod file_system;
+mod modules;
 mod settings;
 mod utils;
 
-use std::{
-    sync::{Arc, Mutex},
-    thread,
-};
-
 use app_windows::{close_all_windows, spawn_main_window};
-use consts::{INDEX_FILE_NAME, STARRED_DIR_NAME};
+use consts::STARRED_DIR_NAME;
 use disks::poll_disks;
 use file_system::commands::{
     create_entry, delete_entries, get_image_base64, list_dir, open_files, paste_entries,
     rename_entry, star_entries, unstar_entries,
 };
+use modules::load_css_modules;
 use settings::{load_settings, update_settings};
 use tauri::{AppHandle, Manager};
 use utils::build_app_paths;
@@ -48,6 +45,7 @@ async fn main() {
             close_all_windows,
             load_settings,
             update_settings,
+            load_css_modules,
         ])
         .setup(|app| {
             let handle = app.handle();

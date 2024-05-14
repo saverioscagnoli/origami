@@ -20,6 +20,7 @@ const TopbarDirDisplay = () => {
   return (
     <span
       data-tauri-drag-region
+      id="topbar-dir-display"
       className={cn(
         "w-full h-full",
         "text-sm",

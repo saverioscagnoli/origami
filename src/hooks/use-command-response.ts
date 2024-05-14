@@ -113,6 +113,12 @@ type CommandPayloadMap = {
    * This command does not use the payload.
    */
   [CommandName.WatchDiskChanges]: null;
+
+  /**
+   * Load css files in the app config directory
+   * @param modules The css modules
+   */
+  [CommandName.LoadCSSModules]: BasePayload<string[]>;
 };
 
 /**

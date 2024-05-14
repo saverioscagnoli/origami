@@ -101,6 +101,11 @@ type CommandArgsMap = {
    * Watch disk changes
    */
   [CommandName.WatchDiskChanges]: null;
+
+  /**
+   * Load css modules
+   */
+  [CommandName.LoadCSSModules]: null;
 };
 
 async function invoke<K extends CommandName>(command: K, args?: CommandArgsMap[K]) {

@@ -1,4 +1,4 @@
-import { getCurrent } from "@tauri-apps/api/webview";
+import { listen } from "@tauri-apps/api/event";
 import { Disk } from "@typings/disk";
 import { BackendEvent } from "@typings/enums";
 import { DependencyList, useEffect } from "react";
@@ -20,7 +20,6 @@ type BackendEventMap = {
    * The payload is the time it took to copy the files.
    */
   [BackendEvent.CopyOver]: number;
-  
 };
 
 function useBackendEvent<K extends BackendEvent>(
@@ -29,9 +28,7 @@ function useBackendEvent<K extends BackendEvent>(
   deps: DependencyList = []
 ) {
   useEffect(() => {
-    const promise = getCurrent().listen<BackendEventMap[K]>(event, event =>
-      cb(event.payload)
-    );
+    const promise = listen<BackendEventMap[K]>(event, event => cb(event.payload));
 
     return () => {
       promise.then(dispose => dispose());

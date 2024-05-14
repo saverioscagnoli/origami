@@ -53,6 +53,7 @@ const SearchInput = () => {
 
   return (
     <Input
+      id="topbar-search-input"
       size="sm"
       className={cn("!w-64")}
       spellCheck={false}

@@ -57,6 +57,11 @@ pub enum Command {
      * (Sent in chunks)
      */
     UnstarEntries(Option<DirEntry>, Option<String>, bool),
+
+    /**
+     * If not error, returns the list of css modules.
+     */
+    LoadCSSModules(Option<Vec<String>>, Option<String>, bool),
 }
 
 impl Command {
@@ -70,6 +75,7 @@ impl Command {
             Command::PasteEntries(_, _, _) => "paste_entries",
             Command::StarEntries(_, _, _) => "star_entries",
             Command::UnstarEntries(_, _, _) => "unstar_entries",
+            Command::LoadCSSModules(_, _, _) => "load_css_modules",
         }
     }
 
@@ -98,6 +104,9 @@ impl Command {
             }
             Command::UnstarEntries(path, error, is_finished) => {
                 let _ = app.emit_to(label, self.as_str(), (path, error, is_finished));
+            }
+            Command::LoadCSSModules(modules, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (modules, error, is_finished));
             }
         }
     }

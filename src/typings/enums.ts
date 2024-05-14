@@ -16,6 +16,7 @@ enum CommandName {
   BuildIndex = "build_index",
   SearchEverywhere = "search_everywhere",
   WatchDiskChanges = "watch_disk_changes",
+  LoadCSSModules = "load_css_modules"
 }
 
 enum CommandStatus {

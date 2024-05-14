@@ -1,6 +1,7 @@
 import { createEntryListen } from "./create-entry";
 import { deleteEntriesListen } from "./delete-entries";
 import { listDirListen } from "./list-dir";
+import { loadCSSModulesListen } from "./load-css-modules";
 import { openFilesListen } from "./open-files";
 import { pasteEntriesListen } from "./paste-entries";
 import { renameEntryListen } from "./rename-entry";
@@ -33,7 +34,7 @@ function startCommandListeners() {
   starEntriesListen();
   unstarEntryListen();
   searchEverywhereListen();
-  
+  loadCSSModulesListen();
 }
 
 export { startCommandListeners };

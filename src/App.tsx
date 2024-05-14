@@ -14,6 +14,16 @@ import { useEnvironment } from "@zustand/environment-store";
 import { useEffect } from "react";
 
 function App() {
+  /**
+   * Start command listeners.
+   */
+  startCommandListeners();
+
+  /**
+   * Start hotkey listeners
+   */
+  startHotkeyListeners();
+
   const [basicDirs, resolveBasicDirs] = useEnvironment(state => [
     state.basicDirs,
     state.resolveBasicdirs
@@ -27,6 +37,7 @@ function App() {
   useEffect(() => {
     resolveBasicDirs();
     invoke(CommandName.PollDisks);
+    invoke(CommandName.LoadCSSModules);
   }, []);
 
   /**
@@ -40,16 +51,6 @@ function App() {
       invoke(CommandName.ListDir, { dir: home.path });
     }
   }, [basicDirs]);
-
-  /**
-   * Start command listeners.
-   */
-  startCommandListeners();
-
-  /**
-   * Start hotkey listeners
-   */
-  startHotkeyListeners();
 
   useEvent(window, "beforeunload", () => emit(FrontendEvent.BeforeUnload));
   useEvent("contextmenu", e => e.preventDefault());

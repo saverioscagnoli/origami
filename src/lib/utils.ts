@@ -86,11 +86,11 @@ function isHotkeyInvalid(args: {
  * @param worker The filter worker
  * @returns A promise that resolves to the filtered entries
  */
-const filter = async (
+async function filter(
   entries: DirEntry[],
   query: string,
   worker: Worker
-): Promise<DirEntry[]> => {
+): Promise<DirEntry[]> {
   return new Promise((res, rej) => {
     worker.postMessage([entries, query]);
 
@@ -102,6 +102,16 @@ const filter = async (
       rej(e);
     };
   });
-};
+}
 
-export { cn, filter, formatBytes, isHotkeyInvalid, percentage };
+/**
+ * Load a css string into the document
+ * @param css The css string to load
+ */
+function loadCSS(css: string) {
+  const styleTag = document.createElement("style");
+  styleTag.textContent = css;
+  document.head.appendChild(styleTag);
+}
+
+export { cn, filter, formatBytes, isHotkeyInvalid, loadCSS, percentage };
