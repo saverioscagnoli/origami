@@ -46,6 +46,8 @@ interface GlobalStatesStore {
   setRenaming: (renaming: DirEntry | null) => void;
   searching: SearchingState;
   setSearching: (searching: Partial<SearchingState>) => void;
+  error: string | null;
+  setError: (error: string | null) => void;
 }
 
 const useGlobalStates = create<GlobalStatesStore>(set => ({
@@ -58,7 +60,9 @@ const useGlobalStates = create<GlobalStatesStore>(set => ({
   setRenaming: renaming => set({ renaming }),
   searching: { state: false, query: "", where: "here" },
   setSearching: searching =>
-    set(state => ({ searching: { ...state.searching, ...searching } }))
+    set(state => ({ searching: { ...state.searching, ...searching } })),
+  error: null,
+  setError: error => set({ error })
 }));
 
 export { useGlobalStates };

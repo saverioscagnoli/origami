@@ -4,7 +4,11 @@ import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useGlobalStates } from "@zustand/global-states-store";
 
 function listDirListen() {
-  const setSearching = useGlobalStates(state => state.setSearching);
+  const [setSearching, setError] = useGlobalStates(state => [
+    state.setSearching,
+    state.setError
+  ]);
+
   const [setDir, addEntries, setEntries, replaceSelected] = useCurrentDir(state => [
     state.setDir,
     state.addEntries,
@@ -18,7 +22,7 @@ function listDirListen() {
     const [data, error, isFinished] = payload;
 
     if (error) {
-      alert(error);
+      setError(error);
       return;
     }
 

@@ -1,7 +1,6 @@
 import { ScrollArea } from "@components/tredici";
 import FilterWorker from "@lib/search-worker?worker";
 import { cn, filter } from "@lib/utils";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { DirEntry } from "@typings/dir-entry";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useGlobalStates } from "@zustand/global-states-store";
@@ -63,12 +62,6 @@ const Workspace = () => {
       setFiltered(filtered);
     }
   }, [entries, showHidden, searching]);
-
-  const rowVirtualizer = useVirtualizer({
-    count: filtered.length,
-    getScrollElement: () => scrollRef,
-    estimateSize: () => 24
-  });
 
   return (
     <EmptySpaceContextMenu>

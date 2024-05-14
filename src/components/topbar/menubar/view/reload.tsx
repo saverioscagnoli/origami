@@ -12,7 +12,7 @@ const ReloadMenuItem = () => {
   };
 
   return (
-    <Menubar.Item leftIcon={<ReloadIcon />} onSelect={onSelect}>
+    <Menubar.Item leftIcon={<ReloadIcon />} shortcut="Ctrl + R" onSelect={onSelect}>
       Reload
     </Menubar.Item>
   );

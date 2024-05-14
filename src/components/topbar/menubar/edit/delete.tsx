@@ -19,6 +19,7 @@ const DeleteMenuItem = () => {
     <Menubar.Item
       colorScheme="red"
       leftIcon={<TrashIcon />}
+      shortcut="Delete"
       disabled={!canDelete}
       onSelect={onSelect}
     >

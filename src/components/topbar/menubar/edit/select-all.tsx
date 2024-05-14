@@ -13,7 +13,7 @@ const SelectAllMenuItem = () => {
   };
 
   return (
-    <Menubar.Item leftIcon={<ArrowUpIcon />} onSelect={onSelect}>
+    <Menubar.Item leftIcon={<ArrowUpIcon />} shortcut="Ctrl + A" onSelect={onSelect}>
       Select All
     </Menubar.Item>
   );

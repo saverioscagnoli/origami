@@ -25,6 +25,7 @@ const PasteMenuItem = () => {
   return (
     <Menubar.Item
       leftIcon={<ClipboardIcon />}
+      shortcut="Ctrl + V"
       disabled={!canPaste}
       onSelect={onSelect}
     >

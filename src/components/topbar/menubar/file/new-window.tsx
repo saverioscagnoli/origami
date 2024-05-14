@@ -9,7 +9,11 @@ const NewWindowMenuItem = () => {
   };
 
   return (
-    <Menubar.Item leftIcon={<OpenInNewWindowIcon />} onSelect={onSelect}>
+    <Menubar.Item
+      leftIcon={<OpenInNewWindowIcon />}
+      shortcut="Ctrl + Shift + W"
+      onSelect={onSelect}
+    >
       New Window
     </Menubar.Item>
   );

@@ -30,7 +30,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
         <RxDialog.Overlay
           className={cn(
             "z-[9998]",
-            "bg-gray-950/25",
+            "bg-black bg-opacity-30",
             "fixed inset-0",
             "dialog-overlay"
           )}
@@ -45,7 +45,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
             "shadow-lg",
             "bg-[--slate-1]",
             "text-[--slate-12]",
-            "border border-gray-500/25",
+            "border border-[--gray-7]",
             "fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2",
             "focus:outline-none",
             "dialog-content",

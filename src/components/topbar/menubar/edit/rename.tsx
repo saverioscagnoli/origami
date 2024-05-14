@@ -17,6 +17,7 @@ const RenameMenuItem = () => {
   return (
     <Menubar.Item
       leftIcon={<Pencil1Icon />}
+      shortcut="F2"
       disabled={!canRename}
       onSelect={onSelect}
     >

@@ -15,7 +15,7 @@ const CutMenuItem = () => {
   };
 
   return (
-    <Menubar.Item leftIcon={<ScissorsIcon />} disabled={!canCut} onSelect={onSelect}>
+    <Menubar.Item leftIcon={<ScissorsIcon />} shortcut="Ctrl + X" disabled={!canCut} onSelect={onSelect}>
       Cut
     </Menubar.Item>
   );

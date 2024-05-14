@@ -1,5 +1,6 @@
 import { Bottombar } from "@components/bottombar";
 import { CreateDialog } from "@components/dialogs";
+import { ErrorDialog } from "@components/dialogs/error";
 import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
@@ -28,6 +29,7 @@ function App() {
     state.basicDirs,
     state.resolveBasicdirs
   ]);
+
 
   /**
    * On app start.
@@ -64,6 +66,7 @@ function App() {
         <Sidebar />
         <>
           <CreateDialog />
+          <ErrorDialog />
         </>
         <Workspace />
       </div>

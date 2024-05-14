@@ -15,7 +15,7 @@ const CopyMenuItem = () => {
   };
 
   return (
-    <Menubar.Item leftIcon={<CopyIcon />} disabled={!canCopy} onSelect={onSelect}>
+    <Menubar.Item leftIcon={<CopyIcon />} shortcut="Ctrl + C" disabled={!canCopy} onSelect={onSelect}>
       Copy
     </Menubar.Item>
   );

@@ -1,3 +1,4 @@
+import { resolve } from "@tauri-apps/api/path";
 import { DirEntry } from "@typings/dir-entry";
 import { CreatingState, SearchingState } from "@zustand/global-states-store";
 import { ClassValue, clsx } from "clsx";
@@ -114,4 +115,23 @@ function loadCSS(css: string) {
   document.head.appendChild(styleTag);
 }
 
-export { cn, filter, formatBytes, isHotkeyInvalid, loadCSS, percentage };
+/**
+ * Get the parent directory of a directory
+ * @example
+ * getParentDir("/home/user") // "home"
+ * @param dir The directory to get the parent of
+ * @returns The parent directory
+ */
+async function getParentDir(dir: string) {
+  return await resolve(dir, "..");
+}
+
+export {
+  cn,
+  filter,
+  formatBytes,
+  getParentDir,
+  isHotkeyInvalid,
+  loadCSS,
+  percentage
+};

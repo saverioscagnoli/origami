@@ -1,6 +1,5 @@
 import { Input } from "@components/tredici";
 import { cn } from "@lib/utils";
-import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useGlobalStates } from "@zustand/global-states-store";
 import { KeyboardEventHandler, useEffect, useRef } from "react";
 
@@ -9,8 +8,6 @@ const SearchInput = () => {
     state.searching,
     state.setSearching
   ]);
-
-  const setEntries = useCurrentDir(state => state.setEntries);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -55,7 +52,7 @@ const SearchInput = () => {
     <Input
       id="topbar-search-input"
       size="sm"
-      className={cn("!w-64")}
+      className={cn("!w-64", "!font-normal")}
       spellCheck={false}
       value={searching.query}
       onValueChange={onValueChange}

@@ -10,7 +10,7 @@ const NewFileMenuItem = () => {
   };
 
   return (
-    <Menubar.Item leftIcon={<FilePlusIcon />} onSelect={onSelect}>
+    <Menubar.Item leftIcon={<FilePlusIcon />} shortcut="Ctrl + N" onSelect={onSelect}>
       New File...
     </Menubar.Item>
   );

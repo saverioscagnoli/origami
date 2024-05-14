@@ -10,7 +10,11 @@ const SearchHereMenuItem = () => {
   };
 
   return (
-    <Menubar.Item leftIcon={<MagnifyingGlassIcon />} onSelect={onSelect}>
+    <Menubar.Item
+      leftIcon={<MagnifyingGlassIcon />}
+      shortcut="Ctrl + F"
+      onSelect={onSelect}
+    >
       Search Here
     </Menubar.Item>
   );

@@ -14,7 +14,7 @@ const ShowHiddenMenuItem = () => {
 
   return (
     <Menubar.CheckboxItem
-      leftIcon={showHidden ? <EyeOpenIcon /> : <EyeClosedIcon />}
+      shortcut="Ctrl + H"
       checked={showHidden}
       onCheckedChange={onCheckedChange}
     >

@@ -1,12 +1,15 @@
 import { useCommandResponse } from "@hooks/use-command-response";
 import { CommandName } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 function searchEverywhereListen() {
   const [entries, setEntries] = useCurrentDir(state => [
     state.entries,
     state.setEntries
   ]);
+
+  const setError = useGlobalStates(state => state.setError);
 
   // Create a temporary array to hold the incoming data
   let tempData = [];
@@ -17,7 +20,7 @@ function searchEverywhereListen() {
       const [data, error, isFinished] = payload;
 
       if (error) {
-        alert(error);
+        setError(error);
         return;
       }
 

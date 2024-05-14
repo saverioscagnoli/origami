@@ -1,7 +1,8 @@
+import terser from "@rollup/plugin-terser";
 import react from "@vitejs/plugin-react";
 import million from "million/compiler";
 import { visualizer } from "rollup-plugin-visualizer";
-import { defineConfig, splitVendorChunkPlugin } from "vite";
+import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vitejs.dev/config/
@@ -11,7 +12,7 @@ export default defineConfig(() => ({
     tsconfigPaths(),
     million.vite({ auto: true, log: false }),
     visualizer(),
-    splitVendorChunkPlugin()
+    terser()
   ],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -29,6 +30,7 @@ export default defineConfig(() => ({
   },
   build: {
     rollupOptions: {
+      external: ["./stats.html"],
       input: {
         main: "./index.html",
         copy: "./copy.html"

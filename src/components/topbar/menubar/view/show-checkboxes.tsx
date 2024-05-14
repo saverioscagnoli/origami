@@ -14,7 +14,7 @@ const ShowCheckboxesMenuItem = () => {
 
   return (
     <Menubar.CheckboxItem
-      leftIcon={<CheckboxIcon />}
+      shortcut="Ctrl + J"
       checked={showCheckboxes}
       onCheckedChange={onCheckedChange}
     >

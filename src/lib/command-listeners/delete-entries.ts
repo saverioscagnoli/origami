@@ -1,6 +1,7 @@
 import { useCommandResponse } from "@hooks/use-command-response";
 import { CommandName } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 function deleteEntriesListen() {
   const [entries, removeEntries, replaceSelected] = useCurrentDir(s => [
@@ -9,6 +10,8 @@ function deleteEntriesListen() {
     s.replaceSelected
   ]);
 
+  const setError = useGlobalStates(state => state.setError);
+
   useCommandResponse(
     CommandName.DeleteEntries,
     payload => {
@@ -16,7 +19,7 @@ function deleteEntriesListen() {
 
       if (error) {
         replaceSelected([]);
-        alert(error);
+        setError(error);
         return;
       }
 

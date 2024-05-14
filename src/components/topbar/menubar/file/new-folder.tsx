@@ -10,7 +10,7 @@ const NewFolderMenuItem = () => {
   };
 
   return (
-    <Menubar.Item leftIcon={<FolderIcon />} onSelect={onSelect}>
+    <Menubar.Item leftIcon={<FolderIcon />} shortcut="Ctrl + Shift + N" onSelect={onSelect}>
       New Folder...
     </Menubar.Item>
   );

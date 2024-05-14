@@ -9,7 +9,12 @@ const CloseAllWindowsMenuItem = () => {
   };
 
   return (
-    <Menubar.Item leftIcon={<ExitIcon />} colorScheme="red" onSelect={onSelect}>
+    <Menubar.Item
+      leftIcon={<ExitIcon />}
+      colorScheme="red"
+      shortcut="Ctrl + Shift + Q"
+      onSelect={onSelect}
+    >
       Close All Windows
     </Menubar.Item>
   );
