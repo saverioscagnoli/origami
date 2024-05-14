@@ -16,7 +16,7 @@ const ImagePreview = () => {
   useEffect(() => {
     if (
       selected.length === 1 &&
-      validImages.includes(selected.at(0).name.slice(-3))
+      validImages.includes(selected.at(0).name.slice(-3).toLowerCase())
     ) {
       setIsLoading(true);
       invoke<string>(CommandName.GetImageBase64, { path: selected.at(0).path }).then(

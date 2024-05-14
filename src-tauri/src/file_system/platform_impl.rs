@@ -44,57 +44,59 @@ pub fn open_file<P: AsRef<Path>>(path: P) -> io::Result<()> {
 }
 
 #[cfg(target_os = "windows")]
-pub fn create_symlink(
-  path: impl AsRef<Path>,
-  target: impl AsRef<Path>
-) -> io::Result<()> {
-  use crate::consts::FLAG_CREATE_NO_WINDOW;
+pub fn create_symlink(path: impl AsRef<Path>, target: impl AsRef<Path>) -> io::Result<()> {
+    use crate::consts::FLAG_CREATE_NO_WINDOW;
 
-  let path = path.as_ref();
-  let target = target.as_ref();
+    let path = path.as_ref();
+    let target = target.as_ref();
 
-  let is_elevated = false; // TODO: check if the app is running as admin
+    let is_elevated = false; // TODO: check if the app is running as admin
 
-  // Create a symlink if possible, junction / hard link otherwise
-  if is_elevated {
-    use std::os::windows::fs::symlink_file;
-    use std::os::windows::fs::symlink_dir;
+    // Create a symlink if possible, junction / hard link otherwise
+    if is_elevated {
+        use std::os::windows::fs::symlink_dir;
+        use std::os::windows::fs::symlink_file;
 
-    if path.is_dir() {
-      symlink_dir(path, path.with_extension("symlink")).unwrap();
+        if path.is_dir() {
+            symlink_dir(path, path.with_extension("symlink")).unwrap();
+        } else {
+            symlink_file(path, path.with_extension("symlink")).unwrap();
+        }
     } else {
-      symlink_file(path, path.with_extension("symlink")).unwrap();
-    }
-  } else {
-    use std::os::windows::process::CommandExt;
+        use std::os::windows::process::CommandExt;
 
-    if path.is_dir() {
-      Command::new("cmd")
-        .args(
-          &["/C", "mklink", "/J", target.to_str().unwrap(), path.to_str().unwrap()]
-        )
-        .creation_flags(FLAG_CREATE_NO_WINDOW)
-        .output()?;
-    } else {
-      Command::new("cmd")
-        .args(
-          &["/C", "mklink", "/h", target.to_str().unwrap(), path.to_str().unwrap()]
-        )
-        .creation_flags(FLAG_CREATE_NO_WINDOW)
-        .output()?;
+        if path.is_dir() {
+            Command::new("cmd")
+                .args(&[
+                    "/C",
+                    "mklink",
+                    "/J",
+                    target.to_str().unwrap(),
+                    path.to_str().unwrap(),
+                ])
+                .creation_flags(FLAG_CREATE_NO_WINDOW)
+                .output()?;
+        } else {
+            Command::new("cmd")
+                .args(&[
+                    "/C",
+                    "mklink",
+                    "/h",
+                    target.to_str().unwrap(),
+                    path.to_str().unwrap(),
+                ])
+                .creation_flags(FLAG_CREATE_NO_WINDOW)
+                .output()?;
+        }
     }
-  }
 
-  Ok(())
+    Ok(())
 }
 
 #[cfg(not(target_os = "windows"))]
-pub fn create_symlink(
-  path: impl AsRef<Path>,
-  target: impl AsRef<Path>
-) -> io::Result<()> {
-  let path = path.as_ref();
-  let target = target.as_ref();
+pub fn create_symlink(path: impl AsRef<Path>, target: impl AsRef<Path>) -> io::Result<()> {
+    let path = path.as_ref();
+    let target = target.as_ref();
 
-  std::os::unix::fs::symlink(target, path)
+    std::os::unix::fs::symlink(path, target)
 }

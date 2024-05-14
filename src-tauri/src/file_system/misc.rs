@@ -2,8 +2,13 @@ use base64::{engine::general_purpose, Engine};
 use chrono::{DateTime, Utc};
 use std::{fs::Metadata, io, path::Path};
 
-pub fn is_symlink(meta: &Metadata) -> bool {
-    meta.file_type().is_symlink()
+pub fn is_symlink<P: AsRef<Path>>(path: P) -> bool {
+    let symlink_meta = std::fs::symlink_metadata(path);
+
+    match symlink_meta {
+        Ok(meta) => meta.is_symlink(),
+        Err(_) => false,
+    }
 }
 
 pub fn last_modified(meta: &Metadata) -> String {

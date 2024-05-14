@@ -54,7 +54,7 @@ pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(
     #[cfg(not(target_os = "windows"))]
     let is_hidden = platform_impl::is_hidden(&name);
 
-    let is_symlink = misc::is_symlink(&metadata);
+    let is_symlink = misc::is_symlink(&path);
     let is_starred = if starred_dir.is_some() {
         starred_dir.unwrap().as_ref().join(&name).exists()
     } else {
