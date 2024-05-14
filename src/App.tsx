@@ -11,8 +11,9 @@ import { cn } from "@lib/utils";
 import { emit } from "@tauri-apps/api/event";
 import { BasicDirLabel, CommandName, FrontendEvent } from "@typings/enums";
 import { useEvent } from "@util-hooks/use-event";
+import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEnvironment } from "@zustand/environment-store";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 function App() {
   /**
@@ -52,6 +53,35 @@ function App() {
       invoke(CommandName.ListDir, { dir: home.path });
     }
   }, [basicDirs]);
+
+  /**
+   * Mouse buttons back nad forward.
+   */
+  const [history, index, goBack, goForward] = useCurrentDir(state => [
+    state.history,
+    state.historyIndex,
+    state.goBack,
+    state.goForward
+  ]);
+
+  const canGoBack = useMemo(() => index > 0, [index]);
+  const canGoForward = useMemo(() => index < history.length - 1, [index]);
+
+  useEvent(
+    "mousedown",
+    e => {
+      if (e.button === 3) {
+        if (canGoBack) {
+          goBack();
+        }
+      } else if (e.button === 4) {
+        if (canGoForward) {
+          goForward();
+        }
+      }
+    },
+    [canGoBack, canGoForward]
+  );
 
   useEvent(window, "beforeunload", () => emit(FrontendEvent.BeforeUnload));
   useEvent("contextmenu", e => e.preventDefault());
