@@ -8,7 +8,12 @@ const CloseWindowMenuItem = () => {
   const onSelect = () => win.close();
 
   return (
-    <Menubar.Item leftIcon={<Cross1Icon />} onSelect={onSelect}>
+    <Menubar.Item
+      colorScheme="red"
+      leftIcon={<Cross1Icon />}
+      shortcut="Ctrl + Q"
+      onSelect={onSelect}
+    >
       Close Window
     </Menubar.Item>
   );

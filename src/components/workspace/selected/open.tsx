@@ -1,15 +1,18 @@
 import { ContextMenu } from "@components/tredici";
-import { useCurrentDir } from "@hooks/use-current-dir";
+import { invoke } from "@lib/mapped-invoke";
 import { EnterIcon } from "@radix-ui/react-icons";
+import { CommandName } from "@typings/enums";
+import { useCurrentDir } from "@zustand/curent-dir-store";
 
 const OpenMenuItem = () => {
-  const { selected, cd, openFiles } = useCurrentDir();
+  const selected = useCurrentDir(state => state.selected);
 
   const onSelect = () => {
-    if (selected.at(0).isDir) {
-      cd(selected.at(0).path);
+    const paths = selected.map(e => e.path);
+    if (paths.length === 1 && selected.at(0)!.isDir) {
+      invoke(CommandName.ListDir, { dir: paths.at(0)! });
     } else {
-      openFiles(selected.map(e => e.path));
+      invoke(CommandName.OpenFiles, { paths });
     }
   };
 

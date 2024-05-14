@@ -1,41 +1,32 @@
 import { Progress } from "@components/tredici";
 import { cn } from "@lib/utils";
-import { useMemo, useState } from "react";
-
-import { useBackendEvent } from "@hooks/use-backend-event";
-import { BackendEvent, Command, WindowLabel } from "@typings/enums";
+import { useState } from "react";
 
 import ReactDOM from "react-dom/client";
 
-import { invoke } from "@lib/mapped-invoke";
-import "../styles.css";
+import { useBackendEvent } from "@hooks/use-backend-event";
+import { getCurrent } from "@tauri-apps/api/webview";
+import { BackendEvent } from "@typings/enums";
 
-import vineBoom from "../assets/vine-boom.mp3";
+import "../styles.css";
 
 const Copy = () => {
   const [max, setMax] = useState<number>(0);
   const [value, setValue] = useState<number>(-1);
   const [time, setTime] = useState<number>(-1);
 
-  const [readRate, setReadRate] = useState<number>(0);
-
-  const audio = useMemo(() => new Audio(vineBoom), []);
-
   useBackendEvent(BackendEvent.CopyProgress, info => {
-    const { totalBytes, copiedBytes, readRate } = info;
+    const [total, copied] = info;
 
     if (max === 0) {
-      setMax(totalBytes);
+      setMax(total);
     }
 
-    setReadRate(readRate);
-    setValue(copiedBytes);
+    setValue(copied);
   });
 
   useBackendEvent(BackendEvent.CopyOver, time => {
-    audio.play();
-
-    setTimeout(() => invoke(Command.CloseWindow, { label: WindowLabel.Copy }), 3000);
+    getCurrent().close();
 
     setValue(1);
     setMax(1);
@@ -56,10 +47,9 @@ const Copy = () => {
       <div className={cn("w-1/2", "mt-2", "text-sm")}>
         {time !== -1 ? "Done!" : `${value} / ${max}`}
         {time !== -1 && <div>{time} seconds</div>}
-        {readRate !== 0 && <div>{readRate} MB/s</div>}
       </div>
     </div>
   );
 };
 
-ReactDOM.createRoot(document.getElementById("root")).render(<Copy />);
+ReactDOM.createRoot(document.getElementById("root")!).render(<Copy />);

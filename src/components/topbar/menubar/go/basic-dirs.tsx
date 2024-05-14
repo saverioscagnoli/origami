@@ -1,25 +1,20 @@
 import { For } from "@components/for";
 import { Menubar } from "@components/tredici";
-import { useCurrentDir } from "@hooks/use-current-dir";
-import { useEnvironment } from "@hooks/use-environment";
-import { basicDirIconMap } from "@lib/utils";
+import { invoke } from "@lib/mapped-invoke";
 import { sep } from "@tauri-apps/api/path";
+import { CommandName } from "@typings/enums";
+import { useEnvironment } from "@zustand/environment-store";
 
 const BasicDirsMenuItems = () => {
-  const { basicDirs } = useEnvironment();
-  const { cd } = useCurrentDir();
-
-  const onSelect = (path: string) => () => {
-    cd(path);
-  };
+  const basicDirs = useEnvironment(state => state.basicDirs);
 
   return (
     <For of={basicDirs}>
       {({ path, icon }) => (
         <Menubar.Item
           key={path}
-          leftIcon={basicDirIconMap.get(icon)}
-          onSelect={onSelect(path)}
+          leftIcon={icon}
+          onSelect={() => invoke(CommandName.ListDir, { dir: path })}
         >
           {path.split(sep()).pop()}
         </Menubar.Item>

@@ -1,47 +1,40 @@
-use tauri::{ AppHandle, Manager, WebviewUrl, WebviewWindowBuilder };
+use std::path::PathBuf;
 
-#[tauri::command]
-pub fn close_window(app: AppHandle, label: String) {
-  let win = app.get_webview_window(label.as_str());
+use tauri::{AppHandle, Manager};
 
-  if win.is_some() {
-    win.unwrap().close().unwrap();
-  } else {
-    log::error!("Window not found: {}", label);
-  }
+use crate::consts::{INDEX_FILE_NAME, SETTINGS_FILE_NAME, STARRED_DIR_NAME};
+
+pub struct AppPaths {
+    pub starred_dir: PathBuf,
+    pub settings_file: PathBuf,
+    pub index_file: PathBuf,
 }
 
-#[tauri::command]
-pub async fn create_window(app: AppHandle) -> Result<(), ()> {
-  let mut n = 1;
-  let mut label = format!("main-{}", n);
-
-  while app.get_webview_window(label.as_str()).is_some() {
-    n += 1;
-    label = format!("main-{}", n);
-  }
-
-  let win = WebviewWindowBuilder::new(
-    &app,
-    label,
-    WebviewUrl::App("index.html".into())
-  )
-    .decorations(false)
-
-    .build();
-
-  if win.is_ok() {
-    win.unwrap();
-  } else {
-    log::error!("Failed to create window: {}", win.err().unwrap());
-  }
-
-  Ok(())
+pub fn get_starred_dir(app: &AppHandle) -> PathBuf {
+    let path = app.path();
+    path.app_config_dir().unwrap().join(STARRED_DIR_NAME)
 }
 
-
-#[tauri::command]
-pub fn close_all_windows(app: AppHandle) {
-  app.exit(0)
+pub fn get_settings_file(app: &AppHandle) -> PathBuf {
+    let path = app.path();
+    path.app_config_dir().unwrap().join(SETTINGS_FILE_NAME)
 }
 
+pub fn get_index_file(app: &AppHandle) -> PathBuf {
+    let path = app.path();
+    path.app_config_dir().unwrap().join(INDEX_FILE_NAME)
+}
+
+/**
+ * Retrieves all the paths used by the app.
+ * - Starred directory: ~/CONFIG_DIR/origami/Starred
+ * - Settings file: ~/CONFIG_DIR/origami/settings.json
+ * - Index file: ~/CONFIG_DIR/origami/index.json
+ */
+pub fn build_app_paths(app: &AppHandle) -> AppPaths {
+    AppPaths {
+        starred_dir: get_starred_dir(app),
+        settings_file: get_settings_file(app),
+        index_file: get_index_file(app),
+    }
+}

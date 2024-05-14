@@ -1,6 +1,6 @@
 import { ContextMenu } from "@components/tredici";
-import { useCurrentDir } from "@hooks/use-current-dir";
 import { ChildrenProps } from "@typings/props";
+import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useMemo } from "react";
 import { CopyMenuItem } from "./copy";
 import { CutMenuItem } from "./cut";
@@ -10,26 +10,27 @@ import { RenameMenuItem } from "./rename";
 import { StarUnstarMenuItem } from "./star-unstar";
 
 const SelectedEntriesContextMenu: React.FC<ChildrenProps> = ({ children }) => {
-  const { selected } = useCurrentDir();
+  const selected = useCurrentDir(state => state.selected);
 
-  const canOpen = useMemo(() => {
-    const entries = selected;
-    return entries.every(e => !e.isDir) || entries.length === 1;
-  }, [selected]);
+  const canOpen = useMemo(
+    () =>
+      selected.length > 0 &&
+      (selected.every(e => !e.isDir) || selected.length === 1),
+    [selected]
+  );
 
-  const canStar = useMemo(() => {
-    const entries = selected;
-    const starred = entries.filter(e => e.isStarred);
-    return starred.length === 0 || starred.length === entries.length;
-  }, [selected]);
+  const canStarUnstar = useMemo(
+    () => selected.every(e => e.isStarred) || selected.every(e => !e.isStarred),
+    [selected]
+  );
 
   return (
     <ContextMenu>
       <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
       <ContextMenu.Content>
         {canOpen && <OpenMenuItem />}
-        {canStar && <StarUnstarMenuItem />}
-        {(canOpen || canStar) && <ContextMenu.Separator />}
+        {canStarUnstar && <StarUnstarMenuItem />}
+        {(canOpen || canStarUnstar) && <ContextMenu.Separator />}
         <CutMenuItem />
         <CopyMenuItem />
         <ContextMenu.Separator />

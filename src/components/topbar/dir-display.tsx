@@ -1,11 +1,21 @@
-import { useCurrentDir } from "@hooks/use-current-dir";
-import { useGlobalStates } from "@hooks/use-global-states";
 import { cn } from "@lib/utils";
+import { StarFilledIcon } from "@radix-ui/react-icons";
+import { BasicDirLabel } from "@typings/enums";
+import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useEnvironment } from "@zustand/environment-store";
+import { useGlobalStates } from "@zustand/global-states-store";
+import { useMemo } from "react";
 import { SearchInput } from "./search-input";
 
 const TopbarDirDisplay = () => {
-  const { dir } = useCurrentDir();
-  const { searching } = useGlobalStates();
+  const dir = useCurrentDir(state => state.dir);
+  const basicDirs = useEnvironment(state => state.basicDirs);
+  const searching = useGlobalStates(state => state.searching);
+
+  const starredDir = useMemo(
+    () => basicDirs.find(b => b.label === BasicDirLabel.Starred),
+    [basicDirs]
+  );
 
   return (
     <span
@@ -19,7 +29,16 @@ const TopbarDirDisplay = () => {
         "active:data-[tauri-drag-region]:cursor-grabbing"
       )}
     >
-      {searching.state ? <SearchInput /> : dir}
+      {searching.state ? (
+        <SearchInput />
+      ) : dir.includes(starredDir?.path) ? (
+        <span className={cn("flex items-center")}>
+          <StarFilledIcon className={cn("w-4 h-4")} />
+          {dir.slice(starredDir!.path.length)}
+        </span>
+      ) : (
+        dir
+      )}
     </span>
   );
 };

@@ -1,14 +1,14 @@
 import { ContextMenu } from "@components/tredici";
-import { useCurrentDir } from "@hooks/use-current-dir";
-import { useGlobalStates } from "@hooks/use-global-states";
 import { CopyIcon } from "@radix-ui/react-icons";
+import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 const CopyMenuItem = () => {
-  const { selected } = useCurrentDir();
-  const { setCopying } = useGlobalStates();
+  const selected = useCurrentDir(state => state.selected);
+  const setClipboard = useGlobalStates(state => state.setClipboard);
 
   const onSelect = () => {
-    setCopying(selected);
+    setClipboard({ entries: selected, cut: false });
   };
 
   return (

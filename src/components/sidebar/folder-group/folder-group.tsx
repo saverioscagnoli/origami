@@ -1,13 +1,13 @@
 import { For } from "@components/for";
-import { useCurrentDir } from "@hooks/use-current-dir";
-import { useEnvironment } from "@hooks/use-environment";
 import { cn } from "@lib/utils";
 import { sep } from "@tauri-apps/api/path";
+import { CommandName } from "@typings/enums";
+import { useEnvironment } from "@zustand/environment-store";
 import { SidebarFolder } from "./folder";
+import { invoke } from "@lib/mapped-invoke";
 
 const SidebarFolderGroup = () => {
-  const { basicDirs } = useEnvironment();
-  const { cd } = useCurrentDir();
+  const basicDirs = useEnvironment(state => state.basicDirs);
 
   return (
     <div className={cn("flex flex-col", "py-4")}>
@@ -16,8 +16,8 @@ const SidebarFolderGroup = () => {
           <SidebarFolder
             key={path}
             icon={icon}
-            name={path.split(sep()).pop()}
-            onClick={() => cd(path)}
+            name={path.split(sep()).pop()!}
+            onClick={() => invoke(CommandName.ListDir, { dir: path })}
           />
         )}
       </For>

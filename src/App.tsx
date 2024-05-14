@@ -1,94 +1,78 @@
 import { Bottombar } from "@components/bottombar";
-import { CreateDialog, ErrorDialog } from "@components/dialogs";
+import { CreateDialog } from "@components/dialogs";
+import { ErrorDialog } from "@components/dialogs/error";
 import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
-import { useCurrentDir } from "@hooks/use-current-dir";
-import { useEnvironment } from "@hooks/use-environment";
-import { useSettings } from "@hooks/use-settings";
-import { setupHotkeys } from "@lib/hotkeys";
+import { startCommandListeners } from "@lib/command-listeners";
+import { startHotkeyListeners } from "@lib/hotkeys";
 import { invoke } from "@lib/mapped-invoke";
 import { cn } from "@lib/utils";
 import { emit } from "@tauri-apps/api/event";
-import { BasicDirLabel, Command, FrontendEvent } from "@typings/enums";
+import { BasicDirLabel, CommandName, FrontendEvent } from "@typings/enums";
 import { useEvent } from "@util-hooks/use-event";
+import { useEnvironment } from "@zustand/environment-store";
 import { useEffect } from "react";
 
-const App = () => {
-  const { cd } = useCurrentDir();
-  const { basicDirs, isVscodeInstalled } = useEnvironment();
+function App() {
+  /**
+   * Start command listeners.
+   */
+  startCommandListeners();
 
-  // Start Polling disks, evert X seconds (see backend consts)
-  // So, if the user removes a disk, it will be removed from the sidebar
+  /**
+   * Start hotkey listeners
+   */
+  startHotkeyListeners();
+
+  const [basicDirs, resolveBasicDirs] = useEnvironment(state => [
+    state.basicDirs,
+    state.resolveBasicdirs
+  ]);
+
+
+  /**
+   * On app start.
+   * Reslve basic user directories.
+   * Start disk polling.
+   */
   useEffect(() => {
-    invoke(Command.PollDisks);
+    resolveBasicDirs();
+    invoke(CommandName.PollDisks);
+    invoke(CommandName.LoadCSSModules);
   }, []);
 
-  // Cd into the home directory when the app starts
+  /**
+   * On basic directories resolved (app start).
+   * Cd into home directory.
+   */
   useEffect(() => {
-    const home = basicDirs.find(bd => bd.label === BasicDirLabel.Home);
+    const home = basicDirs.find(dir => dir.label === BasicDirLabel.Home);
 
     if (home) {
-      cd(home.path);
+      invoke(CommandName.ListDir, { dir: home.path });
     }
   }, [basicDirs]);
 
+  useEvent(window, "beforeunload", () => emit(FrontendEvent.BeforeUnload));
   useEvent("contextmenu", e => e.preventDefault());
 
-  const { theme } = useSettings();
-
-  // Change the theme based on the user's preference
-  useEffect(() => {
-    document.documentElement.classList.add("light", "dark");
-
-    switch (theme) {
-      case "light": {
-        document.documentElement.classList.remove("dark");
-        break;
-      }
-
-      case "dark": {
-        document.documentElement.classList.remove("light");
-        break;
-      }
-
-      case "system": {
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.add("light");
-        }
-      }
-    }
-  }, [theme]);
-
-  // Emit an event to cleanup the beckend when the app refreshes
-  useEvent(window, "beforeunload", () => emit(FrontendEvent.BeforeUnload, null));
-
-  setupHotkeys();
-
   return (
-    <div
-      className={cn(
-        "w-screen h-screen",
-        "select-none"
-        // os() === "linux" && "font-semibold"
-      )}
-    >
+    <div className={cn("w-screen h-screen", "select-none")}>
       <Topbar />
       <div
         className={cn("w-full h-[calc(100vh-3.5rem)]", "fixed top-8", "flex gap-0")}
       >
-        <>
-          <ErrorDialog />
-          <CreateDialog />
-        </>
         <Sidebar />
+        <>
+          <CreateDialog />
+          <ErrorDialog />
+        </>
         <Workspace />
       </div>
       <Bottombar />
     </div>
   );
-};
+}
 
-export default App;
+export { App };

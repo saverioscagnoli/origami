@@ -1,12 +1,19 @@
 import { Menubar } from "@components/tredici";
-import { useCommands } from "@hooks/use-commands";
+import { invoke } from "@lib/mapped-invoke";
 import { OpenInNewWindowIcon } from "@radix-ui/react-icons";
+import { CommandName } from "@typings/enums";
 
 const NewWindowMenuItem = () => {
-  const { createWindow } = useCommands();
+  const onSelect = () => {
+    invoke(CommandName.SpawnMainWindow);
+  };
 
   return (
-    <Menubar.Item leftIcon={<OpenInNewWindowIcon />} onSelect={createWindow}>
+    <Menubar.Item
+      leftIcon={<OpenInNewWindowIcon />}
+      shortcut="Ctrl + Shift + W"
+      onSelect={onSelect}
+    >
       New Window
     </Menubar.Item>
   );

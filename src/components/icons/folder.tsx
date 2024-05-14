@@ -1,6 +1,6 @@
-import { forwardRef } from "react";
+import { ComponentProps, forwardRef } from "react";
 
-const FolderIcon = forwardRef<SVGSVGElement, any>(
+const FolderIcon = forwardRef<SVGSVGElement, ComponentProps<"svg">>(
   ({ color = "currentColor", ...props }, ref) => {
     return (
       <svg

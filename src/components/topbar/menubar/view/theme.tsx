@@ -1,10 +1,12 @@
 import { Menubar } from "@components/tredici";
-import { useSettings } from "@hooks/use-settings";
 import { MagicWandIcon } from "@radix-ui/react-icons";
-import { Theme } from "@typings/settings";
+import { Theme, useSettings } from "@zustand/settings-store";
 
 const ThemeMenuItem = () => {
-  const { theme, updateSettings } = useSettings();
+  const [theme, updateSettings] = useSettings(state => [
+    state.theme,
+    state.updateSettings
+  ]);
 
   const onValueChange = (value: string) => {
     updateSettings({ theme: value as Theme });

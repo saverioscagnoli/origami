@@ -1,9 +1,10 @@
 import { Input, Popover } from "@components/tredici";
-import { useCommands } from "@hooks/use-commands";
-import { useCurrentDir } from "@hooks/use-current-dir";
-import { useGlobalStates } from "@hooks/use-global-states";
+import { invoke } from "@lib/mapped-invoke";
 import { cn } from "@lib/utils";
+import { CommandName } from "@typings/enums";
 import { ChildrenProps } from "@typings/props";
+import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 import {
   FC,
   KeyboardEventHandler,
@@ -18,13 +19,14 @@ type RenamePopoverProps = ChildrenProps & {
 };
 
 const RenamePopover: FC<RenamePopoverProps> = ({ children, name }) => {
-  const { renaming, setRenaming } = useGlobalStates();
-  const { renameEntry } = useCommands();
-  const { replaceSelected } = useCurrentDir();
-
   const inputRef = useRef<HTMLInputElement>(null);
-
   const [value, setValue] = useState<string>(name);
+
+  const [renaming, setRenaming] = useGlobalStates(s => [s.renaming, s.setRenaming]);
+  const [selected, replaceSelected] = useCurrentDir(state => [
+    state.selected,
+    state.replaceSelected
+  ]);
 
   const open = useMemo(() => renaming?.name === name, [renaming]);
 
@@ -45,12 +47,11 @@ const RenamePopover: FC<RenamePopoverProps> = ({ children, name }) => {
 
   const onKeyDown: KeyboardEventHandler<HTMLInputElement> = e => {
     switch (e.key) {
+      // @ts-ignore
       case "Enter": {
-        renameEntry(value);
-        replaceSelected([]);
-        break;
+        const oldPath = selected.at(0)!.path;
+        invoke(CommandName.RenameEntry, { oldPath, newName: value });
       }
-
       case "Escape": {
         setRenaming(null);
         replaceSelected([]);

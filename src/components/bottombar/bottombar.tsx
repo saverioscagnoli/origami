@@ -1,19 +1,16 @@
 import { cn } from "@lib/utils";
-import { BottombarItemCount } from "./item-count";
-import { BottombarOperationDisplay } from "./operations";
+import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useMemo } from "react";
 
 const Bottombar = () => {
-  // const [copied, setCopied] = useState<number>(0);
-  // const [total, setTotal] = useState<number>(0);
+  const [entries, selected] = useCurrentDir(state => [
+    state.entries,
+    state.selected
+  ]);
 
-  // useTauriEvent(EventFromBackend.CopyProgress, payload => {
-  //   const { data } = payload;
-
-  //   setCopied(data.copied);
-  //   if (total === 0) {
-  //     setTotal(data.total);
-  //   }
-  // });
+  const total = useMemo(() => entries.length, [entries]);
+  const hidden = useMemo(() => entries.filter(e => e.isHidden).length, [entries]);
+  const selectedCount = useMemo(() => selected.length, [selected]);
 
   return (
     <div
@@ -26,9 +23,10 @@ const Bottombar = () => {
         "border-t border-t-[--gray-6]"
       )}
     >
-      <BottombarItemCount />
-      <BottombarOperationDisplay />
-      {/* {total !== 0 && <Progress value={copied} max={total} />} */}
+      <p>
+        {total} Items ({hidden} Hidden)
+        {selectedCount > 0 && ` - ${selectedCount} Selected`}
+      </p>
     </div>
   );
 };

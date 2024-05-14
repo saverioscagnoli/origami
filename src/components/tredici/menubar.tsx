@@ -1,4 +1,7 @@
+import { cn } from "@lib/utils";
+import { CheckIcon, ChevronRightIcon, DotFilledIcon } from "@radix-ui/react-icons";
 import * as RxMenubar from "@radix-ui/react-menubar";
+import { cva } from "class-variance-authority";
 import {
   ForwardRefExoticComponent,
   ReactNode,
@@ -7,37 +10,30 @@ import {
   forwardRef,
   useContext
 } from "react";
-import { cn } from "@lib/utils";
-import { cva } from "class-variance-authority";
-import {
-  CheckIcon,
-  ChevronRightIcon,
-  DotFilledIcon
-} from "@radix-ui/react-icons";
 
-import "@radix-ui/colors/plum.css";
 import "@radix-ui/colors/plum-dark.css";
+import "@radix-ui/colors/plum.css";
 
-import "@radix-ui/colors/teal.css";
 import "@radix-ui/colors/teal-dark.css";
+import "@radix-ui/colors/teal.css";
 
-import "@radix-ui/colors/grass.css";
 import "@radix-ui/colors/grass-dark.css";
+import "@radix-ui/colors/grass.css";
 
-import "@radix-ui/colors/red.css";
 import "@radix-ui/colors/red-dark.css";
+import "@radix-ui/colors/red.css";
 
-import "@radix-ui/colors/amber.css";
 import "@radix-ui/colors/amber-dark.css";
+import "@radix-ui/colors/amber.css";
 
-import "@radix-ui/colors/blue.css";
 import "@radix-ui/colors/blue-dark.css";
+import "@radix-ui/colors/blue.css";
 
-import "@radix-ui/colors/gray.css";
 import "@radix-ui/colors/gray-dark.css";
+import "@radix-ui/colors/gray.css";
 
-import "@radix-ui/colors/slate.css";
 import "@radix-ui/colors/slate-dark.css";
+import "@radix-ui/colors/slate.css";
 
 import "./menubar.css";
 
@@ -194,24 +190,22 @@ const MenubarLabel = forwardRef<HTMLDivElement, MenubarLabelProps>(
 type MenubarItemProps = RxMenubar.MenubarItemProps & {
   colorScheme?: MenubarColorScheme;
   leftIcon?: ReactNode;
+  shortcut?: string;
 };
 
 const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
-  ({ className, children, colorScheme, leftIcon, ...props }, ref) => {
+  ({ className, children, colorScheme, leftIcon, shortcut, ...props }, ref) => {
     return (
       <RxMenubar.Item
         className={menubarItemVariants({
           className: cn(
-            "flex items-center",
-            "pr-3",
+            "flex items-center justify-between",
+            "pr-2",
             "text-[14px]",
             "relative",
             "rounded-sm",
             "focus:cursor-default",
-            [
-              "data-[disabled]:opacity-30",
-              "data-[disabled]:pointer-events-none"
-            ],
+            ["data-[disabled]:opacity-30", "data-[disabled]:pointer-events-none"],
             className
           ),
           colorScheme: colorScheme ?? useColorScheme()
@@ -219,8 +213,11 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
         {...props}
         ref={ref}
       >
-        <div className="w-7 flex justify-center items-center">{leftIcon}</div>
-        {children}
+        <div className="flex items-center">
+          <span className="w-7 flex justify-center items-center">{leftIcon}</span>
+          {children}
+        </div>
+        {shortcut && <span className="ml-4 text-xs">{shortcut}</span>}
       </RxMenubar.Item>
     );
   }
@@ -228,21 +225,18 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
 
 type MenubarCheckboxItemProps = RxMenubar.MenubarCheckboxItemProps & {
   colorScheme?: MenubarColorScheme;
-  leftIcon?: ReactNode;
   icon?: ReactNode;
+  shortcut?: string;
 };
 
-const MenubarCheckboxItem = forwardRef<
-  HTMLDivElement,
-  MenubarCheckboxItemProps
->(
+const MenubarCheckboxItem = forwardRef<HTMLDivElement, MenubarCheckboxItemProps>(
   (
     {
       className,
       children,
       colorScheme,
-      leftIcon,
       checked,
+      shortcut,
       icon = <CheckIcon />,
       ...props
     },
@@ -254,6 +248,7 @@ const MenubarCheckboxItem = forwardRef<
           className: cn(
             "flex justify-between items-center",
             "text-[14px]",
+            "pr-2",
             "relative",
             "rounded-sm",
             "focus:cursor-default",
@@ -265,12 +260,13 @@ const MenubarCheckboxItem = forwardRef<
         {...props}
         ref={ref}
       >
-        <div className="w-7 flex justify-center items-center">{leftIcon}</div>
-        {children}
-        <div className="ml-auto pl-2 mr-3 w-[15px]">
-          {!checked && <span className="w-[15px]" />}
-          <RxMenubar.ItemIndicator>{icon}</RxMenubar.ItemIndicator>
-        </div>
+        <span className="flex items-center">
+          <div className="w-7 flex justify-center items-center">
+            <RxMenubar.ItemIndicator>{icon}</RxMenubar.ItemIndicator>
+          </div>
+          {children}
+        </span>
+        {shortcut && <span className="ml-4 text-xs">{shortcut}</span>}
       </RxMenubar.CheckboxItem>
     );
   }
@@ -437,19 +433,19 @@ Menubar.displayName = RxMenubar.Root.displayName;
 
 export { Menubar };
 export type {
-  MenubarProps,
-  MenubarColorScheme,
-  MenubarMenuProps,
-  MenubarTriggerProps,
-  MenubarContentProps,
-  MenubarLabelProps,
-  MenubarItemProps,
+  MenubarArrowProps,
   MenubarCheckboxItemProps,
+  MenubarColorScheme,
+  MenubarContentProps,
+  MenubarItemProps,
+  MenubarLabelProps,
+  MenubarMenuProps,
+  MenubarProps,
   MenubarRadioGroupProps,
   MenubarRadioItemProps,
+  MenubarSeparatorProps,
+  MenubarSubContentProps,
   MenubarSubProps,
   MenubarSubTriggerProps,
-  MenubarSubContentProps,
-  MenubarSeparatorProps,
-  MenubarArrowProps
+  MenubarTriggerProps
 };

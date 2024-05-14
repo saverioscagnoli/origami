@@ -1,16 +1,16 @@
 import { Menubar } from "@components/tredici";
-import { useGlobalStates } from "@hooks/use-global-states";
 import { FilePlusIcon } from "@radix-ui/react-icons";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 const NewFileMenuItem = () => {
-  const { setCreating } = useGlobalStates();
+  const setCreating = useGlobalStates(state => state.setCreating);
 
   const onSelect = () => {
     setCreating({ state: true, isDir: false });
   };
 
   return (
-    <Menubar.Item leftIcon={<FilePlusIcon />} onSelect={onSelect}>
+    <Menubar.Item leftIcon={<FilePlusIcon />} shortcut="Ctrl + N" onSelect={onSelect}>
       New File...
     </Menubar.Item>
   );

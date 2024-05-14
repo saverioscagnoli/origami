@@ -9,8 +9,8 @@ import { Disk } from "./disk";
 const DiskGroup = () => {
   const [disks, setDisks] = useState<TDisk[]>([]);
 
-  useBackendEvent(BackendEvent.SendDisks, newDisks => {
-    setDisks(newDisks);
+  useBackendEvent(BackendEvent.SendDisks, disks => {
+    setDisks(disks);
   });
 
   return (

@@ -1,11 +1,12 @@
 import { cn } from "@lib/utils";
-import { TopbarMenu } from "./menubar";
-import { TopbarDirDisplay } from "./dir-display";
 import { TopbarButtonGroup } from "./button-group";
+import { TopbarDirDisplay } from "./dir-display";
+import { TopbarMenu } from "./menubar";
 
 const Topbar = () => {
   return (
     <div
+      id="topbar"
       className={cn(
         "w-full h-8",
         "fixed top-0 left-0 right-0",

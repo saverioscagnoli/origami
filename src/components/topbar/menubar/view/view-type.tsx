@@ -1,9 +1,11 @@
 import { Menubar } from "@components/tredici";
-import { useSettings } from "@hooks/use-settings";
-import { View } from "@typings/settings";
+import { View, useSettings } from "@zustand/settings-store";
 
 const ViewTypeMenuItems = () => {
-  const { view, updateSettings } = useSettings();
+  const [view, updateSettings] = useSettings(state => [
+    state.view,
+    state.updateSettings
+  ]);
 
   const onValueChange = (value: string) => {
     updateSettings({ view: value as View });

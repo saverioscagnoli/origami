@@ -1,17 +1,20 @@
 import { Menubar } from "@components/tredici";
-import { useSettings } from "@hooks/use-settings";
 import { EyeClosedIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import { useSettings } from "@zustand/settings-store";
 
 const ShowHiddenMenuItem = () => {
-  const { showHidden, updateSettings } = useSettings();
+  const [showHidden, updateSettings] = useSettings(state => [
+    state.showHidden,
+    state.updateSettings
+  ]);
 
-  const onCheckedChange = (value: boolean) => {
-    updateSettings({ showHidden: value });
+  const onCheckedChange = (checked: boolean) => {
+    updateSettings({ showHidden: checked });
   };
 
   return (
     <Menubar.CheckboxItem
-      leftIcon={showHidden ? <EyeOpenIcon /> : <EyeClosedIcon />}
+      shortcut="Ctrl + H"
       checked={showHidden}
       onCheckedChange={onCheckedChange}
     >

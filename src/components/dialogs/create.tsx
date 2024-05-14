@@ -1,29 +1,25 @@
+import { FolderIcon } from "@components/icons";
 import { Dialog, Input } from "@components/tredici";
-import { useCommands } from "@hooks/use-commands";
-import { useCurrentDir } from "@hooks/use-current-dir";
-import { useGlobalStates } from "@hooks/use-global-states";
+import { fileIconMap } from "@lib/file-icon-map";
+import { invoke } from "@lib/mapped-invoke";
 import { cn } from "@lib/utils";
-import { sep } from "@tauri-apps/api/path";
-import { KeyboardEventHandler, useEffect, useMemo, useRef, useState } from "react";
+import { FileIcon } from "@radix-ui/react-icons";
+import { join } from "@tauri-apps/api/path";
+import { CommandName } from "@typings/enums";
+import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-states-store";
+import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
 
 const CreateDialog = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState<string>("");
 
-  const { dir } = useCurrentDir();
-  const { createEntry } = useCommands();
+  const dir = useCurrentDir(state => state.dir);
+  const [{ state: open, isDir }, setCreating] = useGlobalStates(state => [
+    state.creating,
+    state.setCreating
+  ]);
 
-  const { creating, setCreating } = useGlobalStates();
-  const { state: open, isDir } = useMemo(
-    () => creating || { state: false, isDir: false },
-    [creating]
-  );
-
-  const onOpenChange = (value: boolean) => {
-    if (!value) {
-      setCreating(null);
-    }
-  };
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -31,11 +27,22 @@ const CreateDialog = () => {
     }
   }, [open]);
 
-  const onKeyDown: KeyboardEventHandler<HTMLInputElement> = e => {
-    if (e.key === "Enter") {
-      createEntry(dir + sep() + name, isDir);
+  const onOpenChange = (val: boolean) => {
+    if (!val) {
+      setCreating({ state: false });
       setName("");
-      setCreating(null);
+    }
+  };
+
+  const onKeyDown: KeyboardEventHandler = async e => {
+    if (e.key === "Enter") {
+      if (name !== "") {
+        const path = await join(dir, name);
+        invoke(CommandName.CreateEntry, { path, isDir });
+        setName("");
+      }
+
+      setCreating({ state: false });
     }
   };
 
@@ -43,14 +50,25 @@ const CreateDialog = () => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className={cn("w-1/3")}>
         <Dialog.Title>Create {isDir ? "Folder" : "File"}</Dialog.Title>
-        <Input
-          className={cn("mt-2", "font-normal")}
-          spellCheck={false}
-          value={name}
-          onValueChange={setName}
-          onKeyDown={onKeyDown}
-          ref={inputRef}
-        />
+        <div className={cn("flex items-center gap-4", "mt-2")}>
+          <span className={cn("w-10 h-10")}>
+            {isDir ? (
+              <FolderIcon className={cn("w-full h-full")} />
+            ) : (
+              fileIconMap.get(name.split(".").pop() ?? "") ?? (
+                <FileIcon className={cn("w-full h-full")} />
+              )
+            )}
+          </span>
+          <Input
+            className={cn("w-full", "font-normal")}
+            spellCheck={false}
+            value={name}
+            onValueChange={setName}
+            onKeyDown={onKeyDown}
+            ref={inputRef}
+          />
+        </div>
         <Dialog.Close />
       </Dialog.Content>
     </Dialog>

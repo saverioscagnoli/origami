@@ -1,38 +1,31 @@
 import { Menubar } from "@components/tredici";
-import { useCommands } from "@hooks/use-commands";
-import { useCurrentDir } from "@hooks/use-current-dir";
-import { useGlobalStates } from "@hooks/use-global-states";
+import { invoke } from "@lib/mapped-invoke";
 
 import { ClipboardIcon } from "@radix-ui/react-icons";
+import { CommandName } from "@typings/enums";
+import { useCurrentDir } from "@zustand/curent-dir-store";
+import { useGlobalStates } from "@zustand/global-states-store";
 import { useMemo } from "react";
 
 const PasteMenuItem = () => {
-  const { copying, cutting } = useGlobalStates();
-  const { pasteEntries } = useCommands();
-  const { dir } = useCurrentDir();
+  const dir = useCurrentDir(state => state.dir);
+  const [clipboard, setClipboard] = useGlobalStates(state => [
+    state.clipboard,
+    state.setClipboard
+  ]);
 
-  const canPaste = useMemo(
-    () => copying.length > 0 || cutting.length > 0,
-    [copying, cutting]
-  );
+  const canPaste = useMemo(() => clipboard.entries.length > 0, [clipboard]);
 
   const onSelect = () => {
-    let paths: string[];
-    let isCutting = false;
-
-    if (cutting.length > 0) {
-      paths = cutting.map(e => e.path);
-      isCutting = true;
-    } else {
-      paths = copying.map(e => e.path);
-    }
-
-    pasteEntries(paths, dir, isCutting);
+    const paths = clipboard.entries.map(e => e.path);
+    invoke(CommandName.PasteEntries, { paths, dest: dir, cut: clipboard.cut });
+    setClipboard({ entries: [], cut: false });
   };
 
   return (
     <Menubar.Item
       leftIcon={<ClipboardIcon />}
+      shortcut="Ctrl + V"
       disabled={!canPaste}
       onSelect={onSelect}
     >

@@ -1,43 +1,31 @@
 import { Button, Dialog } from "@components/tredici";
-import { useGlobalStates } from "@hooks/use-global-states";
 import { cn } from "@lib/utils";
-import React from "react";
+import { useGlobalStates } from "@zustand/global-states-store";
+import { useMemo } from "react";
 
 const ErrorDialog = () => {
-  const { errors, setErrors } = useGlobalStates();
+  const [error, setError] = useGlobalStates(s => [s.error, s.setError]);
 
-  const onOpenChange = (value: boolean) => {
-    if (!value) {
-      setErrors(null);
+  const open = useMemo(() => error !== null, [error]);
+
+  const onOpenChange = (val: boolean) => {
+    if (!val) {
+      setError(null);
     }
   };
 
   return (
-    <Dialog open={errors !== null} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content>
-        <Dialog.Title>
-          {errors?.length > 1 ? `${errors.length} Errors!` : "Error!"}
-        </Dialog.Title>
-        <Dialog.Description>
-          {errors?.length > 1
-            ? errors?.map((err, i) => (
-                <React.Fragment key={i}>
-                  <span>
-                    Error {i}: {err}
-                  </span>
-                  <br />
-                </React.Fragment>
-              ))
-            : errors?.at(0)}
-        </Dialog.Description>
-        <Dialog.Close />
+        <Dialog.Title>Error!</Dialog.Title>
+        <Dialog.Description>{error}</Dialog.Description>
         <div className={cn("flex justify-end")}>
           <Dialog.Close>
-            <Button colorScheme="b/w" variant="secondary">
-              Ok
-            </Button>
+            <Button>Ok</Button>
           </Dialog.Close>
         </div>
+
+        <Dialog.Close />
       </Dialog.Content>
     </Dialog>
   );

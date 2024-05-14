@@ -1,124 +1,118 @@
-import { EnvironmentState } from "@redux/environment-slice";
 import { invoke as defaultInvoke } from "@tauri-apps/api/core";
+import { getCurrent } from "@tauri-apps/api/window";
 import { DirEntry } from "@typings/dir-entry";
-import { Command } from "@typings/enums";
-import { Settings } from "@typings/settings";
+import { CommandName } from "@typings/enums";
 
-type InvokeMap = {
-  [Command.ListDir]: { args: { path: string }; returns: [DirEntry[], string] };
-  [Command.PollDisks]: { args: {}; returns: void };
-  [Command.OpenFiles]: { args: { paths: string[] }; returns: void };
-  [Command.RenameEntry]: {
-    args: { path: string; newName: string };
-    returns: [string, string];
-  };
+type CommandArgsMap = {
   /**
-   * Data for the delete entries command
-   * @param paths The paths to delete
-   * @returns A tuple containing the deleted paths and any errors
+   * List directory
+   * @param dir - Directory to list
    */
-  [Command.DeleteEntries]: {
-    args: { paths: string[] };
-    returns: [string[], string[]];
-  };
+  [CommandName.ListDir]: { dir: string };
 
   /**
-   * Data for the create entry command
-   * @param path The path to create the entry in
-   * @param isDir Whether the entry is a directory
-   * @returns A tuple containing the path of the created entry and any errors
+   * Poll disks
    */
-  [Command.CreateEntry]: {
-    args: { path: string; isDir: boolean };
-    returns: [string, string?];
-  };
+  [CommandName.PollDisks]: null;
 
   /**
-   * Data for the star entry command
-   * @param path The path to the entry
-   * @returns The new starred status of the entry
+   * Create entry
+   * @param path - Path to create
+   * @param isDir - Is directory
    */
-  [Command.StarEntries]: { args: { paths: string[] }; returns: [string, string[]] };
+  [CommandName.CreateEntry]: { path: string; isDir: boolean };
 
   /**
-   * Data for the unstar entry command
-   * @param path The path to the entry
-   * @returns The new starred status of the entry
+   * Delete entries
+   * @param paths - Paths to delete
    */
-  [Command.UnstarEntries]: {
-    args: { paths: string[] };
-    returns: [string, string[]];
-  };
+  [CommandName.DeleteEntries]: { paths: string[] };
 
   /**
-   * Data for the paste entries command
-   * @param paths The paths to paste
-   * @param newDir The destination path
-   * @param isCutting Whether the operation is a cut or copy
-   * @returns A tuple containing the new paths and any errors
+   * Renames an entry IN THE CURRENT DIRECTORY
+   * @param oldPath - Old path
+   * @param newName - New name
    */
-  [Command.PasteEntries]: {
-    args: { paths: string[]; newDir: string; isCutting: boolean };
-    returns: [string[], string[]];
-  };
-
-  [Command.LoadSettings]: { args: {}; returns: Settings };
-  [Command.UpdateSettings]: {
-    args: { key: keyof Settings; value: string };
-    returns: void;
-  };
+  [CommandName.RenameEntry]: { oldPath: string; newName: string };
 
   /**
-   * Data for the get image base64 command
-   * @param path The path to the image
-   * @returns The base64 encoded image
+   * Open files
+   * @param paths - Paths to open
    */
-  [Command.GetImageBase64]: { args: { path: string }; returns: string };
+  [CommandName.OpenFiles]: { paths: string[] };
 
   /**
-   * Data for the close window command
-   * @param label The label of the window to close
+   * Paste entries
+   * @param paths - Paths to paste
+   * @param dest - Destination path
+   * @param cut - Whether the entries were cut
    */
-  [Command.CloseWindow]: { args: { label: string }; returns: void };
+  [CommandName.PasteEntries]: { paths: string[]; dest: string; cut: boolean };
 
   /**
-   * Creates a new main window
+   * Spawns another window.
+   * No args needed
    */
-  [Command.CreateWindow]: { args: null; returns: void };
+  [CommandName.SpawnMainWindow]: null;
 
   /**
-   * Quits the app
+   * Closes all windows and exits the app.
+   * No args needed.
    */
-  [Command.CloseAllWindows]: { args: null; returns: void };
+  [CommandName.CloseAllWindows]: null;
 
   /**
-   * Loads the environment state,
-   * such as if vscode is installed, terminal is available,
-   * Downloads, Documents, etc.
+   * Adds entries to starred list.
+   * @param paths - Paths to star
    */
-  [Command.LoadEnvironment]: { args: null; returns: EnvironmentState };
+  [CommandName.StarEntries]: { paths: string[] };
 
   /**
-   * Opens a directory in vscode
-   * @param dir The directory to open
-   * @returns [value, error] where value is the directory opened.
+   * Removes entries from starred list.
+   * @param paths - Paths to unstar
    */
-  [Command.OpenInVscode]: { args: { dir: string }; returns: [string?, string?] };
+  [CommandName.UnstarEntries]: { paths: string[] };
 
   /**
-   * Opens a directory in windows terminal
-   * @param dir The directory to open
-   * @returns [value, error] where value is the directory opened.
-   * (Windows only :3)
+   * Get image base64
+   * @param path - Path to image
    */
-  [Command.OpenInWindowsTerminal]: {
-    args: { dir: string };
-    returns: [string?, string?];
-  };
+  [CommandName.GetImageBase64]: { path: string };
+
+  /**
+   * Filter entries
+   * @param entries - Entries to filter
+   * @param query - Filter query
+   */
+  [CommandName.FilterEnties]: { entries: DirEntry[]; query: string };
+
+  /**
+   * Build index
+   */
+  [CommandName.BuildIndex]: null;
+
+  /**
+   * Search everywhere
+   * @param query - Search query
+   */
+  [CommandName.SearchEverywhere]: { query: string };
+
+  /**
+   * Watch disk changes
+   */
+  [CommandName.WatchDiskChanges]: null;
+
+  /**
+   * Load css modules
+   */
+  [CommandName.LoadCSSModules]: null;
 };
 
-async function invoke<K extends Command>(command: K, args?: InvokeMap[K]["args"]) {
-  return await defaultInvoke<InvokeMap[K]["returns"]>(command, args);
+async function invoke<K extends CommandName>(command: K, args?: CommandArgsMap[K]) {
+  const { label } = getCurrent();
+
+  return defaultInvoke(command, { ...args, label });
 }
 
 export { invoke };
+export type { CommandArgsMap };

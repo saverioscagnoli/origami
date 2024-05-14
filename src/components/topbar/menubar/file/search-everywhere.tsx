@@ -3,7 +3,9 @@ import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
 const SearchEverywhereMenuItem = () => {
   return (
-    <Menubar.Item leftIcon={<MagnifyingGlassIcon />}>Search Everywhere</Menubar.Item>
+    <Menubar.Item leftIcon={<MagnifyingGlassIcon />} shortcut="Ctrl + Shift + F">
+      Search Everywhere
+    </Menubar.Item>
   );
 };
 

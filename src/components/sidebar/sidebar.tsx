@@ -1,6 +1,6 @@
 import { cn } from "@lib/utils";
-import { SidebarFolderGroup } from "./folder-group";
 import { DiskGroup } from "./disk-group";
+import { SidebarFolderGroup } from "./folder-group";
 
 const Sidebar = () => {
   return (

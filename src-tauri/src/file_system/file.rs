@@ -1,51 +1,68 @@
-use std::{ io::{ self, Read, Write }, path::Path };
+use std::{
+    fs::Metadata,
+    io::{self, BufRead, Write},
+    path::Path,
+};
 
-use super::{ api::get_read_rate_mbps, structs::CopyProgress };
+pub fn get_size(meta: &Metadata) -> u64 {
+    if meta.is_dir() {
+        return 0;
+    } else {
+        return meta.len();
+    }
+}
 
-pub fn copy_file_with_progress<P: AsRef<Path>, Q: AsRef<Path>, F>(
-  from: P,
-  to: Q,
-  mut callback: F,
-  stagger: Option<u64>
-) -> io::Result<()>
-  where F: FnMut(CopyProgress) + Sync + Send
+pub async fn create_file<P: AsRef<Path>>(path: P) -> io::Result<()> {
+    tokio::fs::File::create(path).await.map(|_| ())
+}
+
+pub async fn delete_file<P: AsRef<Path>>(path: P) -> io::Result<()> {
+    tokio::fs::remove_file(path).await
+}
+
+pub async fn copy_file<P: AsRef<Path>, Q: AsRef<Path>>(from: P, to: Q) -> io::Result<()> {
+    tokio::fs::copy(from, to).await.map(|_| ())
+}
+
+use std::time::{Duration, Instant};
+
+pub fn copy_file_with_progress<P: AsRef<Path>, Q: AsRef<Path>, F>(from: P, to: Q, mut callback: F)
+where
+    F: FnMut(u64, usize) + Send + Sync,
 {
-  let from = from.as_ref().to_path_buf();
-  let to = to.as_ref().to_path_buf();
+    let total = std::fs::metadata(&from).unwrap().len();
 
-  let total_bytes = from.metadata()?.len();
-  let mut reader = std::fs::File::open(&from)?;
-  let mut writer = std::fs::File::create(&to)?;
+    let from = std::fs::File::open(&from).unwrap();
+    let to = std::fs::File::create(&to).unwrap();
 
-  let mut copied_bytes = 0;
-  let mut buffer = [0; 4096];
+    let mut buf_r = std::io::BufReader::with_capacity(4096 * 16, from);
+    let mut buf_w = std::io::BufWriter::with_capacity(4096 * 16, to);
+    let mut copied = 0;
 
-  let mut i = 0;
-  let mut start = std::time::Instant::now();
+    let mut last_callback = Instant::now();
+    let dur = Duration::from_millis(100);
 
-  loop {
-    let bytes_read = reader.read(&mut buffer)?;
-    if bytes_read == 0 {
-      break;
+    loop {
+        let len = {
+            let data = buf_r.fill_buf().unwrap();
+
+            buf_w.write(data).unwrap();
+            buf_w.flush().unwrap();
+
+            data.len()
+        };
+
+        copied += len;
+
+        if last_callback.elapsed() >= dur {
+            callback(total, copied);
+            last_callback = Instant::now();
+        }
+
+        if len == 0 {
+            break;
+        }
+
+        buf_r.consume(len);
     }
-
-    writer.write_all(&buffer[..bytes_read])?;
-    copied_bytes += bytes_read as u64;
-
-    if i % stagger.unwrap_or(2500) == 0 {
-      let elapsed = start.elapsed().as_secs_f64();
-
-      let read_rate = get_read_rate_mbps(copied_bytes, elapsed);
-
-      callback(CopyProgress {
-        total_bytes,
-        copied_bytes,
-        read_rate,
-      });
-    }
-
-    i += 1;
-  }
-
-  Ok(())
 }

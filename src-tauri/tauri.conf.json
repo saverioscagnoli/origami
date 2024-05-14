@@ -1,7 +1,7 @@
 {
   "productName": "origami",
   "version": "0.0.0",
-  "identifier": "origami.dev",
+  "identifier": "origami",
   "build": {
     "beforeDevCommand": "yarn dev",
     "devUrl": "http://localhost:1420",
@@ -12,8 +12,8 @@
     "windows": [
       {
         "title": "origami",
-        "width": 1080,
-        "height": 820,
+        "width": 1000,
+        "height": 800,
         "decorations": false
       }
     ],

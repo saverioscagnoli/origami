@@ -1,16 +1,16 @@
 import { FolderIcon } from "@components/icons";
 import { Menubar } from "@components/tredici";
-import { useGlobalStates } from "@hooks/use-global-states";
+import { useGlobalStates } from "@zustand/global-states-store";
 
 const NewFolderMenuItem = () => {
-  const { setCreating } = useGlobalStates();
+  const setCreating = useGlobalStates(state => state.setCreating);
 
   const onSelect = () => {
     setCreating({ state: true, isDir: true });
   };
 
   return (
-    <Menubar.Item leftIcon={<FolderIcon />} onSelect={onSelect}>
+    <Menubar.Item leftIcon={<FolderIcon />} shortcut="Ctrl + Shift + N" onSelect={onSelect}>
       New Folder...
     </Menubar.Item>
   );

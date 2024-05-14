@@ -28,7 +28,6 @@ const EntryCheckbox: FC<EntryCheckboxProps> = ({
       checked={checked}
       onCheckedChange={onCheckedChange}
       onClick={e => e.stopPropagation()}
-      onDoubleClick={e => e.stopPropagation()}
     />
   );
 };

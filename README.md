@@ -1,3 +1,3 @@
 # Origami
 
-Fast, simple and customizable file explorer
+Fast, light, customizable and open source file explorer.
