@@ -20,3 +20,6 @@ pub const SETTINGS_FILE_NAME: &str = "settings.json";
 
 /* Index file name, found in the app config dir */
 pub const INDEX_FILE_NAME: &str = "index.json";
+
+/* The interval at which the backend should communicate the copying progress */
+pub const COPY_FILE_EVENT_INTERVAL_MS: u64 = 100;

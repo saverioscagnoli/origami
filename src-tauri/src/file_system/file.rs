@@ -26,6 +26,8 @@ pub async fn copy_file<P: AsRef<Path>, Q: AsRef<Path>>(from: P, to: Q) -> io::Re
 
 use std::time::{Duration, Instant};
 
+use crate::consts::COPY_FILE_EVENT_INTERVAL_MS;
+
 pub fn copy_file_with_progress<P: AsRef<Path>, Q: AsRef<Path>, F>(from: P, to: Q, mut callback: F)
 where
     F: FnMut(u64, usize) + Send + Sync,
@@ -40,7 +42,7 @@ where
     let mut copied = 0;
 
     let mut last_callback = Instant::now();
-    let dur = Duration::from_millis(100);
+    let dur = Duration::from_millis(COPY_FILE_EVENT_INTERVAL_MS);
 
     loop {
         let len = {

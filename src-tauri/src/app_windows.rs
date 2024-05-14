@@ -43,6 +43,7 @@ pub async fn spawn_copy_window(app: &AppHandle) -> tauri::WebviewWindow {
 
     WebviewWindowBuilder::new(app, label, WebviewUrl::App("copy.html".into()))
         .inner_size(400.0, 200.0)
+        .resizable(false)
         .title("Copy files")
         .build()
         .unwrap()
