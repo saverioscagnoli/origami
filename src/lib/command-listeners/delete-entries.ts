@@ -1,10 +1,8 @@
 import { useCommandResponse } from "@hooks/use-command-response";
-import { CommandName, CommandStatus } from "@typings/enums";
-import { useCallstack } from "@zustand/callstack-store";
+import { CommandName } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 
 function deleteEntriesListen() {
-  const updateStatus = useCallstack(state => state.updateStatus);
   const [entries, removeEntries, replaceSelected] = useCurrentDir(s => [
     s.entries,
     s.removeEntries,
@@ -14,11 +12,10 @@ function deleteEntriesListen() {
   useCommandResponse(
     CommandName.DeleteEntries,
     payload => {
-      const [id, data, error, isFinished] = payload;
+      const [data, error, isFinished] = payload;
 
       if (error) {
         replaceSelected([]);
-        updateStatus(id, CommandStatus.Error);
         alert(error);
         return;
       }
@@ -27,7 +24,6 @@ function deleteEntriesListen() {
 
       if (isFinished) {
         replaceSelected([]);
-        updateStatus(id, CommandStatus.Success);
         return;
       }
     },

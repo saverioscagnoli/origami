@@ -1,7 +1,5 @@
 import { Input } from "@components/tredici";
 import { cn } from "@lib/utils";
-import { CommandName } from "@typings/enums";
-import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useGlobalStates } from "@zustand/global-states-store";
 import { KeyboardEventHandler, useEffect, useRef } from "react";
@@ -38,7 +36,6 @@ const SearchInput = () => {
         stopSearching();
 
         if (searching.where === "everywhere" && searching.query !== "") {
-          push(CommandName.SearchEverywhere, { query: searching.query });
         }
 
         break;
@@ -49,8 +46,6 @@ const SearchInput = () => {
       }
     }
   };
-
-  const push = useCallstack(state => state.push);
 
   const onValueChange = async (query: string) => {
     setSearching({ query });

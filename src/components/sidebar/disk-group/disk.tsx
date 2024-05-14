@@ -1,16 +1,14 @@
 import { Progress } from "@components/tredici";
+import { invoke } from "@lib/mapped-invoke";
 import { cn, formatBytes, percentage } from "@lib/utils";
 import { BackpackIcon } from "@radix-ui/react-icons";
 import { Disk as TDisk } from "@typings/disk";
 import { CommandName } from "@typings/enums";
-import { useCallstack } from "@zustand/callstack-store";
 import { UsbIcon } from "lucide-react";
 import { FC } from "react";
 
 const Disk: FC<TDisk> = ({ totalSpace, freeSpace, mountPoint, isRemovable }) => {
-  const push = useCallstack(state => state.push);
-
-  const onClick = () => push(CommandName.ListDir, { dir: mountPoint });
+  const onClick = () => invoke(CommandName.ListDir, { dir: mountPoint });
 
   return (
     <div

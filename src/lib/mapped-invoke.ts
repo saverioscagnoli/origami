@@ -1,4 +1,5 @@
 import { invoke as defaultInvoke } from "@tauri-apps/api/core";
+import { getCurrent } from "@tauri-apps/api/window";
 import { DirEntry } from "@typings/dir-entry";
 import { CommandName } from "@typings/enums";
 
@@ -102,11 +103,10 @@ type CommandArgsMap = {
   [CommandName.WatchDiskChanges]: null;
 };
 
-async function invoke<K extends CommandName>(
-  command: K,
-  args?: CommandArgsMap[K] & { id: number }
-) {
-  return defaultInvoke(command, args);
+async function invoke<K extends CommandName>(command: K, args?: CommandArgsMap[K]) {
+  const { label } = getCurrent();
+
+  return defaultInvoke(command, { ...args, label });
 }
 
 export { invoke };

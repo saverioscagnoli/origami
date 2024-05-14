@@ -1,6 +1,7 @@
 import { ScrollArea } from "@components/tredici";
 import FilterWorker from "@lib/search-worker?worker";
 import { cn, filter } from "@lib/utils";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { DirEntry } from "@typings/dir-entry";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useGlobalStates } from "@zustand/global-states-store";
@@ -16,7 +17,6 @@ import { Virtuoso, VirtuosoGrid } from "react-virtuoso";
 import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
 import { ImagePreview } from "./image-preview";
-import { RestrictedEntry } from "./restricted-entry";
 import { SelectedEntriesContextMenu } from "./selected";
 
 const Workspace = () => {
@@ -64,6 +64,12 @@ const Workspace = () => {
     }
   }, [entries, showHidden, searching]);
 
+  const rowVirtualizer = useVirtualizer({
+    count: filtered.length,
+    getScrollElement: () => scrollRef,
+    estimateSize: () => 24
+  });
+
   return (
     <EmptySpaceContextMenu>
       <ScrollArea className={cn("w-full h-full", "relative")} id="workspace">
@@ -71,42 +77,31 @@ const Workspace = () => {
           className={cn("w-full h-full", "rounded-[inherit]")}
           ref={setScrollRef}
         >
-          {isSearchingEverywhere ? (
-            <Virtuoso
-              data={filtered}
-              totalCount={filtered.length}
-              firstItemIndex={24}
-              customScrollParent={scrollRef ?? undefined}
-              itemContent={(_, entry) => <RestrictedEntry {...entry} />}
-              components={listComponents}
-            />
-          ) : (
-            <>
-              {view === "list" ? (
-                <Virtuoso
-                  data={filtered}
-                  totalCount={filtered.length}
-                  fixedItemHeight={24}
-                  customScrollParent={scrollRef ?? undefined}
-                  itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
-                  components={listComponents}
-                />
-              ) : (
-                <VirtuosoGrid
-                  data={filtered}
-                  totalCount={filtered.length}
-                  customScrollParent={scrollRef ?? undefined}
-                  itemContent={(_, entry) => (
-                    <SelectedEntriesContextMenu>
-                      <Entry key={entry.name} {...entry} />
-                    </SelectedEntriesContextMenu>
-                  )}
-                  components={gridComponents}
-                />
-              )}
-              <ImagePreview />
-            </>
-          )}
+          <>
+            {view === "list" ? (
+              <Virtuoso
+                data={filtered}
+                totalCount={filtered.length}
+                fixedItemHeight={24}
+                customScrollParent={scrollRef ?? undefined}
+                itemContent={(_, entry) => <Entry key={entry.name} {...entry} />}
+                components={listComponents}
+              />
+            ) : (
+              <VirtuosoGrid
+                data={filtered}
+                totalCount={filtered.length}
+                customScrollParent={scrollRef ?? undefined}
+                itemContent={(_, entry) => (
+                  <SelectedEntriesContextMenu>
+                    <Entry key={entry.name} {...entry} />
+                  </SelectedEntriesContextMenu>
+                )}
+                components={gridComponents}
+              />
+            )}
+            <ImagePreview />
+          </>
 
           <ScrollArea.Scrollbar className={cn("mr-1")} />
         </ScrollArea.Viewport>

@@ -1,8 +1,8 @@
 import { Input, Popover } from "@components/tredici";
+import { invoke } from "@lib/mapped-invoke";
 import { cn } from "@lib/utils";
 import { CommandName } from "@typings/enums";
 import { ChildrenProps } from "@typings/props";
-import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useGlobalStates } from "@zustand/global-states-store";
 import {
@@ -28,8 +28,6 @@ const RenamePopover: FC<RenamePopoverProps> = ({ children, name }) => {
     state.replaceSelected
   ]);
 
-  const push = useCallstack(state => state.push);
-
   const open = useMemo(() => renaming?.name === name, [renaming]);
 
   useEffect(() => {
@@ -52,7 +50,7 @@ const RenamePopover: FC<RenamePopoverProps> = ({ children, name }) => {
       // @ts-ignore
       case "Enter": {
         const oldPath = selected.at(0)!.path;
-        push(CommandName.RenameEntry, { oldPath, newName: value });
+        invoke(CommandName.RenameEntry, { oldPath, newName: value });
       }
       case "Escape": {
         setRenaming(null);

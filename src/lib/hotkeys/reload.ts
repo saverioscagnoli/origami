@@ -1,7 +1,7 @@
+import { invoke } from "@lib/mapped-invoke";
 import { isHotkeyInvalid } from "@lib/utils";
 import { CommandName } from "@typings/enums";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
-import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 
 /**
@@ -11,7 +11,6 @@ import { useCurrentDir } from "@zustand/curent-dir-store";
  */
 
 function reloadHotkey() {
-  const push = useCallstack(state => state.push);
   const dir = useCurrentDir(state => state.dir);
 
   useHotkey(
@@ -21,7 +20,7 @@ function reloadHotkey() {
       e.preventDefault();
       if (isHotkeyInvalid({ repeat: e.repeat })) return;
 
-      push(CommandName.ListDir, { dir });
+      invoke(CommandName.ListDir, { dir });
     },
     [dir]
   );

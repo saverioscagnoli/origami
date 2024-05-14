@@ -10,7 +10,6 @@ import { cn } from "@lib/utils";
 import { emit } from "@tauri-apps/api/event";
 import { BasicDirLabel, CommandName, FrontendEvent } from "@typings/enums";
 import { useEvent } from "@util-hooks/use-event";
-import { useCallstack } from "@zustand/callstack-store";
 import { useEnvironment } from "@zustand/environment-store";
 import { useEffect } from "react";
 
@@ -30,8 +29,6 @@ function App() {
     invoke(CommandName.PollDisks);
   }, []);
 
-  const push = useCallstack(state => state.push);
-
   /**
    * On basic directories resolved (app start).
    * Cd into home directory.
@@ -40,7 +37,7 @@ function App() {
     const home = basicDirs.find(dir => dir.label === BasicDirLabel.Home);
 
     if (home) {
-      push(CommandName.ListDir, { dir: home.path });
+      invoke(CommandName.ListDir, { dir: home.path });
     }
   }, [basicDirs]);
 

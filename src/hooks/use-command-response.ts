@@ -5,11 +5,6 @@ import { DependencyList, useEffect } from "react";
 
 type BasePayload<T> = [
   /**
-   * The id of the command (For removing in the callstack)
-   */
-  id: number,
-
-  /**
    * The data the command is supposed to return, if not an error
    */
   data: T | null,

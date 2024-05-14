@@ -11,24 +11,23 @@ use std::{path::Path, thread};
 use tauri::{AppHandle, Manager, WebviewWindow};
 
 #[tauri::command]
-pub async fn list_dir(app: AppHandle, dir: String, id: u64, label: String) -> Result<(), ()> {
+pub async fn list_dir(app: AppHandle, dir: String, label: String) -> Result<(), ()> {
     tokio::spawn(async move {
         let app_paths = app.state::<AppPaths>();
         let starred_dir = &app_paths.starred_dir;
 
         let entries = dir::list_dir(&dir, starred_dir, |entries| {
-            Command::ListDir(id, Some((dir.clone(), entries)), None, false)
-                .emit(&app, label.clone());
+            Command::ListDir(Some((dir.clone(), entries)), None, false).emit(&app, label.clone());
         });
 
         match entries {
             Ok(entries) => {
-                Command::ListDir(id, Some((dir.clone(), entries)), None, true).emit(&app, label);
+                Command::ListDir(Some((dir.clone(), entries)), None, true).emit(&app, label);
                 log::info!("Listed directory: {:?}", dir);
             }
 
             Err(err) => {
-                Command::ListDir(id, None, Some(err.to_string()), true).emit(&app, label);
+                Command::ListDir(None, Some(err.to_string()), true).emit(&app, label);
                 log::error!("Failed to list directory: {:?}", dir);
             }
         }
@@ -38,7 +37,7 @@ pub async fn list_dir(app: AppHandle, dir: String, id: u64, label: String) -> Re
 }
 
 #[tauri::command]
-pub async fn create_entry(app: AppHandle, path: String, is_dir: bool, id: u64, label: String) {
+pub async fn create_entry(app: AppHandle, path: String, is_dir: bool, label: String) {
     tokio::spawn(async move {
         let res = if is_dir {
             dir::create_dir(&path).await
@@ -54,13 +53,8 @@ pub async fn create_entry(app: AppHandle, path: String, is_dir: bool, id: u64, l
                 let entry = super::into_entry(&path, Some(starred_dir));
 
                 if entry.is_none() {
-                    Command::CreateEntry(
-                        id,
-                        None,
-                        Some("Failed to create entry".to_string()),
-                        true,
-                    )
-                    .emit(&app, label);
+                    Command::CreateEntry(None, Some("Failed to create entry".to_string()), true)
+                        .emit(&app, label);
 
                     log::error!("Failed to create entry: {:?}", path);
                     return;
@@ -68,12 +62,12 @@ pub async fn create_entry(app: AppHandle, path: String, is_dir: bool, id: u64, l
 
                 let entry = entry.unwrap();
 
-                Command::CreateEntry(id, Some(entry), None, true).emit(&app, label);
+                Command::CreateEntry(Some(entry), None, true).emit(&app, label);
                 log::info!("Created entry: {:?}", path);
             }
 
             Err(err) => {
-                Command::CreateEntry(id, None, Some(err.to_string()), true).emit(&app, label);
+                Command::CreateEntry(None, Some(err.to_string()), true).emit(&app, label);
                 log::error!("Failed to create entry: {:?}", path);
             }
         }
@@ -81,7 +75,7 @@ pub async fn create_entry(app: AppHandle, path: String, is_dir: bool, id: u64, l
 }
 
 #[tauri::command]
-pub async fn delete_entries(app: AppHandle, paths: Vec<String>, id: u64, label: String) {
+pub async fn delete_entries(app: AppHandle, paths: Vec<String>, label: String) {
     let label_clone = label.clone();
 
     let path_resolver = app.path();
@@ -115,13 +109,13 @@ pub async fn delete_entries(app: AppHandle, paths: Vec<String>, id: u64, label: 
 
             match res {
                 Ok(_) => {
-                    Command::DeleteEntries(id, Some(path.to_string()), None, is_last)
+                    Command::DeleteEntries(Some(path.to_string()), None, is_last)
                         .emit(&app, label_clone.clone());
                     log::info!("Deleted entry: {:?}", path_clone);
                 }
 
                 Err(err) => {
-                    Command::DeleteEntries(id, None, Some(err.to_string()), is_last)
+                    Command::DeleteEntries(None, Some(err.to_string()), is_last)
                         .emit(&app, label_clone.clone());
                     log::error!("Failed to delete entry: {:?}", path);
                 }
@@ -131,13 +125,7 @@ pub async fn delete_entries(app: AppHandle, paths: Vec<String>, id: u64, label: 
 }
 
 #[tauri::command]
-pub async fn rename_entry(
-    app: AppHandle,
-    old_path: String,
-    new_name: String,
-    id: u64,
-    label: String,
-) {
+pub async fn rename_entry(app: AppHandle, old_path: String, new_name: String, label: String) {
     tokio::spawn(async move {
         let app_paths = app.state::<AppPaths>();
         let starred_dir = &app_paths.starred_dir;
@@ -150,14 +138,13 @@ pub async fn rename_entry(
         match res {
             Ok(_) => {
                 let entry = file_system::into_entry(&new_path, Some(starred_dir)).unwrap();
-                Command::RenameEntry(id, Some((old_path.clone(), entry)), None, true)
-                    .emit(&app, label);
+                Command::RenameEntry(Some((old_path.clone(), entry)), None, true).emit(&app, label);
 
                 log::info!("Renamed entry: {:?} to {:?}", old_path, new_path);
             }
 
             Err(err) => {
-                Command::RenameEntry(id, None, Some(err.to_string()), true).emit(&app, label);
+                Command::RenameEntry(None, Some(err.to_string()), true).emit(&app, label);
                 log::error!(
                     "Failed to rename entry: {:?} to {:?} - {:?}",
                     old_path,
@@ -170,7 +157,7 @@ pub async fn rename_entry(
 }
 
 #[tauri::command]
-pub async fn open_files(app: AppHandle, paths: Vec<String>, id: u64, label: String) {
+pub async fn open_files(app: AppHandle, paths: Vec<String>, label: String) {
     let label_clone = label.clone();
 
     tokio::spawn(async move {
@@ -181,13 +168,13 @@ pub async fn open_files(app: AppHandle, paths: Vec<String>, id: u64, label: Stri
 
             match res {
                 Ok(_) => {
-                    Command::OpenFiles(id, Some(path.to_string()), None, is_last)
+                    Command::OpenFiles(Some(path.to_string()), None, is_last)
                         .emit(&app, label_clone.clone());
                     log::info!("Opened file: {:?}", path);
                 }
 
                 Err(err) => {
-                    Command::OpenFiles(id, None, Some(err.to_string()), is_last)
+                    Command::OpenFiles(None, Some(err.to_string()), is_last)
                         .emit(&app, label_clone.clone());
                     log::error!("Failed to open file: {:?}", path);
                 }
@@ -202,7 +189,6 @@ pub async fn paste_entries(
     paths: Vec<String>,
     dest: String,
     cut: bool,
-    id: u64,
     label: String,
 ) {
     tokio::spawn(async move {
@@ -223,13 +209,13 @@ pub async fn paste_entries(
                 match res {
                     Ok(_) => {
                         let entry = file_system::into_entry(&new_path, Some(starred_dir)).unwrap();
-                        Command::PasteEntries(id, Some(entry), None, is_finished)
+                        Command::PasteEntries(Some(entry), None, is_finished)
                             .emit(&app, label.clone());
                         log::info!("Pasted entry: {:?}", path);
                     }
 
                     Err(err) => {
-                        Command::PasteEntries(id, None, Some(err.to_string()), is_finished)
+                        Command::PasteEntries(None, Some(err.to_string()), is_finished)
                             .emit(&app, label.clone());
                         log::error!("Failed to paste entry: {:?} - {:?}", path, err);
                     }
@@ -255,7 +241,7 @@ pub async fn paste_entries(
                 let win = spawn_copy_window(&app).await;
 
                 thread::spawn(move || {
-                    paste_heavy(&app, paths, dest, id, label, win);
+                    paste_heavy(&app, paths, dest, label, win);
                 });
             } else {
                 for (i, path) in paths.iter().enumerate() {
@@ -273,12 +259,11 @@ pub async fn paste_entries(
                     match res {
                         Ok(_) => {
                             let entry = file_system::into_entry(&dest, Some(starred_dir)).unwrap();
-                            Command::PasteEntries(id, Some(entry), None, i == paths.len() - 1)
+                            Command::PasteEntries(Some(entry), None, i == paths.len() - 1)
                                 .emit(&app, label.clone());
                         }
                         Err(err) => {
                             Command::PasteEntries(
-                                id,
                                 None,
                                 Some(err.to_string()),
                                 i == paths.len() - 1,
@@ -297,7 +282,6 @@ pub fn paste_heavy(
     app: &AppHandle,
     paths: Vec<String>,
     dest: String,
-    id: u64,
     label: String,
     win: WebviewWindow,
 ) {
@@ -309,7 +293,7 @@ pub fn paste_heavy(
     };
 
     let on_entry_copied = |entry, is_finished| {
-        Command::PasteEntries(id, Some(entry), None, is_finished).emit(&app, label.clone());
+        Command::PasteEntries(Some(entry), None, is_finished).emit(&app, label.clone());
     };
 
     _ = file_system::copy_items_with_progress(paths, dest, starred_dir, callback, on_entry_copied);
@@ -318,7 +302,7 @@ pub fn paste_heavy(
 }
 
 #[tauri::command]
-pub async fn star_entries(app: AppHandle, paths: Vec<String>, id: u64, label: String) {
+pub async fn star_entries(app: AppHandle, paths: Vec<String>, label: String) {
     let label_clone = label.clone();
 
     tokio::spawn(async move {
@@ -337,13 +321,13 @@ pub async fn star_entries(app: AppHandle, paths: Vec<String>, id: u64, label: St
                 Ok(_) => {
                     let entry = file_system::into_entry(&path, Some(starred_dir)).unwrap();
 
-                    Command::StarEntries(id, Some(entry), None, is_last)
+                    Command::StarEntries(Some(entry), None, is_last)
                         .emit(&app, label_clone.clone());
                     log::info!("Starred entry: {:?}", path);
                 }
 
                 Err(err) => {
-                    Command::StarEntries(id, None, Some(err.to_string()), is_last)
+                    Command::StarEntries(None, Some(err.to_string()), is_last)
                         .emit(&app, label_clone.clone());
                     log::error!("Failed to star entry: {:?} - {:?}", path, err);
                 }
@@ -353,7 +337,7 @@ pub async fn star_entries(app: AppHandle, paths: Vec<String>, id: u64, label: St
 }
 
 #[tauri::command]
-pub async fn unstar_entries(app: AppHandle, paths: Vec<String>, id: u64, label: String) {
+pub async fn unstar_entries(app: AppHandle, paths: Vec<String>, label: String) {
     let label_clone = label.clone();
 
     tokio::spawn(async move {
@@ -377,7 +361,6 @@ pub async fn unstar_entries(app: AppHandle, paths: Vec<String>, id: u64, label: 
             match res {
                 Ok(_) => {
                     Command::UnstarEntries(
-                        id,
                         Some(file_system::into_entry(&path, Some(&starred_dir)).unwrap()),
                         None,
                         is_last,
@@ -387,7 +370,7 @@ pub async fn unstar_entries(app: AppHandle, paths: Vec<String>, id: u64, label: 
                 }
 
                 Err(err) => {
-                    Command::UnstarEntries(id, None, Some(err.to_string()), is_last)
+                    Command::UnstarEntries(None, Some(err.to_string()), is_last)
                         .emit(&app, label_clone.clone());
                     log::error!("Failed to unstar entry: {:?} - {:?}", path, err);
                 }

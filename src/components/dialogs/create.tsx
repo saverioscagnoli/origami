@@ -1,11 +1,11 @@
 import { FolderIcon } from "@components/icons";
 import { Dialog, Input } from "@components/tredici";
 import { fileIconMap } from "@lib/file-icon-map";
+import { invoke } from "@lib/mapped-invoke";
 import { cn } from "@lib/utils";
 import { FileIcon } from "@radix-ui/react-icons";
 import { join } from "@tauri-apps/api/path";
 import { CommandName } from "@typings/enums";
-import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useGlobalStates } from "@zustand/global-states-store";
 import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
@@ -14,7 +14,6 @@ const CreateDialog = () => {
   const [name, setName] = useState<string>("");
 
   const dir = useCurrentDir(state => state.dir);
-  const push = useCallstack(state => state.push);
   const [{ state: open, isDir }, setCreating] = useGlobalStates(state => [
     state.creating,
     state.setCreating
@@ -39,7 +38,7 @@ const CreateDialog = () => {
     if (e.key === "Enter") {
       if (name !== "") {
         const path = await join(dir, name);
-        push(CommandName.CreateEntry, { path, isDir });
+        invoke(CommandName.CreateEntry, { path, isDir });
         setName("");
       }
 

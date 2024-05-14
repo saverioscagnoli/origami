@@ -1,7 +1,6 @@
 import { cn } from "@lib/utils";
 import { DirEntry } from "@typings/dir-entry";
 import { CommandName } from "@typings/enums";
-import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useGlobalStates } from "@zustand/global-states-store";
 import { useSettings } from "@zustand/settings-store";
@@ -11,12 +10,11 @@ import { EntryFlags } from "./flags";
 import { EntryLastModified } from "./last-modified";
 import { GridEntryName, ListEntryName } from "./name";
 import { EntrySize } from "./size";
+import { invoke } from "@lib/mapped-invoke";
 
 const Entry = memo<DirEntry>(entry => {
   const { name, path, isDir, isHidden, isSymlink, isStarred, lastModified, size } =
     entry;
-
-  const push = useCallstack(state => state.push);
 
   const [selected, addSelected, removeSelected, replaceSelected] = useCurrentDir(
     state => [
@@ -50,9 +48,9 @@ const Entry = memo<DirEntry>(entry => {
       }
     } else if (e.detail === 2) {
       if (isDir) {
-        push(CommandName.ListDir, { dir: path });
+        invoke(CommandName.ListDir, { dir: path });
       } else {
-        push(CommandName.OpenFiles, { paths: [path] });
+        invoke(CommandName.OpenFiles, { paths: [path] });
       }
     }
   };

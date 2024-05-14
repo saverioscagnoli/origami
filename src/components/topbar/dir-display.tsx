@@ -30,8 +30,11 @@ const TopbarDirDisplay = () => {
     >
       {searching.state ? (
         <SearchInput />
-      ) : dir === starredDir?.path ? (
-        <StarFilledIcon />
+      ) : dir.includes(starredDir?.path) ? (
+        <span className={cn("flex items-center")}>
+          <StarFilledIcon className={cn("w-4 h-4")} />
+          {dir.slice(starredDir!.path.length)}
+        </span>
       ) : (
         dir
       )}

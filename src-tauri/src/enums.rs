@@ -16,88 +16,88 @@ use tauri::{AppHandle, Manager};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub enum Command {
-    ListDir(u64, Option<(String, Vec<DirEntry>)>, Option<String>, bool),
+    ListDir(Option<(String, Vec<DirEntry>)>, Option<String>, bool),
 
     /**
      * If not error, returns the DirEntry of the created entry.
      * Used to update the frontend, instead of listing the directory again.
      */
-    CreateEntry(u64, Option<DirEntry>, Option<String>, bool),
+    CreateEntry(Option<DirEntry>, Option<String>, bool),
 
     /**
      * If not error, returns the list of deleted entries.
      * Used to update the frontend, instead of listing the directory again.
      */
-    DeleteEntries(u64, Option<String>, Option<String>, bool),
+    DeleteEntries(Option<String>, Option<String>, bool),
 
     /**
      * If not error, returns the old path and the new DirEntry.
      */
-    RenameEntry(u64, Option<(String, DirEntry)>, Option<String>, bool),
+    RenameEntry(Option<(String, DirEntry)>, Option<String>, bool),
 
     /**
      * If not error, return the path of each file that was opened.
      */
-    OpenFiles(u64, Option<String>, Option<String>, bool),
+    OpenFiles(Option<String>, Option<String>, bool),
 
     /**
      * If not error return the current copied DirEntry
      * (Sent in chunks)
      */
-    PasteEntries(u64, Option<DirEntry>, Option<String>, bool),
+    PasteEntries(Option<DirEntry>, Option<String>, bool),
 
     /**
      * If not error, returns the current copied DirEntry
      * (Sent in chunks)
      */
-    StarEntries(u64, Option<DirEntry>, Option<String>, bool),
+    StarEntries(Option<DirEntry>, Option<String>, bool),
 
     /**
      * If not error, returns the current copied DirEntry
      * (Sent in chunks)
      */
-    UnstarEntries(u64, Option<DirEntry>, Option<String>, bool),
+    UnstarEntries(Option<DirEntry>, Option<String>, bool),
 }
 
 impl Command {
     pub fn as_str(&self) -> &str {
         match self {
-            Command::ListDir(_, _, _, _) => "list_dir",
-            Command::CreateEntry(_, _, _, _) => "create_entry",
-            Command::DeleteEntries(_, _, _, _) => "delete_entries",
-            Command::RenameEntry(_, _, _, _) => "rename_entry",
-            Command::OpenFiles(_, _, _, _) => "open_files",
-            Command::PasteEntries(_, _, _, _) => "paste_entries",
-            Command::StarEntries(_, _, _, _) => "star_entries",
-            Command::UnstarEntries(_, _, _, _) => "unstar_entries",
+            Command::ListDir(_, _, _) => "list_dir",
+            Command::CreateEntry(_, _, _) => "create_entry",
+            Command::DeleteEntries(_, _, _) => "delete_entries",
+            Command::RenameEntry(_, _, _) => "rename_entry",
+            Command::OpenFiles(_, _, _) => "open_files",
+            Command::PasteEntries(_, _, _) => "paste_entries",
+            Command::StarEntries(_, _, _) => "star_entries",
+            Command::UnstarEntries(_, _, _) => "unstar_entries",
         }
     }
 
     pub fn emit(&self, app: &AppHandle, label: String) {
         match self {
-            Command::ListDir(id, data, error, is_finished) => {
-                let _ = app.emit_to(label, self.as_str(), (id, data, error, is_finished));
+            Command::ListDir(data, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (data, error, is_finished));
             }
-            Command::CreateEntry(id, data, error, is_finished) => {
-                let _ = app.emit_to(label, self.as_str(), (id, data, error, is_finished));
+            Command::CreateEntry(data, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (data, error, is_finished));
             }
-            Command::DeleteEntries(id, deleted, errors, is_finished) => {
-                let _ = app.emit_to(label, self.as_str(), (id, deleted, errors, is_finished));
+            Command::DeleteEntries(deleted, errors, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (deleted, errors, is_finished));
             }
-            Command::RenameEntry(id, path, error, is_finished) => {
-                let _ = app.emit_to(label, self.as_str(), (id, path, error, is_finished));
+            Command::RenameEntry(path, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (path, error, is_finished));
             }
-            Command::OpenFiles(id, paths, error, is_finished) => {
-                let _ = app.emit_to(label, self.as_str(), (id, paths, error, is_finished));
+            Command::OpenFiles(paths, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (paths, error, is_finished));
             }
-            Command::PasteEntries(id, entry, error, is_finished) => {
-                let _ = app.emit_to(label, self.as_str(), (id, entry, error, is_finished));
+            Command::PasteEntries(entry, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (entry, error, is_finished));
             }
-            Command::StarEntries(id, path, error, is_finished) => {
-                let _ = app.emit_to(label, self.as_str(), (id, path, error, is_finished));
+            Command::StarEntries(path, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (path, error, is_finished));
             }
-            Command::UnstarEntries(id, path, error, is_finished) => {
-                let _ = app.emit_to(label, self.as_str(), (id, path, error, is_finished));
+            Command::UnstarEntries(path, error, is_finished) => {
+                let _ = app.emit_to(label, self.as_str(), (path, error, is_finished));
             }
         }
     }

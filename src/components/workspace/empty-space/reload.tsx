@@ -1,15 +1,14 @@
 import { ContextMenu } from "@components/tredici";
+import { invoke } from "@lib/mapped-invoke";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { CommandName } from "@typings/enums";
-import { useCallstack } from "@zustand/callstack-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 
 const ReloadMenuItem = () => {
-  const push = useCallstack(state => state.push);
   const dir = useCurrentDir(state => state.dir);
 
   const onSelect = () => {
-    push(CommandName.ListDir, { dir });
+    invoke(CommandName.ListDir, { dir });
   };
 
   return (

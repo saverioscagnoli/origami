@@ -1,12 +1,10 @@
 import { useCommandResponse } from "@hooks/use-command-response";
 import { DirEntry } from "@typings/dir-entry";
-import { CommandName, CommandStatus } from "@typings/enums";
-import { useCallstack } from "@zustand/callstack-store";
+import { CommandName } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEffect, useState } from "react";
 
 function unstarEntryListen() {
-  const updateStatus = useCallstack(state => state.updateStatus);
   const replaceEntries = useCurrentDir(state => state.replaceEntries);
 
   const [unstarred, setUnstarred] = useState<DirEntry[]>([]);
@@ -21,10 +19,9 @@ function unstarEntryListen() {
   }, [finished]);
 
   useCommandResponse(CommandName.UnstarEntries, payload => {
-    const [id, data, error, isFinished] = payload;
+    const [data, error, isFinished] = payload;
 
     if (error) {
-      updateStatus(id, CommandStatus.Error);
       alert(error);
       return;
     }
@@ -32,7 +29,6 @@ function unstarEntryListen() {
     setUnstarred(prev => [...prev, data!]);
 
     if (isFinished) {
-      updateStatus(id, CommandStatus.Success);
       setFinished(true);
     }
   });

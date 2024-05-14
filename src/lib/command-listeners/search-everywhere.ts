@@ -1,10 +1,8 @@
 import { useCommandResponse } from "@hooks/use-command-response";
-import { CommandName, CommandStatus } from "@typings/enums";
-import { useCallstack } from "@zustand/callstack-store";
+import { CommandName } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 
 function searchEverywhereListen() {
-  const updateStatus = useCallstack(state => state.updateStatus);
   const [entries, setEntries] = useCurrentDir(state => [
     state.entries,
     state.setEntries
@@ -16,10 +14,9 @@ function searchEverywhereListen() {
   useCommandResponse(
     CommandName.SearchEverywhere,
     payload => {
-      const [id, data, error, isFinished] = payload;
+      const [data, error, isFinished] = payload;
 
       if (error) {
-        updateStatus(id, CommandStatus.Error);
         alert(error);
         return;
       }
@@ -28,7 +25,7 @@ function searchEverywhereListen() {
 
       if (isFinished) {
         setEntries(tempData);
-        updateStatus(id, CommandStatus.Success);
+
         tempData = [];
       }
     },
