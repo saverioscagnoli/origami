@@ -4,10 +4,11 @@ use crate::{
     consts::{COPY_SIZE_THRESHOLD, STARRED_DIR_NAME},
     enums::{BackendEvent, Command},
     file_system,
+    settings::Settings,
     utils::AppPaths,
 };
 use rayon::iter::{ParallelBridge, ParallelIterator};
-use std::{path::Path, thread};
+use std::{path::Path, thread, time::Duration};
 use tauri::{AppHandle, Manager, WebviewWindow};
 
 #[tauri::command]
@@ -238,7 +239,12 @@ pub async fn paste_entries(
                 .sum();
 
             if size >= COPY_SIZE_THRESHOLD {
+                let settings_file = &app_paths.settings_file;
+                let settings = Settings::load(settings_file).await;
+                let theme = settings.theme;
                 let win = spawn_copy_window(&app).await;
+
+                BackendEvent::CopyStart(theme).emit_to(&app, win.label().to_string());
 
                 thread::spawn(move || {
                     paste_heavy(&app, paths, dest, label, win);
@@ -277,6 +283,8 @@ pub async fn paste_entries(
     });
 }
 
+use std::time::Instant;
+
 // If the size of the entries is greater than the threshold, spawn a new window to copy the entries.
 pub fn paste_heavy(
     app: &AppHandle,
@@ -288,16 +296,30 @@ pub fn paste_heavy(
     let app_paths = app.state::<AppPaths>();
     let starred_dir = &app_paths.starred_dir;
 
+    let start_time = Instant::now();
+
     let callback = |total, copied| {
-        BackendEvent::CopyProgress(total, copied).emit_to(app, win.label().to_string());
+        let elapsed = start_time.elapsed().as_secs();
+        let copied_mb = copied as f64 / 1024.0 / 1024.0;
+        let rate = if elapsed > 0 {
+            copied_mb / elapsed as f64
+        } else {
+            0.0
+        };
+
+        BackendEvent::CopyProgress(total, copied, rate.round())
+            .emit_to(app, win.label().to_string());
     };
 
     let on_entry_copied = |entry, is_finished| {
-        Command::PasteEntries(Some(entry), None, is_finished).emit(&app, label.clone());
+        Command::PasteEntries(Some(entry), None, is_finished).emit(app, label.clone());
     };
 
     _ = file_system::copy_items_with_progress(paths, dest, starred_dir, callback, on_entry_copied);
 
+    BackendEvent::CopyOver(start_time.elapsed().as_secs_f32()).emit_to(app, win.label().to_string());
+
+    thread::sleep(Duration::from_secs(3));
     _ = win.close();
 }
 

@@ -121,15 +121,17 @@ impl Command {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum BackendEvent {
     SendDisks(Vec<Disk>),
-    CopyProgress(u64, usize),
-    CopyOver(u64),
+    CopyStart(String),
+    CopyProgress(u64, usize, f64),
+    CopyOver(f32),
 }
 
 impl BackendEvent {
     pub fn as_str(&self) -> &str {
         match self {
             BackendEvent::SendDisks(_) => "send_disks",
-            BackendEvent::CopyProgress(_, _) => "copy_progress",
+            BackendEvent::CopyStart(_) => "copy_start",
+            BackendEvent::CopyProgress(_, _, _) => "copy_progress",
             BackendEvent::CopyOver(_) => "copy_over",
         }
     }
@@ -139,11 +141,14 @@ impl BackendEvent {
             BackendEvent::SendDisks(disks) => {
                 let _ = app.emit(self.as_str(), disks);
             }
-            BackendEvent::CopyProgress(copied, total) => {
-                let _ = app.emit(self.as_str(), (copied, total));
+            BackendEvent::CopyStart(theme) => {
+                let _ = app.emit(self.as_str(), theme);
             }
-            BackendEvent::CopyOver(id) => {
-                let _ = app.emit(self.as_str(), id);
+            BackendEvent::CopyProgress(copied, total, rate) => {
+                let _ = app.emit(self.as_str(), (copied, total, rate));
+            }
+            BackendEvent::CopyOver(time) => {
+                let _ = app.emit(self.as_str(), time);
             }
         }
     }
@@ -153,11 +158,14 @@ impl BackendEvent {
             BackendEvent::SendDisks(disks) => {
                 let _ = app.emit_to(label, self.as_str(), disks);
             }
-            BackendEvent::CopyProgress(copied, total) => {
-                let _ = app.emit_to(label, self.as_str(), (copied, total));
+            BackendEvent::CopyStart(theme) => {
+                let _ = app.emit_to(label, self.as_str(), theme);
             }
-            BackendEvent::CopyOver(id) => {
-                let _ = app.emit_to(label, self.as_str(), id);
+            BackendEvent::CopyProgress(copied, total, rate) => {
+                let _ = app.emit_to(label, self.as_str(), (copied, total, rate));
+            }
+            BackendEvent::CopyOver(time) => {
+                let _ = app.emit_to(label, self.as_str(), time);
             }
         }
     }

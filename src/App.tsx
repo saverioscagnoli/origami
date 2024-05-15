@@ -4,6 +4,7 @@ import { ErrorDialog } from "@components/dialogs/error";
 import { Sidebar } from "@components/sidebar";
 import { Topbar } from "@components/topbar";
 import { Workspace } from "@components/workspace";
+import { useFrontendEvent } from "@hooks/use-frontend-event";
 import { startCommandListeners } from "@lib/command-listeners";
 import { startHotkeyListeners } from "@lib/hotkeys";
 import { invoke } from "@lib/mapped-invoke";
@@ -14,6 +15,7 @@ import { useEvent } from "@util-hooks/use-event";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEnvironment } from "@zustand/environment-store";
+import { useSettings } from "@zustand/settings-store";
 import { useEffect, useMemo } from "react";
 
 function App() {
@@ -32,6 +34,13 @@ function App() {
     state.resolveBasicdirs
   ]);
 
+  const [theme, setTheme, loadSettings, updateSettings] = useSettings(state => [
+    state.theme,
+    state.setTheme,
+    state.loadSettings,
+    state.updateSettings
+  ]);
+
   /**
    * On app start.
    * Reslve basic user directories.
@@ -41,7 +50,18 @@ function App() {
     resolveBasicDirs();
     invoke(CommandName.PollDisks);
     invoke(CommandName.LoadCSSModules);
+    invoke(CommandName.LoadSettings).then(loadSettings);
   }, []);
+
+  /**
+   * When the theme changes in another window,
+   * update the theme in this window.
+   */
+  useFrontendEvent(FrontendEvent.ThemeChange, newTheme => {
+    if (theme !== newTheme) {
+      updateSettings({ theme: newTheme });
+    }
+  });
 
   /**
    * On basic directories resolved (app start).

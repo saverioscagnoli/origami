@@ -119,6 +119,16 @@ type CommandPayloadMap = {
    * @param modules The css modules
    */
   [CommandName.LoadCSSModules]: BasePayload<string[]>;
+
+  /**
+   * This command does not use the payload.
+   */
+  [CommandName.LoadSettings]: null;
+
+  /**
+   * This command does not use the payload.
+   */
+  [CommandName.UpdateSettings]: null;
 };
 
 /**

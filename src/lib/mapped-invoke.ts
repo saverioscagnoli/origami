@@ -88,6 +88,18 @@ type CommandArgsMap = {
   [CommandName.FilterEnties]: { entries: DirEntry[]; query: string };
 
   /**
+   * Load settings
+   */
+  [CommandName.LoadSettings]: null;
+
+  /**
+   * Update settings
+   * @param key - Setting key
+   * @param value - Setting value
+   */
+  [CommandName.UpdateSettings]: { key: string; value: string };
+
+  /**
    * Build index
    */
   [CommandName.BuildIndex]: null;

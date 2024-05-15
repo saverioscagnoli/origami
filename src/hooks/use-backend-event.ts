@@ -1,6 +1,7 @@
-import { listen } from "@tauri-apps/api/event";
+import { getCurrent } from "@tauri-apps/api/window";
 import { Disk } from "@typings/disk";
 import { BackendEvent } from "@typings/enums";
+import { Theme } from "@zustand/settings-store";
 import { DependencyList, useEffect } from "react";
 
 type BackendEventMap = {
@@ -11,9 +12,15 @@ type BackendEventMap = {
   [BackendEvent.SendDisks]: Disk[];
 
   /**
+   * This event is emitted when a copy operation starts.
+   * The payload is the current theme.
+   */
+  [BackendEvent.CopyStart]: Theme;
+
+  /**
    * This event is emitted when a copy operation is in progress.
    */
-  [BackendEvent.CopyProgress]: [total: number, copied: number];
+  [BackendEvent.CopyProgress]: [total: number, copied: number, rate: number];
 
   /**
    * This event is emitted when a copy operation is over.
@@ -28,7 +35,9 @@ function useBackendEvent<K extends BackendEvent>(
   deps: DependencyList = []
 ) {
   useEffect(() => {
-    const promise = listen<BackendEventMap[K]>(event, event => cb(event.payload));
+    const promise = getCurrent().listen<BackendEventMap[K]>(event, event =>
+      cb(event.payload)
+    );
 
     return () => {
       promise.then(dispose => dispose());

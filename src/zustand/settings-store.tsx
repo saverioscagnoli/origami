@@ -1,4 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@lib/mapped-invoke";
+import { emit } from "@tauri-apps/api/event";
+import { CommandName, FrontendEvent } from "@typings/enums";
 import { ChildrenProps } from "@typings/props";
 import { FC, useEffect } from "react";
 import { create } from "zustand";
@@ -15,6 +17,7 @@ import { create } from "zustand";
  * @interface SettingsStore
  *
  * @property {Theme} theme - The current theme of the workspace.
+ * @property {function} setTheme - A function to set the theme (mainly used to set theme in another window).
  * @property {View} view - The current view of the workspace.
  * @property {boolean} showHidden - Whether to show hidden files or not.
  * @property {boolean} showCheckboxes - Whether to show checkboxes for selection or not.
@@ -26,6 +29,7 @@ type View = "grid" | "list";
 
 interface SettingsStore {
   theme: Theme;
+  setTheme: (theme: Theme) => void;
   view: View;
   showHidden: boolean;
   showCheckboxes: boolean;
@@ -35,6 +39,7 @@ interface SettingsStore {
 
 const useSettings = create<SettingsStore>()(set => ({
   theme: "system",
+  setTheme: (theme: Theme) => set({ theme }),
   view: "list",
   showCheckboxes: true,
   showHidden: false,
@@ -46,25 +51,19 @@ const useSettings = create<SettingsStore>()(set => ({
 
     for (const key in settings) {
       if (settings[key] !== undefined) {
-        invoke("update_settings", { key, value: `${settings[key]}` });
+        invoke(CommandName.UpdateSettings, { key, value: `${settings[key]}` });
       }
     }
   }
 }));
 
 const ThemeWatcher: FC<ChildrenProps> = ({ children }) => {
-  const [theme, loadSettings, updateSettings] = useSettings(s => [
-    s.theme,
-    s.loadSettings,
-    s.updateSettings
-  ]);
-
-  useEffect(() => {
-    invoke<SettingsStore>("load_settings").then(loadSettings);
-  }, []);
+  const theme = useSettings(state => state.theme);
 
   useEffect(() => {
     document.documentElement.classList.add("light", "dark");
+
+    emit(FrontendEvent.ThemeChange, theme);
 
     switch (theme) {
       case "light": {

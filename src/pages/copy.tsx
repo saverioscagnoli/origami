@@ -1,40 +1,63 @@
 import { Progress } from "@components/tredici";
-import { cn } from "@lib/utils";
+import { cn, percentage } from "@lib/utils";
 import { useState } from "react";
 
 import ReactDOM from "react-dom/client";
 
 import { useBackendEvent } from "@hooks/use-backend-event";
-import { getCurrent } from "@tauri-apps/api/webview";
-import { BackendEvent } from "@typings/enums";
+import { useFrontendEvent } from "@hooks/use-frontend-event";
+import { BackendEvent, FrontendEvent } from "@typings/enums";
+import { ThemeWatcher, useSettings } from "@zustand/settings-store";
 
 import "../styles.css";
 
 const Copy = () => {
   const [max, setMax] = useState<number>(0);
   const [value, setValue] = useState<number>(-1);
+  const [rate, setRate] = useState<number>(0);
   const [time, setTime] = useState<number>(-1);
 
-  useBackendEvent(BackendEvent.CopyProgress, info => {
-    const [total, copied] = info;
+  const setTheme = useSettings(state => state.setTheme);
 
-    if (max === 0) {
-      setMax(total);
-    }
-
-    setValue(copied);
+  useFrontendEvent(FrontendEvent.ThemeChange, theme => {
+    setTheme(theme);
   });
 
-  useBackendEvent(BackendEvent.CopyOver, time => {
-    getCurrent().close();
+  /**
+   * This doenst work i dont know why I hate my life
+   */
+  useBackendEvent(BackendEvent.CopyStart, theme => {
+    setTheme(theme);
+  });
 
+  useBackendEvent(
+    BackendEvent.CopyProgress,
+    info => {
+      const [total, copied, rate] = info;
+
+      if (max === 0) {
+        setMax(total);
+      }
+
+      setValue(copied);
+      setRate(rate);
+    },
+    [max]
+  );
+
+  useBackendEvent(BackendEvent.CopyOver, time => {
     setValue(1);
     setMax(1);
     setTime(time);
   });
 
   return (
-    <div className={cn("w-screen h-screen", "grid place-items-center")}>
+    <div
+      className={cn(
+        "w-screen h-screen",
+        "flex flex-col items-center justify-center gap-4"
+      )}
+    >
       {max !== 0 && (
         <Progress
           className={cn("w-5/6 h-10", "rounded-none")}
@@ -44,12 +67,40 @@ const Copy = () => {
         />
       )}
 
-      <div className={cn("w-1/2", "mt-2", "text-sm")}>
-        {time !== -1 ? "Done!" : `${value} / ${max}`}
-        {time !== -1 && <div>{time} seconds</div>}
+      <div
+        className={cn(
+          "w-1/2",
+          "flex flex-col items-center gap-1",
+          "whitespace-nowrap"
+        )}
+      >
+        <span className={cn("flex gap-2")}>
+          <p>Progress: </p>
+          <p>
+            {value} / {max}
+          </p>
+        </span>
+        <span>
+          <p>{percentage(value, max)}</p>
+        </span>
+        <span>
+          <p>Speed: {rate} MB/s</p>
+        </span>
+        {time !== -1 && (
+          <span>
+            Done in:{" "}
+            {time < 1
+              ? `${(time * 1000).toFixed()} milliseconds`
+              : `${time.toFixed()} seconds`}
+          </span>
+        )}
       </div>
     </div>
   );
 };
 
-ReactDOM.createRoot(document.getElementById("root")!).render(<Copy />);
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <ThemeWatcher>
+    <Copy />
+  </ThemeWatcher>
+);

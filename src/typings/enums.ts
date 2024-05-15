@@ -16,7 +16,9 @@ enum CommandName {
   BuildIndex = "build_index",
   SearchEverywhere = "search_everywhere",
   WatchDiskChanges = "watch_disk_changes",
-  LoadCSSModules = "load_css_modules"
+  LoadCSSModules = "load_css_modules",
+  LoadSettings = "load_settings",
+  UpdateSettings = "update_settings"
 }
 
 enum CommandStatus {
@@ -28,11 +30,13 @@ enum CommandStatus {
 }
 
 enum FrontendEvent {
-  BeforeUnload = "before_unload"
+  BeforeUnload = "before_unload",
+  ThemeChange = "theme_change"
 }
 
 enum BackendEvent {
   SendDisks = "send_disks",
+  CopyStart = "copy_start",
   CopyProgress = "copy_progress",
   CopyOver = "copy_over"
 }
