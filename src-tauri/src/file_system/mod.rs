@@ -41,6 +41,7 @@ pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(
     let name = path.file_name();
 
     if name.is_none() {
+        log::error!("Failed to get file name for path: {:?}", path);
         return None;
     }
 

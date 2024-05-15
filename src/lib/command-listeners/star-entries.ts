@@ -6,7 +6,10 @@ import { useGlobalStates } from "@zustand/global-states-store";
 import { useEffect, useState } from "react";
 
 function starEntriesListen() {
-  const replaceEntries = useCurrentDir(state => state.replaceEntries);
+  const [replaceSelected, replaceEntries] = useCurrentDir(state => [
+    state.replaceSelected,
+    state.replaceEntries
+  ]);
   const setError = useGlobalStates(state => state.setError);
 
   const [starred, setStarred] = useState<DirEntry[]>([]);
@@ -14,6 +17,7 @@ function starEntriesListen() {
 
   useEffect(() => {
     if (finished) {
+      replaceSelected(starred);
       replaceEntries(starred);
       setStarred([]);
       setFinished(false);

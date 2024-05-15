@@ -352,6 +352,9 @@ pub async fn unstar_entries(app: AppHandle, paths: Vec<String>, label: String) {
 
             let starred_path = starred_dir.join(file_name);
 
+            let mut entry = file_system::into_entry(&path, Some(starred_dir)).unwrap();
+            entry.is_starred = false;
+
             let res = if starred_path.is_dir() {
                 dir::delete_dir(&starred_path).await
             } else {
@@ -360,12 +363,9 @@ pub async fn unstar_entries(app: AppHandle, paths: Vec<String>, label: String) {
 
             match res {
                 Ok(_) => {
-                    Command::UnstarEntries(
-                        Some(file_system::into_entry(&path, Some(&starred_dir)).unwrap()),
-                        None,
-                        is_last,
-                    )
-                    .emit(&app, label_clone.clone());
+                    Command::UnstarEntries(Some(entry), None, is_last)
+                        .emit(&app, label_clone.clone());
+
                     log::info!("Unstarred entry: {:?}", path);
                 }
 

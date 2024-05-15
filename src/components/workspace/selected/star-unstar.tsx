@@ -19,7 +19,6 @@ const StarUnstarMenuItem = () => {
       invoke(CommandName.UnstarEntries, { paths });
     } else {
       invoke(CommandName.StarEntries, { paths });
-      replaceselected(selected.map(e => ({ ...e, isStarred: true })));
     }
   };
 

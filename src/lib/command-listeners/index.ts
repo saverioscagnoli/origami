@@ -9,7 +9,7 @@ import { pasteEntriesListen } from "./paste-entries";
 import { renameEntryListen } from "./rename-entry";
 import { searchEverywhereListen } from "./search-everywhere";
 import { starEntriesListen } from "./star-entries";
-import { unstarEntryListen } from "./unstar-entry";
+import { unstarEntryListen } from "./unstar-entries";
 
 ////////////////////////////////
 //                            //
