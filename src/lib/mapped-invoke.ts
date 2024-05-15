@@ -119,6 +119,11 @@ type CommandArgsMap = {
    * Load css modules
    */
   [CommandName.LoadCSSModules]: null;
+
+  /**
+   * Load config
+   */
+  [CommandName.LoadConfig]: null;
 };
 
 async function invoke<K extends CommandName>(command: K, args?: CommandArgsMap[K]) {

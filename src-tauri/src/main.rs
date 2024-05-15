@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod app_windows;
+mod config;
 mod consts;
 mod disks;
 mod enums;
@@ -11,7 +12,7 @@ mod settings;
 mod utils;
 
 use app_windows::{close_all_windows, spawn_main_window};
-use consts::STARRED_DIR_NAME;
+use config::load_config;
 use disks::poll_disks;
 use file_system::commands::{
     create_entry, delete_entries, get_image_base64, list_dir, open_files, paste_entries,
@@ -19,8 +20,9 @@ use file_system::commands::{
 };
 use modules::load_css_modules;
 use settings::{load_settings, update_settings};
-use tauri::{AppHandle, Manager};
-use utils::build_app_paths;
+use std::path::Path;
+use tauri::Manager;
+use utils::{build_app_paths, AppPaths};
 
 #[tokio::main]
 async fn main() {
@@ -46,15 +48,17 @@ async fn main() {
             load_settings,
             update_settings,
             load_css_modules,
+            load_config
         ])
         .setup(|app| {
             let handle = app.handle();
 
             let app_paths = build_app_paths(handle);
+            let app_paths_clone = app_paths.clone();
 
             app.manage(app_paths);
 
-            init(handle);
+            init(app_paths_clone);
 
             Ok(())
         })
@@ -69,9 +73,14 @@ async fn main() {
         .expect("error while running tauri application");
 }
 
-fn init(app: &AppHandle) {
-    let path = app.path();
-    let starred_dir = path.app_config_dir().unwrap().join(STARRED_DIR_NAME);
+fn init(app_paths: AppPaths) {
+    let starred_dir = &app_paths.starred_dir;
+
+    init_starred(starred_dir);
+}
+
+fn init_starred<P: AsRef<Path>>(starred_dir: P) {
+    let starred_dir = starred_dir.as_ref();
 
     if !starred_dir.exists() {
         std::fs::create_dir_all(&starred_dir).unwrap();

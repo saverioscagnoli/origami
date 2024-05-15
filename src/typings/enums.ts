@@ -18,7 +18,8 @@ enum CommandName {
   WatchDiskChanges = "watch_disk_changes",
   LoadCSSModules = "load_css_modules",
   LoadSettings = "load_settings",
-  UpdateSettings = "update_settings"
+  UpdateSettings = "update_settings",
+  LoadConfig = "load_config"
 }
 
 enum CommandStatus {

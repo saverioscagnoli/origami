@@ -1,6 +1,7 @@
 import { getCurrent } from "@tauri-apps/api/webview";
 import { DirEntry } from "@typings/dir-entry";
 import { CommandName } from "@typings/enums";
+import { Config } from "@zustand/config-store";
 import { DependencyList, useEffect } from "react";
 
 type BasePayload<T> = [
@@ -129,6 +130,11 @@ type CommandPayloadMap = {
    * This command does not use the payload.
    */
   [CommandName.UpdateSettings]: null;
+
+  /**
+   * This command does not use the payload.
+   */
+  [CommandName.LoadConfig]: null;
 };
 
 /**

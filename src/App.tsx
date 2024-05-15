@@ -13,6 +13,7 @@ import { emit } from "@tauri-apps/api/event";
 import { BasicDirLabel, CommandName, FrontendEvent } from "@typings/enums";
 import { useEvent } from "@util-hooks/use-event";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
+import { useConfig } from "@zustand/config-store";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEnvironment } from "@zustand/environment-store";
 import { useSettings } from "@zustand/settings-store";
@@ -34,12 +35,13 @@ function App() {
     state.resolveBasicdirs
   ]);
 
-  const [theme, setTheme, loadSettings, updateSettings] = useSettings(state => [
+  const [theme, loadSettings, updateSettings] = useSettings(state => [
     state.theme,
-    state.setTheme,
     state.loadSettings,
     state.updateSettings
   ]);
+
+  const loadConfig = useConfig(state => state.loadConfig);
 
   /**
    * On app start.
@@ -51,6 +53,7 @@ function App() {
     invoke(CommandName.PollDisks);
     invoke(CommandName.LoadCSSModules);
     invoke(CommandName.LoadSettings).then(loadSettings);
+    invoke(CommandName.LoadConfig).then(loadConfig);
   }, []);
 
   /**

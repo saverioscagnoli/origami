@@ -1,13 +1,14 @@
 import { Progress } from "@components/tredici";
-import { cn, percentage } from "@lib/utils";
-import { useState } from "react";
-
-import ReactDOM from "react-dom/client";
-
 import { useBackendEvent } from "@hooks/use-backend-event";
 import { useFrontendEvent } from "@hooks/use-frontend-event";
-import { BackendEvent, FrontendEvent } from "@typings/enums";
+import { invoke } from "@lib/mapped-invoke";
+import { cn, percentage } from "@lib/utils";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { BackendEvent, CommandName, FrontendEvent } from "@typings/enums";
+import { useConfig } from "@zustand/config-store";
 import { ThemeWatcher, useSettings } from "@zustand/settings-store";
+import { useEffect, useState } from "react";
+import ReactDOM from "react-dom/client";
 
 import "../styles.css";
 
@@ -16,6 +17,30 @@ const Copy = () => {
   const [value, setValue] = useState<number>(-1);
   const [rate, setRate] = useState<number>(0);
   const [time, setTime] = useState<number>(-1);
+
+  const [audio, setAudio] = useState<HTMLAudioElement[]>([]);
+
+  const [config, loadConfig] = useConfig(state => [state.config, state.loadConfig]);
+
+  /**
+   * Load the config on mount.
+   */
+  useEffect(() => {
+    invoke(CommandName.LoadConfig).then(loadConfig);
+  }, []);
+
+  /**
+   * Load and prepare audio files for notifications.
+   */
+  useEffect(() => {
+    if (!config) return;
+
+    const notifyAudioPaths = config.notifications?.copy?.paths;
+    const notifyAudios = notifyAudioPaths?.map(
+      path => new Audio(convertFileSrc(path))
+    );
+    setAudio(notifyAudios);
+  }, [config]);
 
   const setTheme = useSettings(state => state.setTheme);
 
@@ -45,11 +70,17 @@ const Copy = () => {
     [max]
   );
 
-  useBackendEvent(BackendEvent.CopyOver, time => {
-    setValue(1);
-    setMax(1);
-    setTime(time);
-  });
+  useBackendEvent(
+    BackendEvent.CopyOver,
+    time => {
+      setValue(1);
+      setMax(1);
+      setTime(time);
+
+      audio.forEach(a => a.play());
+    },
+    [audio, config]
+  );
 
   return (
     <div
