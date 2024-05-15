@@ -11,6 +11,7 @@ import { cn } from "@lib/utils";
 import { emit } from "@tauri-apps/api/event";
 import { BasicDirLabel, CommandName, FrontendEvent } from "@typings/enums";
 import { useEvent } from "@util-hooks/use-event";
+import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEnvironment } from "@zustand/environment-store";
 import { useEffect, useMemo } from "react";
@@ -83,8 +84,31 @@ function App() {
     [canGoBack, canGoForward]
   );
 
+  /**
+   * Emit an event before the app is refreshed or closed.
+   * To perform cleanup operations.
+   */
   useEvent(window, "beforeunload", () => emit(FrontendEvent.BeforeUnload));
+
+  /**
+   * Disable The default context menu.
+   */
   useEvent("contextmenu", e => e.preventDefault());
+
+  /**
+   * Prevent browser default behaviors
+   */
+  useHotkey([Modifier.Ctrl], Key.G, e => e.preventDefault());
+  useHotkey([Modifier.Ctrl], Key.U, e => e.preventDefault());
+  useHotkey([Modifier.Ctrl], Key.P, e => e.preventDefault());
+
+  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.G, e => e.preventDefault());
+  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.P, e => e.preventDefault());
+  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.I, e => e.preventDefault());
+  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.R, e => e.preventDefault());
+  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.S, e => e.preventDefault());
+  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.J, e => e.preventDefault());
+  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.C, e => e.preventDefault());
 
   return (
     <div className={cn("w-screen h-screen", "select-none")}>
