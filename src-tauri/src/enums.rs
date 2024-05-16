@@ -1,6 +1,6 @@
 use crate::{disks::Disk, file_system::DirEntry};
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Manager, WebviewWindow};
 
 /**
  * This is for all the backend commands.
@@ -173,12 +173,14 @@ impl BackendEvent {
 
 pub enum FrontendEvent {
     BeforeUnload(),
+    CancelCopy(),
 }
 
 impl FrontendEvent {
     pub fn as_str(&self) -> &str {
         match self {
             FrontendEvent::BeforeUnload() => "before_unload",
+            FrontendEvent::CancelCopy() => "cancel_copy",
         }
     }
 
@@ -187,6 +189,15 @@ impl FrontendEvent {
         F: Fn() + Send + Sync + 'static,
     {
         app.listen(self.as_str(), move |_| {
+            callback();
+        })
+    }
+
+    pub fn win_listen<F>(&self, win: &WebviewWindow, callback: F) -> tauri::EventId
+    where
+        F: Fn() + Send + Sync + 'static,
+    {
+        win.listen(self.as_str(), move |_| {
             callback();
         })
     }

@@ -5,8 +5,8 @@
 
 use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 
-#[tauri::command]
-pub async fn spawn_main_window(app: AppHandle) {
+#[tauri::command(async)]
+pub fn spawn_main_window(app: AppHandle) {
     let mut i = 0;
     let mut label = format!("main-{}", i);
 
@@ -25,7 +25,7 @@ pub async fn spawn_main_window(app: AppHandle) {
 }
 
 #[tauri::command]
-pub async fn close_all_windows(app: AppHandle) {
+pub fn close_all_windows(app: AppHandle) {
     app.exit(1);
 }
 
@@ -44,6 +44,7 @@ pub async fn spawn_copy_window(app: &AppHandle) -> tauri::WebviewWindow {
     WebviewWindowBuilder::new(app, label, WebviewUrl::App("copy.html".into()))
         .inner_size(400.0, 200.0)
         .resizable(false)
+        .decorations(false)
         .title("Copy files")
         .build()
         .unwrap()

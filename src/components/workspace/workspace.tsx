@@ -1,5 +1,4 @@
 import { ScrollArea } from "@components/tredici";
-import FilterWorker from "@lib/search-worker?worker";
 import { cn, filter } from "@lib/utils";
 import { DirEntry } from "@typings/dir-entry";
 import { useCurrentDir } from "@zustand/curent-dir-store";
@@ -18,16 +17,13 @@ import { Entry } from "./entry";
 import { ImagePreview } from "./image-preview";
 import { SelectedEntriesContextMenu } from "./selected";
 
+import FilterWorker from "@lib/search-worker?worker";
+
 const Workspace = () => {
   const entries = useCurrentDir(state => state.entries);
   const [view, showHidden] = useSettings(s => [s.view, s.showHidden]);
 
   const searching = useGlobalStates(state => state.searching);
-
-  const isSearchingEverywhere = useMemo(
-    () => searching.where === "everywhere" && searching.state,
-    [searching.where]
-  );
 
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
 
@@ -65,7 +61,7 @@ const Workspace = () => {
 
   return (
     <EmptySpaceContextMenu>
-      <ScrollArea id="workspace" className={cn("w-full h-full", "relative")}     >
+      <ScrollArea id="workspace" className={cn("w-full h-full", "relative")}>
         <ScrollArea.Viewport
           className={cn("w-full h-full", "rounded-[inherit]")}
           ref={setScrollRef}

@@ -32,7 +32,8 @@ enum CommandStatus {
 
 enum FrontendEvent {
   BeforeUnload = "before_unload",
-  ThemeChange = "theme_change"
+  ThemeChange = "theme_change",
+  CancelCopy = "cancel_copy"
 }
 
 enum BackendEvent {

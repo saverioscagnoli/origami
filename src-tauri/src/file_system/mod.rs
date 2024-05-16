@@ -80,7 +80,7 @@ pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(
 
 use std::io;
 
-pub fn copy_items_with_progress<P: AsRef<Path>, Q: AsRef<Path>, R: AsRef<Path>, F, G>(
+pub async fn copy_items_with_progress<P: AsRef<Path>, Q: AsRef<Path>, R: AsRef<Path>, F, G>(
     from: Vec<P>,
     to: Q,
     starred_dir: R,
@@ -99,7 +99,15 @@ where
     for (i, path) in from.iter().enumerate() {
         let path = path.as_ref();
         let name = path.file_name().unwrap();
-        let new_path = to.join(name);
+        let mut new_path = to.join(name);
+
+        while new_path.exists() {
+            let name = new_path.file_name().unwrap();
+            let new_name = format!("{}-copy", name.to_string_lossy());
+            new_path = new_path.with_file_name(new_name);
+        }
+
+        println!("Copying {:?} to {:?}", path, new_path);
 
         let mut current_copied_size = 0;
 
@@ -107,17 +115,18 @@ where
             dir::copy_dir_with_progress(path, &new_path, |_total, copied| {
                 current_copied_size = copied;
                 callback(total_size, copied_size + current_copied_size);
-            })?;
+            })
+            .await?;
         } else {
             file::copy_file_with_progress(path, &new_path, |_total, copied| {
                 current_copied_size = copied;
                 callback(total_size, copied_size + current_copied_size);
-            });
+            })
+            .await;
         }
 
         copied_size += current_copied_size;
 
-        let new_path = to.join(name);
         let entry = into_entry(new_path, Some(&starred_dir)).unwrap();
         on_entry_copied(entry, i == from.len() - 1);
     }

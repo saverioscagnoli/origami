@@ -1,7 +1,10 @@
 use rayon::iter::ParallelIterator;
 
 use super::{file, DirEntry};
-use std::{io, path::Path};
+use std::{
+    io,
+    path::{Path, PathBuf},
+};
 
 pub fn list_dir<P: AsRef<Path>, Q: AsRef<Path>, F>(
     dir: P,
@@ -61,11 +64,18 @@ pub async fn delete_dir<P: AsRef<Path>>(path: P) -> io::Result<()> {
     tokio::fs::remove_dir_all(path).await
 }
 
-pub async fn copy_dir<P: AsRef<Path>, Q: AsRef<Path>>(path: P, to: Q) -> io::Result<()> {
+pub async fn copy_dir<P: AsRef<Path>, Q: AsRef<Path>>(path: P, to: Q) -> io::Result<PathBuf> {
     let mut stack = vec![path.as_ref().to_path_buf()];
+    let mut to = to.as_ref().to_path_buf();
+
+    while to.exists() {
+        let name = to.file_name().unwrap();
+        let new_name = format!("{}-copy", name.to_string_lossy());
+        to = to.with_file_name(new_name);
+    }
 
     while let Some(from) = stack.pop() {
-        let to = to.as_ref().join(from.strip_prefix(path.as_ref()).unwrap());
+        let to = to.join(from.strip_prefix(path.as_ref()).unwrap());
 
         if from.is_dir() {
             tokio::fs::create_dir(&to).await?;
@@ -80,10 +90,10 @@ pub async fn copy_dir<P: AsRef<Path>, Q: AsRef<Path>>(path: P, to: Q) -> io::Res
         }
     }
 
-    Ok(())
+    Ok(to)
 }
 
-pub fn copy_dir_with_progress<P: AsRef<Path>, Q: AsRef<Path>, F>(
+pub async fn copy_dir_with_progress<P: AsRef<Path>, Q: AsRef<Path>, F>(
     from: P,
     to: Q,
     mut callback: F,
@@ -110,7 +120,8 @@ where
             file::copy_file_with_progress(source_path, &target_path, |_total, copied| {
                 copied_bytes = copied;
                 callback(total_size, total_copied_bytes + copied_bytes);
-            });
+            })
+            .await;
 
             total_copied_bytes += copied_bytes;
         }
