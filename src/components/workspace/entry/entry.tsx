@@ -1,3 +1,4 @@
+import { invoke } from "@lib/mapped-invoke";
 import { cn } from "@lib/utils";
 import { DirEntry } from "@typings/dir-entry";
 import { CommandName } from "@typings/enums";
@@ -10,14 +11,14 @@ import { EntryFlags } from "./flags";
 import { EntryLastModified } from "./last-modified";
 import { GridEntryName, ListEntryName } from "./name";
 import { EntrySize } from "./size";
-import { invoke } from "@lib/mapped-invoke";
 
 const Entry = memo<DirEntry>(entry => {
   const { name, path, isDir, isHidden, isSymlink, isStarred, lastModified, size } =
     entry;
 
-  const [selected, addSelected, removeSelected, replaceSelected] = useCurrentDir(
+  const [cd, selected, addSelected, removeSelected, replaceSelected] = useCurrentDir(
     state => [
+      state.cd,
       state.selected,
       state.addSelected,
       state.removeSelected,
@@ -48,7 +49,7 @@ const Entry = memo<DirEntry>(entry => {
       }
     } else if (e.detail === 2) {
       if (isDir) {
-        invoke(CommandName.ListDir, { dir: path });
+        cd(path);
       } else {
         invoke(CommandName.OpenFiles, { paths: [path] });
       }

@@ -5,12 +5,12 @@ import { CommandName } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 
 const OpenMenuItem = () => {
-  const selected = useCurrentDir(state => state.selected);
+  const [cd, selected] = useCurrentDir(state => [state.cd, state.selected]);
 
   const onSelect = () => {
     const paths = selected.map(e => e.path);
     if (paths.length === 1 && selected.at(0)!.isDir) {
-      invoke(CommandName.ListDir, { dir: paths.at(0)! });
+      cd(paths.at(0));
     } else {
       invoke(CommandName.OpenFiles, { paths });
     }

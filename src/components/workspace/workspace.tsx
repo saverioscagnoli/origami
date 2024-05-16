@@ -124,7 +124,7 @@ const gridComponents = {
   Item: forwardRef<HTMLDivElement, ComponentPropsWithoutRef<"div">>(
     ({ className, children, ...props }, ref) => (
       <div
-        className={cn("flex flex-none content-stretch", "p-3", className)}
+        className={cn("flex flex-none content-stretch", "p-2", className)}
         {...props}
         ref={ref}
       >

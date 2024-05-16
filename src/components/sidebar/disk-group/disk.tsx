@@ -1,14 +1,15 @@
 import { Progress } from "@components/tredici";
-import { invoke } from "@lib/mapped-invoke";
 import { cn, formatBytes, percentage } from "@lib/utils";
 import { BackpackIcon } from "@radix-ui/react-icons";
 import { Disk as TDisk } from "@typings/disk";
-import { CommandName } from "@typings/enums";
+import { useCurrentDir } from "@zustand/curent-dir-store";
 import { UsbIcon } from "lucide-react";
 import { FC } from "react";
 
 const Disk: FC<TDisk> = ({ totalSpace, freeSpace, mountPoint, isRemovable }) => {
-  const onClick = () => invoke(CommandName.ListDir, { dir: mountPoint });
+  const cd = useCurrentDir(state => state.cd);
+  
+  const onClick = () => cd(mountPoint);
 
   return (
     <div

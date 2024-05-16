@@ -1,31 +1,31 @@
 import * as RxCheckbox from "@radix-ui/react-checkbox";
-import { ReactNode, forwardRef } from "react";
-import { cva } from "class-variance-authority";
 import { CheckIcon } from "@radix-ui/react-icons";
+import { cva } from "class-variance-authority";
+import { FC, ReactNode, RefObject } from "react";
 
-import "@radix-ui/colors/plum.css";
 import "@radix-ui/colors/plum-dark.css";
+import "@radix-ui/colors/plum.css";
 
-import "@radix-ui/colors/teal.css";
 import "@radix-ui/colors/teal-dark.css";
+import "@radix-ui/colors/teal.css";
 
-import "@radix-ui/colors/grass.css";
 import "@radix-ui/colors/grass-dark.css";
+import "@radix-ui/colors/grass.css";
 
-import "@radix-ui/colors/red.css";
 import "@radix-ui/colors/red-dark.css";
+import "@radix-ui/colors/red.css";
 
-import "@radix-ui/colors/amber.css";
 import "@radix-ui/colors/amber-dark.css";
+import "@radix-ui/colors/amber.css";
 
-import "@radix-ui/colors/blue.css";
 import "@radix-ui/colors/blue-dark.css";
+import "@radix-ui/colors/blue.css";
 
-import "@radix-ui/colors/gray.css";
 import "@radix-ui/colors/gray-dark.css";
+import "@radix-ui/colors/gray.css";
 
-import "@radix-ui/colors/slate.css";
 import "@radix-ui/colors/slate-dark.css";
+import "@radix-ui/colors/slate.css";
 
 type CheckboxColorScheme =
   | "plum"
@@ -99,32 +99,29 @@ type CheckboxProps = RxCheckbox.CheckboxProps & {
   colorScheme?: CheckboxColorScheme;
   size?: CheckboxSize;
   icon?: ReactNode;
+  ref?: RefObject<HTMLButtonElement>;
 };
 
-const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
-  (
-    {
-      className,
-      colorScheme = "plum",
-      size = "md",
-      icon = <CheckIcon className={checkboxIconVariants({ size })} />,
-      ...props
-    },
-    ref
-  ) => {
-    return (
-      <RxCheckbox.Root
-        className={checkboxVariants({ className, colorScheme, size })}
-        {...props}
-        ref={ref}
-      >
-        <RxCheckbox.Indicator children={icon} />
-      </RxCheckbox.Root>
-    );
-  }
-);
+const Checkbox: FC<CheckboxProps> = ({
+  className,
+  colorScheme = "plum",
+  size = "md",
+  icon = <CheckIcon className={checkboxIconVariants({ size })} />,
+  ref,
+  ...props
+}) => {
+  return (
+    <RxCheckbox.Root
+      className={checkboxVariants({ className, colorScheme, size })}
+      {...props}
+      ref={ref}
+    >
+      <RxCheckbox.Indicator children={icon} />
+    </RxCheckbox.Root>
+  );
+};
 
 Checkbox.displayName = RxCheckbox.Root.displayName;
 
 export { Checkbox };
-export type { CheckboxProps, CheckboxColorScheme, CheckboxSize };
+export type { CheckboxColorScheme, CheckboxProps, CheckboxSize };

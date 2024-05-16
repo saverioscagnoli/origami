@@ -1,18 +1,12 @@
 import { Menubar } from "@components/tredici";
-import { invoke } from "@lib/mapped-invoke";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { CommandName } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 
 const ReloadMenuItem = () => {
-  const dir = useCurrentDir(state => state.dir);
-
-  const onSelect = () => {
-    invoke(CommandName.ListDir, { dir });
-  };
+  const reload = useCurrentDir(state => state.reload);
 
   return (
-    <Menubar.Item leftIcon={<ReloadIcon />} shortcut="Ctrl + R" onSelect={onSelect}>
+    <Menubar.Item leftIcon={<ReloadIcon />} shortcut="Ctrl + R" onSelect={reload}>
       Reload
     </Menubar.Item>
   );

@@ -1,11 +1,5 @@
 import { cva } from "class-variance-authority";
-import {
-  ChangeEvent,
-  ComponentPropsWithoutRef,
-  Dispatch,
-  SetStateAction,
-  forwardRef
-} from "react";
+import { ChangeEvent, ComponentProps, Dispatch, SetStateAction } from "react";
 
 import "@radix-ui/colors/plum-dark.css";
 import "@radix-ui/colors/plum.css";
@@ -72,48 +66,44 @@ const inputVariants = cva(
   }
 );
 
-type InputProps = Omit<ComponentPropsWithoutRef<"input">, "size"> & {
+type InputProps = Omit<ComponentProps<"input">, "size"> & {
   htmlSize?: number;
   colorScheme?: InputColorScheme;
   size?: InputSize;
   onValueChange?: Dispatch<SetStateAction<string>>;
 };
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      className,
-      htmlSize,
-      style,
-      onChange,
-      onValueChange,
-      colorScheme = "plum",
-      size = "md",
-      ...props
-    },
-    ref
-  ) => {
-    const handleChange = (evt: ChangeEvent<HTMLInputElement>) => {
-      onValueChange?.(evt.target.value);
-      onChange?.(evt);
-    };
+const Input: React.FC<InputProps> = ({
+  className,
+  htmlSize,
+  style,
+  onChange,
+  onValueChange,
+  colorScheme = "plum",
+  size = "md",
+  ref,
+  ...props
+}) => {
+  const handleChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    onValueChange?.(evt.target.value);
+    onChange?.(evt);
+  };
 
-    return (
-      <input
-        size={htmlSize}
-        className={inputVariants({
-          className,
-          colorScheme,
-          size
-        })}
-        style={{ outlineOffset: -1, ...style }}
-        onChange={handleChange}
-        {...props}
-        ref={ref}
-      />
-    );
-  }
-);
+  return (
+    <input
+      size={htmlSize}
+      className={inputVariants({
+        className,
+        colorScheme,
+        size
+      })}
+      style={{ outlineOffset: -1, ...style }}
+      onChange={handleChange}
+      {...props}
+      ref={ref}
+    />
+  );
+};
 
 export { Input };
 export type { InputColorScheme, InputProps, InputSize };

@@ -1,29 +1,29 @@
 import { cva } from "class-variance-authority";
-import { ComponentPropsWithoutRef, ReactNode, forwardRef } from "react";
+import { ComponentProps, FC, ReactNode } from "react";
 
-import "@radix-ui/colors/plum.css";
 import "@radix-ui/colors/plum-dark.css";
+import "@radix-ui/colors/plum.css";
 
-import "@radix-ui/colors/teal.css";
 import "@radix-ui/colors/teal-dark.css";
+import "@radix-ui/colors/teal.css";
 
-import "@radix-ui/colors/grass.css";
 import "@radix-ui/colors/grass-dark.css";
+import "@radix-ui/colors/grass.css";
 
-import "@radix-ui/colors/red.css";
 import "@radix-ui/colors/red-dark.css";
+import "@radix-ui/colors/red.css";
 
-import "@radix-ui/colors/amber.css";
 import "@radix-ui/colors/amber-dark.css";
+import "@radix-ui/colors/amber.css";
 
-import "@radix-ui/colors/blue.css";
 import "@radix-ui/colors/blue-dark.css";
+import "@radix-ui/colors/blue.css";
 
-import "@radix-ui/colors/gray.css";
 import "@radix-ui/colors/gray-dark.css";
+import "@radix-ui/colors/gray.css";
 
-import "@radix-ui/colors/slate.css";
 import "@radix-ui/colors/slate-dark.css";
+import "@radix-ui/colors/slate.css";
 
 type ButtonVariant = "solid" | "secondary" | "outline" | "ghost" | "link";
 
@@ -400,7 +400,7 @@ const buttonVariants = cva(
   }
 );
 
-type ButtonProps = ComponentPropsWithoutRef<"button"> & {
+type ButtonProps = ComponentProps<"button"> & {
   variant?: ButtonVariant;
   colorScheme?: ButtonColorScheme;
   size?: ButtonSize;
@@ -408,41 +408,33 @@ type ButtonProps = ComponentPropsWithoutRef<"button"> & {
   rightIcon?: ReactNode;
 };
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      children,
-      className,
-      variant = "solid",
-      colorScheme = "plum",
-      size = "md",
-      leftIcon,
-      rightIcon,
-      ...props
-    },
-    ref
-  ) => {
-    const isSmall = size === "sm";
+const Button: FC<ButtonProps> = ({
+  children,
+  className,
+  variant = "solid",
+  colorScheme = "plum",
+  size = "md",
+  leftIcon,
+  rightIcon,
+  ref,
+  ...props
+}) => {
+  const isSmall = size === "sm";
 
-    return (
-      <button
-        className={buttonVariants({ className, variant, colorScheme, size })}
-        {...props}
-        ref={ref}
-      >
-        {leftIcon && (
-          <span className={isSmall ? "mr-1" : "mr-2"}>{leftIcon}</span>
-        )}
-        {children}
-        {rightIcon && (
-          <span className={isSmall ? "ml-1" : "ml-2"}>{rightIcon}</span>
-        )}
-      </button>
-    );
-  }
-);
+  return (
+    <button
+      className={buttonVariants({ className, variant, colorScheme, size })}
+      {...props}
+      ref={ref}
+    >
+      {leftIcon && <span className={isSmall ? "mr-1" : "mr-2"}>{leftIcon}</span>}
+      {children}
+      {rightIcon && <span className={isSmall ? "ml-1" : "ml-2"}>{rightIcon}</span>}
+    </button>
+  );
+};
 
 Button.displayName = "Button";
 
 export { Button };
-export type { ButtonProps, ButtonVariant, ButtonColorScheme, ButtonSize };
+export type { ButtonColorScheme, ButtonProps, ButtonSize, ButtonVariant };

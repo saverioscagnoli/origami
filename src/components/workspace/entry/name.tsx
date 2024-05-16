@@ -15,7 +15,7 @@ const ListEntryName: FC<EntryNameProps> = ({ name, path, isDir }) => {
   return (
     <span className={cn("flex items-center gap-1.5")}>
       <RenamePopover name={name}>
-        <span className={cn("min-w-4")}>
+        <span>
           {isDir ? (
             <FolderIcon />
           ) : (

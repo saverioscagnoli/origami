@@ -17,6 +17,8 @@ import { create } from "zustand";
  *
  * @property {string} dir - The current directory path.
  * @property {function} setDir - A function to set the current directory path.
+ * @property {function} cd - A function to request a change of directory.
+ * @property {function} reload - A function to reload the current directory.
  * @property {DirEntry[]} entries - The list of entries in the current directory.
  * @property {function} setEntries - A function to set the list of entries in the current directory.
  * @property {function} replaceEntries - A function to replace an entry in the current directory.
@@ -32,6 +34,9 @@ import { create } from "zustand";
 interface CurrentDirStore {
   dir: string;
   setDir: (dir: string) => void;
+  cd: (dir: string) => void;
+  reload: () => void;
+  changing: boolean;
   entries: DirEntry[];
   setEntries: (entries: DirEntry[]) => void;
   replaceEntries: (entries: DirEntry[]) => void;
@@ -50,7 +55,7 @@ interface CurrentDirStore {
 
 const useCurrentDir = create<CurrentDirStore>()(set => ({
   dir: "",
-  setDir: (dir: string, affectsHistory: boolean = true) =>
+  setDir: (dir: string) =>
     set(state => {
       let newHistory = [...state.history];
       let newHistoryIndex = state.historyIndex;
@@ -68,8 +73,32 @@ const useCurrentDir = create<CurrentDirStore>()(set => ({
         newHistoryIndex = newHistory.length - 1;
       }
 
-      return { dir, history: newHistory, historyIndex: newHistoryIndex };
+      return {
+        dir,
+        history: newHistory,
+        historyIndex: newHistoryIndex,
+        changing: false
+      };
     }),
+  cd: (dir: string) => {
+    set(state => {
+      if (dir !== state.dir) {
+        invoke(CommandName.ListDir, { dir });
+
+        return { changing: true };
+      }
+
+      return state;
+    });
+  },
+  reload: () => {
+    set(state => {
+      invoke(CommandName.ListDir, { dir: state.dir });
+
+      return { changing: true };
+    });
+  },
+  changing: false,
   entries: [],
   setEntries: entries => set({ entries }),
   replaceEntries: entries => {
@@ -119,7 +148,7 @@ const useCurrentDir = create<CurrentDirStore>()(set => ({
         const newHistoryIndex = state.historyIndex - 1;
         const newDir = state.history.at(newHistoryIndex);
 
-        invoke(CommandName.ListDir, { dir: newDir });
+        state.cd(newDir);
 
         return {
           historyIndex: newHistoryIndex
@@ -132,7 +161,7 @@ const useCurrentDir = create<CurrentDirStore>()(set => ({
         const newHistoryIndex = state.historyIndex + 1;
         const newDir = state.history.at(newHistoryIndex);
 
-        invoke(CommandName.ListDir, { dir: newDir });
+        state.cd(newDir);
 
         return {
           historyIndex: newHistoryIndex
