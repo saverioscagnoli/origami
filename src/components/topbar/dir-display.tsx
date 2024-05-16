@@ -1,14 +1,16 @@
+import { Spinner } from "@components/tredici";
 import { cn } from "@lib/utils";
 import { StarFilledIcon } from "@radix-ui/react-icons";
 import { BasicDirLabel } from "@typings/enums";
 import { useCurrentDir } from "@zustand/curent-dir-store";
 import { useEnvironment } from "@zustand/environment-store";
 import { useGlobalStates } from "@zustand/global-states-store";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SearchInput } from "./search-input";
 
 const TopbarDirDisplay = () => {
-  const dir = useCurrentDir(state => state.dir);
+  const [dir, changing] = useCurrentDir(state => [state.dir, state.changing]);
+  const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const basicDirs = useEnvironment(state => state.basicDirs);
   const searching = useGlobalStates(state => state.searching);
 
@@ -16,6 +18,19 @@ const TopbarDirDisplay = () => {
     () => basicDirs.find(b => b.label === BasicDirLabel.Starred),
     [basicDirs]
   );
+
+  useEffect(() => {
+    let timer: number;
+
+    if (changing) {
+      timer = setTimeout(() => {
+        setShowSpinner(true);
+      }, 100);
+    } else {
+      setShowSpinner(false);
+    }
+    return () => clearTimeout(timer);
+  }, [changing]);
 
   return (
     <span
@@ -31,6 +46,8 @@ const TopbarDirDisplay = () => {
     >
       {searching.state ? (
         <SearchInput />
+      ) : showSpinner ? (
+        <Spinner />
       ) : dir.includes(starredDir?.path) ? (
         <span className={cn("flex items-center")}>
           <StarFilledIcon className={cn("w-4 h-4")} />

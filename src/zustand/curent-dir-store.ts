@@ -19,6 +19,8 @@ import { create } from "zustand";
  * @property {function} setDir - A function to set the current directory path.
  * @property {function} cd - A function to request a change of directory.
  * @property {function} reload - A function to reload the current directory.
+ * @property {boolean} changing - A flag to indicate if the directory is changing.
+ * @property {function} setChanging - A function to set the changing flag.
  * @property {DirEntry[]} entries - The list of entries in the current directory.
  * @property {function} setEntries - A function to set the list of entries in the current directory.
  * @property {function} replaceEntries - A function to replace an entry in the current directory.
@@ -37,6 +39,7 @@ interface CurrentDirStore {
   cd: (dir: string) => void;
   reload: () => void;
   changing: boolean;
+  setChanging: (changing: boolean) => void;
   entries: DirEntry[];
   setEntries: (entries: DirEntry[]) => void;
   replaceEntries: (entries: DirEntry[]) => void;
@@ -99,6 +102,7 @@ const useCurrentDir = create<CurrentDirStore>()(set => ({
     });
   },
   changing: false,
+  setChanging: changing => set({ changing }),
   entries: [],
   setEntries: entries => set({ entries }),
   replaceEntries: entries => {

@@ -9,12 +9,14 @@ function listDirListen() {
     state.setError
   ]);
 
-  const [setDir, addEntries, setEntries, replaceSelected] = useCurrentDir(state => [
-    state.setDir,
-    state.addEntries,
-    state.setEntries,
-    state.replaceSelected
-  ]);
+  const [setDir, addEntries, setEntries, replaceSelected, setChanging] =
+    useCurrentDir(state => [
+      state.setDir,
+      state.addEntries,
+      state.setEntries,
+      state.replaceSelected,
+      state.setChanging
+    ]);
 
   let first = false;
 
@@ -23,6 +25,7 @@ function listDirListen() {
 
     if (error) {
       setError(error);
+      setChanging(false);
       return;
     }
 
