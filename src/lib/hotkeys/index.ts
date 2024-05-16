@@ -13,6 +13,7 @@ import { cutEntriesHotkey } from "./cut-entries";
 import { deleteEntriesHotkey } from "./delete-entries";
 import { goToParentDirHotkey } from "./go-to-parent";
 import { newWindowHotkey } from "./new-window";
+import { openEntryHotkey } from "./open-entry";
 import { pasteEntriesHotkey } from "./paste-entries";
 import { reloadHotkey } from "./reload";
 import { renameEntryHotkey } from "./rename-entry";
@@ -47,6 +48,7 @@ function startHotkeyListeners() {
   newWindowHotkey();
   closeWindowHotkey();
   closeAllWindowsHotkey();
+  openEntryHotkey();
 }
 
 export { startHotkeyListeners };
