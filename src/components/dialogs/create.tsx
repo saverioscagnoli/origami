@@ -63,7 +63,6 @@ const CreateDialog = () => {
             )}
           </span>
           <div className={cn("flex flex-col gap-2")}>
-            .
             <Input
               className={cn("w-full", "font-normal")}
               colorScheme={canConfirm ? "plum" : "red"}
