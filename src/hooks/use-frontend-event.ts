@@ -4,6 +4,10 @@ import { Theme } from "@zustand/settings-store";
 import { DependencyList, useEffect } from "react";
 
 type FrontendEventMap = {
+  /**
+   * This event is emitted when the user tries to reload the app.
+   * Cleanup purposes.
+   */
   [FrontendEvent.BeforeUnload]: null;
 
   /**
@@ -12,6 +16,11 @@ type FrontendEventMap = {
    * Used to update theme in other windows
    */
   [FrontendEvent.ThemeChange]: Theme;
+
+  /**
+   * This event is emitted when the user cancels a copy operation.
+   */
+  [FrontendEvent.CancelCopy]: null;
 };
 
 function useFrontendEvent<K extends FrontendEvent>(
