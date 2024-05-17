@@ -13,13 +13,15 @@ import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
 const CreateDialog = () => {
   const [name, setName] = useState<string>("");
 
-  const dir = useCurrentDir(state => state.dir);
+  const [dir, entries] = useCurrentDir(s => [s.dir, s.entries]);
   const [{ state: open, isDir }, setCreating] = useGlobalStates(state => [
     state.creating,
     state.setCreating
   ]);
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const canConfirm = entries.findIndex(e => e.name === name) === -1;
 
   useEffect(() => {
     if (open) {
@@ -36,11 +38,11 @@ const CreateDialog = () => {
 
   const onKeyDown: KeyboardEventHandler = async e => {
     if (e.key === "Enter") {
-      if (name !== "") {
+      if (name !== "" && canConfirm) {
         const path = await join(dir, name);
         invoke(CommandName.CreateEntry, { path, isDir });
         setName("");
-      }
+      } else return;
 
       setCreating({ state: false });
     }
@@ -60,15 +62,24 @@ const CreateDialog = () => {
               )
             )}
           </span>
-          <Input
-            className={cn("w-full", "font-normal")}
-            spellCheck={false}
-            autoComplete="off"
-            value={name}
-            onValueChange={setName}
-            onKeyDown={onKeyDown}
-            ref={inputRef}
-          />
+          <div className={cn("flex flex-col gap-2")}>
+            .
+            <Input
+              className={cn("w-full", "font-normal")}
+              colorScheme={canConfirm ? "plum" : "red"}
+              spellCheck={false}
+              autoComplete="off"
+              value={name}
+              onValueChange={setName}
+              onKeyDown={onKeyDown}
+              ref={inputRef}
+            />
+            {canConfirm ? (
+              <span className={cn("text-sm")}>Press "Enter" to create</span>
+            ) : (
+              <span className={cn("text-sm")}>This name is in use!</span>
+            )}
+          </div>
         </div>
         <Dialog.Close />
       </Dialog.Content>

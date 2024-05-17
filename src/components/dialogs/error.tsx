@@ -14,7 +14,7 @@ const ErrorDialog = () => {
    * Load and prepare audio files for notifications.
    */
   useEffect(() => {
-    const audioPaths = config.notifications?.error?.paths;
+    const audioPaths = config?.notifications?.error?.paths;
     const audios = audioPaths?.map(path => new Audio(convertFileSrc(path)));
 
     setAudio(audios);
