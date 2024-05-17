@@ -6,6 +6,8 @@ import { create } from "zustand";
 //                            //
 ////////////////////////////////
 
+type Format = "b" | "kb" | "mb" | "gb";
+
 /**
  * This is the store for all the states related to the app config,
  * stored in the app config directory under the name "config.jsonc"
@@ -23,7 +25,11 @@ interface Config {
   styles?: {
     copy?: {
       progress?: {
-        format?: "b" | "kb" | "mb" | "gb";
+        format?: string;
+        units?: {
+          copied?: Format;
+          total?: Format;
+        };
       };
     };
   };
@@ -41,4 +47,4 @@ const useConfig = create<{ config?: Config } & ConfigMethods>()(set => ({
 }));
 
 export { useConfig };
-export type { Config };
+export type { Config, Format };

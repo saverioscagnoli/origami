@@ -8,7 +8,7 @@ import { FC } from "react";
 
 const Disk: FC<TDisk> = ({ totalSpace, freeSpace, mountPoint, isRemovable }) => {
   const cd = useCurrentDir(state => state.cd);
-  
+
   const onClick = () => cd(mountPoint);
 
   return (
@@ -31,7 +31,7 @@ const Disk: FC<TDisk> = ({ totalSpace, freeSpace, mountPoint, isRemovable }) => 
           <p className={cn("lg:block hidden text-sm")}>
             ({percentage(totalSpace - freeSpace, totalSpace)})
           </p>
-          <p className={cn("text-sm")}>{formatBytes(totalSpace, 0)}</p>
+          <p className={cn("text-sm")}>{formatBytes(totalSpace, { decimals: 0 })}</p>
         </div>
       </div>
       <Progress

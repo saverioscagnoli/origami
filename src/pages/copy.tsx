@@ -26,6 +26,30 @@ const Copy = () => {
   const [config, loadConfig] = useConfig(state => [state.config, state.loadConfig]);
 
   /**
+   * Get the the formats for the progress bar from the config.
+   * If not found, use the default formats.
+   * @see @lib/utils.ts - formatBytes
+   */
+  const copiedUnit = config?.styles?.copy?.progress?.units?.copied;
+  const totalUnit = config?.styles?.copy?.progress?.units?.total;
+
+  /**
+   * Parse the format from the config, if not found use the default format.
+   */
+  const format =
+    config?.styles?.copy?.progress?.format ??
+    "{copied} / {total} ({percentage}) \n {rate}";
+
+  /**
+   * Format the progress bar with the values.
+   */
+  const toDisplay = format
+    .replace("{copied}", formatBytes(value, { format: copiedUnit }))
+    .replace("{total}", formatBytes(max, { format: totalUnit }))
+    .replace("{rate}", `${rate} MB/s`)
+    .replace("{percentage}", percentage(value, max));
+
+  /**
    * Load the config on mount.
    */
   useEffect(() => {
@@ -142,26 +166,11 @@ const Copy = () => {
                 "whitespace-nowrap"
               )}
             >
-              <span className={cn("flex gap-2")}>
-                <p>Progress: </p>
-                <p>
-                  {formatBytes(value)} / {formatBytes(max)}
-                </p>
-              </span>
-              <span>
-                <p>{percentage(value, max)}</p>
-              </span>
-              <span>
-                <p>Speed: {rate} MB/s</p>
-              </span>
-              {time !== -1 && (
-                <span>
-                  Done in:{" "}
-                  {time < 1
-                    ? `${(time * 1000).toFixed()} milliseconds`
-                    : `${time.toFixed()} seconds`}
-                </span>
-              )}
+              {toDisplay.split("\n").map((item, index) => (
+                <p key={index}>{item}</p>
+              ))}
+
+              {time !== -1 && <p>{time.toFixed(1)} seconds</p>}
             </div>
           </>
         )}

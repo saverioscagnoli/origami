@@ -1,5 +1,6 @@
 import { resolve } from "@tauri-apps/api/path";
 import { DirEntry } from "@typings/dir-entry";
+import { Format } from "@zustand/config-store";
 import { CreatingState, SearchingState } from "@zustand/global-states-store";
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -23,10 +24,16 @@ function cn(...args: ClassValue[]) {
  * formatBytes(32134, 1) // 31.4 KB
  *
  * @param bytes The number of bytes
- * @param decimals How many decimal places to round to
+ * @param options The options for formatting
+ * @param options.decimals The number of decimal places to round to
+ * @param options.format The format to return the bytes in
  * @returns A human-readable string of the bytes
  */
-function formatBytes(bytes: number, decimals: number = 2): string {
+function formatBytes(
+  bytes: number,
+  options: { decimals?: number; format?: Format } = {}
+): string {
+  const { decimals = 2, format } = options;
   if (bytes === 0) return "0 Bytes";
 
   const k = 1024;
@@ -35,7 +42,38 @@ function formatBytes(bytes: number, decimals: number = 2): string {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  let n = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+  let size = sizes.at(i);
+
+  if (format) {
+    switch (format) {
+      case "b": {
+        n = parseFloat((bytes / Math.pow(k, 0)).toFixed(dm));
+        size = sizes.at(0);
+        break;
+      }
+
+      case "kb": {
+        n = parseFloat((bytes / Math.pow(k, 1)).toFixed(dm));
+        size = sizes.at(1);
+        break;
+      }
+
+      case "mb": {
+        n = parseFloat((bytes / Math.pow(k, 2)).toFixed(dm));
+        size = sizes.at(2);
+        break;
+      }
+
+      case "gb": {
+        n = parseFloat((bytes / Math.pow(k, 3)).toFixed(dm));
+        size = sizes.at(3);
+        break;
+      }
+    }
+  }
+
+  return `${n.toLocaleString()} ${size}`;
 }
 
 /**
