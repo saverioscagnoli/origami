@@ -3,7 +3,7 @@ import { Progress, Spinner } from "@components/tredici";
 import { useBackendEvent } from "@hooks/use-backend-event";
 import { useFrontendEvent } from "@hooks/use-frontend-event";
 import { invoke } from "@lib/mapped-invoke";
-import { cn, percentage } from "@lib/utils";
+import { cn, formatBytes, percentage } from "@lib/utils";
 import { Cross1Icon, MinusIcon } from "@radix-ui/react-icons";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getCurrent } from "@tauri-apps/api/window";
@@ -38,11 +38,9 @@ const Copy = () => {
   useEffect(() => {
     if (!config) return;
 
-    const notifyAudioPaths = config.notifications?.copy?.paths;
-    const notifyAudios = notifyAudioPaths?.map(
-      path => new Audio(convertFileSrc(path))
-    );
-    setAudio(notifyAudios);
+    const audioPaths = config.notifications?.copy?.paths;
+    const audios = audioPaths?.map(path => new Audio(convertFileSrc(path)));
+    setAudio(audios);
   }, [config]);
 
   const setTheme = useSettings(state => state.setTheme);
@@ -76,13 +74,12 @@ const Copy = () => {
   useBackendEvent(
     BackendEvent.CopyOver,
     time => {
-      setValue(1);
-      setMax(1);
+      setValue(max);
       setTime(time);
 
       audio.forEach(a => a.play());
     },
-    [audio, config]
+    [audio, config, max]
   );
 
   const win = getCurrent();
@@ -148,7 +145,7 @@ const Copy = () => {
               <span className={cn("flex gap-2")}>
                 <p>Progress: </p>
                 <p>
-                  {value.toLocaleString()} / {max.toLocaleString()}
+                  {formatBytes(value)} / {formatBytes(max)}
                 </p>
               </span>
               <span>

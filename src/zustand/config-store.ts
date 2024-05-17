@@ -15,6 +15,17 @@ interface Config {
     copy?: {
       paths?: string[];
     };
+    error?: {
+      paths?: string[];
+    };
+  };
+
+  styles?: {
+    copy?: {
+      progress?: {
+        format?: "b" | "kb" | "mb" | "gb";
+      };
+    };
   };
 }
 
