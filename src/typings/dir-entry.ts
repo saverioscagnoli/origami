@@ -1,6 +1,7 @@
 type DirEntry = {
   path: string;
   name: string;
+  ext: string;
   isDir: boolean;
   isHidden: boolean;
   isSymlink: boolean;

@@ -14,10 +14,10 @@ import {
 import { Virtuoso, VirtuosoGrid } from "react-virtuoso";
 import { EmptySpaceContextMenu } from "./empty-space";
 import { Entry } from "./entry";
-import { ImagePreview } from "./image-preview";
 import { SelectedEntriesContextMenu } from "./selected";
 
 import FilterWorker from "@lib/search-worker?worker";
+import { Preview } from "./preview";
 
 const Workspace = () => {
   const entries = useCurrentDir(state => state.entries);
@@ -89,7 +89,7 @@ const Workspace = () => {
                 components={gridComponents}
               />
             )}
-            <ImagePreview />
+            <Preview />
           </>
 
           <ScrollArea.Scrollbar className={cn("mr-1")} />

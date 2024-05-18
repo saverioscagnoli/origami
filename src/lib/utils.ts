@@ -164,8 +164,29 @@ async function getParentDir(dir: string) {
   return await resolve(dir, "..");
 }
 
+type SrcType = "image" | "audio" | "video";
+
+/**
+ * Convert a plain base64 source to a base64 source with a type
+ * Can be used in html tags
+ *
+ * @param src The base64 source
+ * @param ext The extension of the source
+ * @param type The file type
+ * @returns A base64 source string
+ */
+
+function convertSrcBase64(
+  src: string,
+  ext: string = "png",
+  type: SrcType = "image"
+) {
+  return `data:${type}/${ext};base64,${src}`;
+}
+
 export {
   cn,
+  convertSrcBase64,
   filter,
   formatBytes,
   getParentDir,

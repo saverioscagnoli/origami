@@ -11,6 +11,7 @@ pub mod platform_impl;
 pub struct DirEntry {
     pub path: String,
     pub name: String,
+    pub ext: String,
     pub is_dir: bool,
     pub is_hidden: bool,
     pub is_symlink: bool,
@@ -46,6 +47,7 @@ pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(
     }
 
     let name = name.unwrap();
+    let ext = path.extension().unwrap_or_default().to_string_lossy().to_string();
 
     let is_dir = metadata.is_dir();
 
@@ -67,6 +69,7 @@ pub fn into_entry<P: AsRef<Path>, Q: AsRef<Path>>(
     let entry = DirEntry {
         path: path.to_string_lossy().to_string(),
         name: name.to_string_lossy().to_string(),
+        ext,
         is_dir,
         is_hidden,
         is_symlink,

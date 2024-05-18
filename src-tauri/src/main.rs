@@ -15,8 +15,8 @@ use app_windows::{close_all_windows, spawn_main_window};
 use config::load_config;
 use disks::poll_disks;
 use file_system::commands::{
-    create_entry, delete_entries, get_image_base64, list_dir, open_files, paste_entries,
-    rename_entry, star_entries, unstar_entries,
+    create_entry, delete_entries, get_audio_base64, get_image_base64, list_dir, open_files,
+    paste_entries, rename_entry, star_entries, unstar_entries,
 };
 use modules::load_css_modules;
 use settings::{load_settings, update_settings};
@@ -36,6 +36,7 @@ async fn main() {
             create_entry,
             delete_entries,
             get_image_base64,
+            get_audio_base64,
             list_dir,
             open_files,
             paste_entries,

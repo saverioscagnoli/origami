@@ -81,6 +81,12 @@ type CommandArgsMap = {
   [CommandName.GetImageBase64]: { path: string };
 
   /**
+   * Get audio base64
+   * @param path - Path to audio
+   */
+  [CommandName.GetAudioBase64]: { path: string };
+
+  /**
    * Filter entries
    * @param entries - Entries to filter
    * @param query - Filter query

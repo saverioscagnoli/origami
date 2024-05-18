@@ -31,6 +31,6 @@ pub async fn rename_entry<P: AsRef<Path>, Q: AsRef<Path>>(
     tokio::fs::rename(old_path, new_path).await
 }
 
-pub async fn image_to_base64(img: Vec<u8>) -> String {
-    general_purpose::STANDARD.encode(&img)
+pub async fn file_to_base64(file: Vec<u8>) -> String {
+    general_purpose::STANDARD.encode(&file)
 }

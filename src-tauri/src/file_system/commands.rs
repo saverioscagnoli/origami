@@ -8,7 +8,8 @@ use crate::{
     utils::AppPaths,
 };
 use rayon::iter::{ParallelBridge, ParallelIterator};
-use std::{path::Path, thread, time::Duration};
+use tokio::io::AsyncReadExt;
+use std::{io::Write, path::Path, thread, time::Duration};
 use tauri::{AppHandle, Manager, WebviewWindow};
 
 #[tauri::command(async)]
@@ -378,10 +379,56 @@ pub async fn unstar_entries(app: AppHandle, paths: Vec<String>, label: String) {
 }
 
 #[tauri::command(async)]
-pub async fn get_image_base64(path: String) -> Result<String, ()> {
-    let image = std::fs::read(&path).map_err(|_| ())?;
+pub async fn get_image_base64(path: String) -> String {
+    let file = tokio::fs::File::open(&path).await;
 
-    let base64 = misc::image_to_base64(image).await;
+    if file.is_err() {
+        return "".to_string();
+    }
 
-    Ok(base64)
+    let mut file = file.unwrap();
+    let mut buffer = Vec::new();
+
+    if file.read_to_end(&mut buffer).await.is_err() {
+        return "".to_string();
+    }
+
+    misc::file_to_base64(buffer).await
 }
+
+#[tauri::command(async)]
+pub async fn get_audio_base64(path: String) -> String {
+    let file = tokio::fs::File::open(&path).await;
+
+    if file.is_err() {
+        return "".to_string();
+    }
+
+    let mut file = file.unwrap();
+    let mut buffer = Vec::new();
+
+    if file.read_to_end(&mut buffer).await.is_err() {
+        return "".to_string();
+    }
+
+    misc::file_to_base64(buffer).await
+}
+
+
+// let img = match image::io::Reader::new(reader).with_guessed_format() {
+//     Ok(reader) => match reader.decode() {
+//         Ok(img) => img,
+//         Err(_) => return "".to_string(),
+//     },
+//     Err(_) => return "".to_string(),
+// };
+
+// let (width, height) = img.dimensions();
+
+// let scale_factor = 300.0 / (width.max(height) as f32);
+// let new_width = (width as f32 * scale_factor) as u32;
+// let new_height = (height as f32 * scale_factor) as u32;
+// let img = img.resize(new_width, new_height, image::imageops::FilterType::Nearest);
+
+// let mut cursor = std::io::Cursor::new(Vec::new());
+// img.write_to(&mut cursor, ImageFormat::Png).unwrap();

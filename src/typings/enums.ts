@@ -13,6 +13,7 @@ enum CommandName {
   SpawnMainWindow = "spawn_main_window",
   CloseAllWindows = "close_all_windows",
   GetImageBase64 = "get_image_base64",
+  GetAudioBase64 = "get_audio_base64",
   BuildIndex = "build_index",
   SearchEverywhere = "search_everywhere",
   WatchDiskChanges = "watch_disk_changes",

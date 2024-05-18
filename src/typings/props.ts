@@ -8,4 +8,9 @@ type SizeProps = {
   size: number;
 };
 
-export type { ChildrenProps, SizeProps };
+type PreviewProps = {
+  path: string;
+  ext: string;
+};
+
+export type { ChildrenProps, PreviewProps, SizeProps };
