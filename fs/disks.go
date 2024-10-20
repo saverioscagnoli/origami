@@ -50,10 +50,6 @@ func (f *Filesystem) FetchDisks() []Disk {
 // So that if there are changes in the disks
 // or their usage, we can update the UI
 func (f *Filesystem) StartFetchDisksInterval() {
-	// Emit first before starting the ticker
-	// This way we get the initial disk list
-	wails.EventsEmit(f.ctx, "disks", f.FetchDisks())
-
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
@@ -65,5 +61,5 @@ func (f *Filesystem) StartFetchDisksInterval() {
 	}()
 
 	// Keep the main goroutine running indefinitely
-	select {}
+	<-make(chan struct{})
 }

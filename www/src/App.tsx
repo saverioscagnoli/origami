@@ -1,13 +1,12 @@
 import { useEvent } from "@util-hooks/use-event";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
-import { Sep } from "@wails/methods/fs/Filesystem";
+import { OsName, Sep } from "@wails/methods/utils/Utils";
 import { useEffect } from "react";
 import { Bottombar } from "~/components/bottombar";
 import { CreateEntryDialog } from "~/components/dialogs/create-entry";
 import { Sidebar } from "~/components/sidebar";
 import { Topbar } from "~/components/topbar";
 import { Workspace } from "~/components/workspace";
-import { useWailsEvent } from "~/hooks/use-wails-events";
 import {
   hotkeyDelete,
   hotkeyFileDialog,
@@ -26,27 +25,22 @@ import { useEnv } from "~/zustand/env";
 import { useSettings } from "~/zustand/settings";
 
 function App() {
-  const [cd, dir] = useCurrentDir(s => [s.cd, s.dir]);
-  const setSep = useEnv(s => s.setSep);
+  const cd = useCurrentDir(s => s.cd);
+  const [setSep, setOs] = useEnv(s => [s.setSep, s.setOs]);
   const theme = useSettings(s => s.theme);
 
   /**
    * On start:
-   * - Start the directory watcher to detect changes
-   * - When the `StartWatching` function is started, it will emit a `watching` event.
-   *   This event will be caught and then program will cd into the default directory.
    * - Fetch the path separator from the backend.
+   * - Fetch the OS name from the backend.
+   * - Cd into the default directory.
    */
   useEffect(() => {
-    // StartWatching();
-    // StartFetchingDisks();
     Sep().then(setSep);
-  }, []);
+    OsName().then(setOs);
 
-  /**
-   * Listen to the `watching` event and cd into the default directory.
-   */
-  useWailsEvent("watching", () => cd("C:"));
+    cd("C:");
+  }, []);
 
   /**
    * Setup all the hotkey listeners

@@ -23,6 +23,8 @@ func (f *Filesystem) StartDirWatcher() {
 	w, err := fsnotify.NewWatcher()
 	Watcher = w
 
+	Watcher.Add(CurrentPath)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,23 +39,23 @@ func (f *Filesystem) StartDirWatcher() {
 					return
 				}
 
-				fmt.Println("event:", event.Name)
+				fmt.Println("event:", event)
 
-				// if event.Has(fsnotify.Write) {
-				// 	wails.EventsEmit(f.ctx, "f:write", NewDirEntryFromPath(event.Name))
-				// }
+				if event.Has(fsnotify.Write) {
+					wails.EventsEmit(f.ctx, "f:write", NewDirEntryFromPath(event.Name))
+				}
 
-				// if event.Has(fsnotify.Create) {
-				// 	wails.EventsEmit(f.ctx, "f:create", NewDirEntryFromPath(event.Name))
-				// }
+				if event.Has(fsnotify.Create) {
+					wails.EventsEmit(f.ctx, "f:create", NewDirEntryFromPath(event.Name))
+				}
 
-				// if event.Has(fsnotify.Remove) {
-				// 	wails.EventsEmit(f.ctx, "f:remove", event.Name)
-				// }
+				if event.Has(fsnotify.Remove) {
+					wails.EventsEmit(f.ctx, "f:remove", event.Name)
+				}
 
-				// if event.Has(fsnotify.Rename) {
-				// 	wails.EventsEmit(f.ctx, "f:rename")
-				// }
+				if event.Has(fsnotify.Rename) {
+					wails.EventsEmit(f.ctx, "f:rename")
+				}
 
 			case err, ok := <-Watcher.Errors:
 				if !ok {
@@ -65,7 +67,7 @@ func (f *Filesystem) StartDirWatcher() {
 		}
 	}()
 
-	wails.EventsEmit(f.ctx, "watching")
+	<-make(chan struct{})
 }
 
 func (f *Filesystem) FetchKnownFolders() map[string]string {

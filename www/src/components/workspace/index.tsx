@@ -29,6 +29,9 @@ const Workspace: React.FC = () => {
   const [toAdd, setToAdd] = useState<fs.DirEntry[]>([]);
   const [toDelete, setToDelete] = useState<string[]>([]);
 
+  const [toStar, setToStar] = useState<string[]>([]);
+  const [toUnstar, setToUnstar] = useState<string[]>([]);
+
   const filtered = useMemo(
     () =>
       entries
@@ -67,6 +70,22 @@ const Workspace: React.FC = () => {
 
   useWailsEvent("f:rename", () => cd(dir), [dir]);
 
+  useWailsEvent(
+    "f:star",
+    path => {
+      setToStar(t => [...t, path]);
+    },
+    [entries]
+  );
+
+  useWailsEvent(
+    "f:unstar",
+    path => {
+      setToUnstar(t => [...t, path]);
+    },
+    [entries]
+  );
+
   /**
    * Add the incoming entries after a debounce.
    * This is to prevent multiple setEntries from running,
@@ -102,6 +121,38 @@ const Workspace: React.FC = () => {
     },
     50,
     [toDelete]
+  );
+
+  // Same as above
+  useDebounce(
+    () => {
+      if (toStar.length > 0) {
+        setEntries(
+          filtered.map(e =>
+            toStar.includes(e.Path) ? { ...e, IsStarred: true } : e
+          )
+        );
+        setToStar([]);
+      }
+    },
+    50,
+    [toStar]
+  );
+
+  // Same as above
+  useDebounce(
+    () => {
+      if (toUnstar.length > 0) {
+        setEntries(
+          filtered.map(e =>
+            toUnstar.includes(e.Path) ? { ...e, IsStarred: false } : e
+          )
+        );
+        setToUnstar([]);
+      }
+    },
+    50,
+    [toUnstar]
   );
 
   return (

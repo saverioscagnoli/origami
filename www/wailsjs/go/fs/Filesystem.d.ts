@@ -17,10 +17,12 @@ export function OpenFile(arg1:string):Promise<void>;
 
 export function RenameEntry(arg1:string,arg2:string):Promise<void>;
 
-export function Sep():Promise<string>;
-
 export function SetContext(arg1:context.Context):Promise<void>;
+
+export function StarEntries(arg1:Array<string>):Promise<void>;
 
 export function StartDirWatcher():Promise<void>;
 
 export function StartFetchDisksInterval():Promise<void>;
+
+export function UnstarEntries(arg1:Array<string>):Promise<void>;

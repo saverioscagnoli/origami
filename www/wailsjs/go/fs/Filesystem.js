@@ -30,12 +30,12 @@ export function RenameEntry(arg1, arg2) {
   return window['go']['fs']['Filesystem']['RenameEntry'](arg1, arg2);
 }
 
-export function Sep() {
-  return window['go']['fs']['Filesystem']['Sep']();
-}
-
 export function SetContext(arg1) {
   return window['go']['fs']['Filesystem']['SetContext'](arg1);
+}
+
+export function StarEntries(arg1) {
+  return window['go']['fs']['Filesystem']['StarEntries'](arg1);
 }
 
 export function StartDirWatcher() {
@@ -44,4 +44,8 @@ export function StartDirWatcher() {
 
 export function StartFetchDisksInterval() {
   return window['go']['fs']['Filesystem']['StartFetchDisksInterval']();
+}
+
+export function UnstarEntries(arg1) {
+  return window['go']['fs']['Filesystem']['UnstarEntries'](arg1);
 }

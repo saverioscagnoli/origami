@@ -11,9 +11,14 @@ import { cn } from "~/lib/utils";
 type EntryFlagsProps = {
   IsSymlink: boolean;
   IsHidden: boolean;
+  IsStarred: boolean;
 };
 
-const EntryFlags: FC<EntryFlagsProps> = ({ IsSymlink, IsHidden }) => {
+const EntryFlags: FC<EntryFlagsProps> = ({
+  IsSymlink,
+  IsHidden,
+  IsStarred
+}) => {
   return (
     <span className={cn("flex items-center gap-2")}>
       <span
@@ -34,7 +39,7 @@ const EntryFlags: FC<EntryFlagsProps> = ({ IsSymlink, IsHidden }) => {
 
       <span
         className={cn("invisible", {
-          visible: false
+          visible: IsStarred
         })}
       >
         <StarFilledIcon />

@@ -15,6 +15,9 @@ type EnvState = {
   // This is used only the app starts, but I dont know
   // how to not create a hook just for that.
   setSep: (sep: string) => void;
+  // Could mainly be "windows", "linux" or "darwin"
+  os: string;
+  setOs: (os: string) => void;
   knownFolders: KnownFolder[];
   setKnownFolders: (folders: KnownFolder[]) => void;
 };
@@ -23,7 +26,9 @@ const useEnv = customCreate<EnvState>(set => ({
   knownFolders: [],
   setKnownFolders: folders => set({ knownFolders: folders }),
   sep: "",
-  setSep: sep => set({ sep })
+  setSep: sep => set({ sep }),
+  os: "",
+  setOs: os => set({ os })
 }));
 
 export { useEnv };

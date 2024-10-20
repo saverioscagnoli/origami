@@ -4,12 +4,28 @@ import React, { MouseEventHandler, useMemo } from "react";
 import { Checkbox } from "~/components/tredici";
 import { cn } from "~/lib/utils";
 import { useCurrentDir } from "~/zustand/dir";
+import { useEnv } from "~/zustand/env";
 import { useSettings } from "~/zustand/settings";
 import { GridEntryDisplay, ListEntryDisplay } from "./display";
 import { EntryFlags } from "./flags";
 
 const ListEntry = React.memo<fs.DirEntry>(
   ({ Name, Path, IsDir, IsSymlink, IsHidden, IsStarred }) => {
+    const os = useEnv(s => s.os);
+    /**
+     * Little bit weird, but if the entry is in the starred directory
+     * and is a symlink, on windows it doesnt get detected as a folder.
+     * So, we need to manually set it.
+     * Little bit hacky, will fix it later.
+     *
+     * This works becase starred files are hard links, not symlinks.
+     * So, files are not detected as symlinks, but folders are, since they are junctions.
+     * I hate windows
+     */
+    if (os === "windows" && IsStarred && IsSymlink) {
+      IsDir = true;
+    }
+
     const [cd, selected, setSelected] = useCurrentDir(s => [
       s.cd,
       s.selected,
@@ -71,6 +87,17 @@ const ListEntry = React.memo<fs.DirEntry>(
       }
     };
 
+    const onContextMenu = () => {
+      if (selected.length < 2) {
+        setSelected([{ Name, Path, IsDir, IsSymlink, IsHidden, IsStarred }]);
+      } else {
+        setSelected([
+          ...selected,
+          { Name, Path, IsDir, IsSymlink, IsHidden, IsStarred }
+        ]);
+      }
+    };
+
     return (
       <div
         className={cn(
@@ -88,6 +115,7 @@ const ListEntry = React.memo<fs.DirEntry>(
         )}
         draggable
         onClick={onClick}
+        onContextMenu={onContextMenu}
       >
         <span
           className={cn("flex items-center justify-start text-start gap-1.5")}
@@ -175,6 +203,17 @@ const GridEntry = React.memo<fs.DirEntry>(
       }
     };
 
+    const onContextMenu = () => {
+      if (selected.length < 2) {
+        setSelected([{ Name, Path, IsDir, IsSymlink, IsHidden, IsStarred }]);
+      } else {
+        setSelected([
+          ...selected,
+          { Name, Path, IsDir, IsSymlink, IsHidden, IsStarred }
+        ]);
+      }
+    };
+
     return (
       <div
         className={cn(
@@ -187,6 +226,7 @@ const GridEntry = React.memo<fs.DirEntry>(
           "group"
         )}
         onClick={onClick}
+        onContextMenu={onContextMenu}
       >
         {showCheckboxes && (
           <Checkbox

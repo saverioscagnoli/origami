@@ -1,4 +1,5 @@
-import React from "react";
+import { FetchDisks } from "@wails/methods/fs/Filesystem";
+import React, { useEffect } from "react";
 import { For } from "~/components/for";
 import { useWailsEvent } from "~/hooks/use-wails-events";
 import { cn } from "~/lib/utils";
@@ -7,6 +8,16 @@ import { Disk } from "./disk";
 
 const DiskGroup: React.FC = () => {
   const [disks, setDisks] = useDisks(s => [s.disks, s.setDisks]);
+
+  /**
+   * On startup:
+   * - Fetch the disks from the backend.
+   *   This is to ensure that the disks are present
+   *   when the app starts, as the interval is ~1s.
+   */
+  useEffect(() => {
+    FetchDisks().then(setDisks);
+  }, []);
 
   /**
    * Listen to the disks event from the backend.

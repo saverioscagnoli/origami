@@ -3,11 +3,12 @@ import { EventsOn } from "@wails/runtime";
 import { DependencyList, useEffect } from "react";
 
 type BackendEventMap = {
-  watching: null;
   "f:write": fs.DirEntry;
   "f:create": fs.DirEntry;
   "f:remove": string;
   "f:rename": string;
+  "f:star": string;
+  "f:unstar": string;
   disks: fs.Disk[];
 };
 

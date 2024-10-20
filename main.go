@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"origami/fs"
+	"origami/utils"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -16,6 +17,7 @@ var assets embed.FS
 func main() {
 	// Create an instance of the app structure
 	fs := fs.New()
+	utils := utils.New()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -30,12 +32,14 @@ func main() {
 		CSSDragValue:    "1",
 		OnStartup: func(ctx context.Context) {
 			fs.SetContext(ctx)
-			fs.StartFetchDisksInterval()
-			fs.StartDirWatcher()
+			utils.SetContext(ctx)
+
+			go fs.StartFetchDisksInterval()
+			go fs.StartDirWatcher()
 		},
 		EnableDefaultContextMenu: false,
 		Bind: []interface{}{
-			fs,
+			fs, utils,
 		},
 		Debug: options.Debug{
 			OpenInspectorOnStartup: true,

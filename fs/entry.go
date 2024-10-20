@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+
+	wails "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // DirEntry represents a file or directory in the filesystem
@@ -90,12 +92,14 @@ func NewDirEntryFromPath(path string) DirEntry {
 		Path:      path,
 		IsSymlink: info.Mode() == os.ModeSymlink,
 		IsHidden:  IsPathHidden(path, name),
+		IsStarred: IsPathStarred(path),
 	}
 }
 
 // Lists the contents of a directory
 // Returns a list of DirEntry
 func (f *Filesystem) ListDir(path string) ([]DirEntry, error) {
+
 	// Change the current path to the new one
 	// So that the watcher doesnt emit events for the old path
 	Watcher.Remove(CurrentPath)
@@ -130,6 +134,7 @@ func (f *Filesystem) ListDir(path string) ([]DirEntry, error) {
 				Path:      path,
 				IsSymlink: entry.Type() == os.ModeSymlink,
 				IsHidden:  IsPathHidden(path, name),
+				IsStarred: IsPathStarred(path),
 			}
 		}(entry)
 	}
@@ -198,4 +203,84 @@ func (f *Filesystem) OpenFile(path string) {
 		cmd.Start()
 	}
 
+}
+
+// Stars a list of entries
+// By starring an entry, we create a symlink in the starred directory
+func (f *Filesystem) StarEntries(paths []string) {
+	for _, path := range paths {
+		name := filepath.Base(path)
+		starredPath := filepath.Join(StarredDir, name)
+
+		// Check if starredPath exists in the starred directory
+		if _, err := os.Stat(starredPath); err == nil {
+			continue
+		}
+
+		if runtime.GOOS == "windows" {
+			// On windows, the symlink creation requires admin privileges
+			// that sucks, we need to check if the app is running as admin
+			// if not we use hard links for files and junctions for directories
+			isElevated := false
+
+			if isElevated {
+				err := os.Link(path, starredPath)
+
+				if err != nil {
+					fmt.Println(err)
+				}
+			} else {
+				info, err := os.Lstat(path)
+
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+
+				if info.IsDir() {
+					cmd := exec.Command("cmd", "/C", "mklink", "/J", starredPath, path)
+					cmd.Run()
+				} else {
+					cmd := exec.Command("cmd", "/C", "mklink", "/h", starredPath, path)
+					cmd.Run()
+				}
+			}
+
+		} else {
+			err := os.Symlink(path, starredPath)
+
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+
+		wails.EventsEmit(f.ctx, "f:star", path)
+	}
+}
+
+// Unstars a list of entries
+// By unstarring an entry, we remove the symlink in the starred directory
+func (f *Filesystem) UnstarEntries(paths []string) {
+	for _, path := range paths {
+		name := filepath.Base(path)
+		starredPath := filepath.Join(StarredDir, name)
+
+		// Check if starredPath exists in the starred directory
+		if _, err := os.Stat(starredPath); err != nil {
+			continue
+		}
+
+		// Remove the symlink in the starred directory
+		err := os.Remove(starredPath)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		// Emit only if the path is not in the StarredDir
+		// Because the normal delete event will be emitted
+		if filepath.Dir(path) != StarredDir {
+			wails.EventsEmit(f.ctx, "f:unstar", path)
+		}
+	}
 }
