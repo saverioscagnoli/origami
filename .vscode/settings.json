@@ -1,14 +1,12 @@
 {
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer"
-  },
   "css.lint.unknownAtRules": "ignore",
-  "rust-analyzer.linkedProjects": ["src-tauri/Cargo.toml"],
   "editor.codeActionsOnSave": {
-    "source.fixAll": "always",
-    "source.organizeImports": "always",
-    "source.sortMembers": "always"
+    "source.addMissingImports.ts": "always",
+    "source.organizeImports": "always"
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
   }
 }

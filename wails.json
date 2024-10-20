@@ -1,0 +1,14 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "origami",
+  "outputfilename": "origami",
+  "frontend:dir": "./www",
+  "frontend:install": "yarn --cwd www install",
+  "frontend:build": "yarn --cwd www build",
+  "frontend:dev:watcher": "yarn --cwd www dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Saverio Scagnoli",
+    "email": "95577971+saverioscagnoli@users.noreply.github.com"
+  }
+}

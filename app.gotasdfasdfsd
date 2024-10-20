@@ -1,0 +1,350 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	"sort"
+	"strings"
+	"sync"
+	"syscall"
+	"time"
+
+	"github.com/adrg/xdg"
+	"github.com/fsnotify/fsnotify"
+	"github.com/shirou/gopsutil/v4/disk"
+	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
+)
+
+var watcher *fsnotify.Watcher = nil
+var currentPath string = "C:"
+
+// App struct
+type App struct {
+	ctx context.Context
+}
+
+type DirEntry struct {
+	Name      string
+	IsDir     bool
+	Path      string
+	IsSymlink bool
+	IsHidden  bool
+	IsStarred bool
+}
+
+// Helper function for windows, checks if the file is hidden
+// via syscall :(
+func isPathHiddenWin(path string) bool {
+	pointer, err := syscall.UTF16PtrFromString(path)
+
+	if err != nil {
+		return false
+	}
+
+	attributes, err := syscall.GetFileAttributes(pointer)
+
+	if err != nil {
+		return false
+	}
+
+	return attributes&syscall.FILE_ATTRIBUTE_HIDDEN != 0
+}
+
+// Helper function for unix, just checks if the name starts with a dot
+func isPathHiddenUnix(name string) bool {
+	return strings.HasPrefix(name, ".")
+}
+
+// Cross-platform function to check if a file is hidden
+// or is it?
+func IsPathHidden(path string, name string) bool {
+	if runtime.GOOS == "windows" {
+		return isPathHiddenWin(path)
+	} else {
+		return isPathHiddenUnix(name)
+	}
+}
+
+func GetDirEntryFromPath(path string) DirEntry {
+	info, err := os.Lstat(path)
+
+	if err != nil {
+		return DirEntry{}
+	}
+
+	name := info.Name()
+
+	return DirEntry{
+		Name:      name,
+		IsDir:     info.IsDir(),
+		Path:      path,
+		IsSymlink: info.Mode() == os.ModeSymlink,
+		IsHidden:  IsPathHidden(path, name),
+	}
+}
+
+// NewApp creates a new App application struct
+func NewApp() *App {
+	return &App{}
+}
+
+func (a *App) StartWatching() {
+	if watcher != nil {
+		return
+	}
+
+	w, err := fsnotify.NewWatcher()
+	watcher = w
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer watcher.Close()
+
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+
+				fmt.Println("event:", event.Name)
+
+				if event.Has(fsnotify.Write) {
+					wailsruntime.EventsEmit(a.ctx, "f:write", GetDirEntryFromPath(event.Name))
+				}
+
+				if event.Has(fsnotify.Create) {
+					wailsruntime.EventsEmit(a.ctx, "f:create", GetDirEntryFromPath(event.Name))
+				}
+
+				if event.Has(fsnotify.Remove) {
+					wailsruntime.EventsEmit(a.ctx, "f:remove", event.Name)
+				}
+
+				if event.Has(fsnotify.Rename) {
+					wailsruntime.EventsEmit(a.ctx, "f:rename")
+				}
+
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+
+				log.Println("error:", err)
+			}
+		}
+	}()
+
+	// Emit the watching event to indicate that the directory watcher has started
+	wailsruntime.EventsEmit(a.ctx, "watching")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	<-make(chan struct{})
+}
+
+func (a *App) StartFetchingDisks() {
+
+	// Emit first before starting the ticker
+	// This way we get the initial disk list
+	wailsruntime.EventsEmit(a.ctx, "disks", a.FetchDisks())
+
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
+	go func() {
+		for range ticker.C {
+			wailsruntime.EventsEmit(a.ctx, "disks", a.FetchDisks())
+		}
+
+	}()
+
+	// Keep the main goroutine running indefinitely
+	select {}
+}
+
+// startup is called when the app starts. The context is saved
+// so we can call the runtime methods
+func (a *App) startup(ctx context.Context) {
+	a.ctx = ctx
+}
+
+func (a *App) ListDir(path string) ([]DirEntry, error) {
+	watcher.Remove(currentPath)
+	currentPath = path
+	watcher.Add(path)
+
+	// Check if path ends with a slash
+	// If not, add one, because it gives weird results otherwise
+	if path[len(path)-1] != '/' {
+		path += "/"
+	}
+
+	entries := []DirEntry{}
+	dir, err := os.ReadDir(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var wg sync.WaitGroup
+	results := make(chan DirEntry, len(dir))
+
+	for _, entry := range dir {
+		wg.Add(1)
+		go func(entry os.DirEntry) {
+			defer wg.Done()
+
+			name := entry.Name()
+			path := filepath.Join(path, name)
+			results <- DirEntry{
+				Name:      entry.Name(),
+				IsDir:     entry.IsDir(),
+				Path:      path,
+				IsSymlink: entry.Type() == os.ModeSymlink,
+				IsHidden:  IsPathHidden(path, name),
+			}
+		}(entry)
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	for result := range results {
+		entries = append(entries, result)
+	}
+
+	sort.Slice(entries, func(i int, j int) bool {
+		if entries[i].IsDir && !entries[j].IsDir {
+			return true
+		}
+		if !entries[i].IsDir && entries[j].IsDir {
+			return false
+		}
+		return strings.ToLower(entries[i].Name) < strings.ToLower(entries[j].Name)
+	})
+
+	return entries, nil
+}
+
+func (a *App) CreateEntry(path string, isDir bool) {
+	if isDir {
+		os.MkdirAll(path, 0755)
+	} else {
+		file, err := os.Create(path)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		defer file.Close()
+	}
+}
+
+func (a *App) DeleteEntries(paths []string) {
+	for _, path := range paths {
+		err := os.Remove(path)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+func (a *App) RenameEntry(oldPath string, newName string) {
+	newPath := filepath.Join(filepath.Dir(oldPath), newName)
+	os.Rename(oldPath, newPath)
+}
+
+type Disk struct {
+	Name        string
+	Mountpoint  string
+	Filesystem  string
+	Total       uint64
+	Used        uint64
+	Free        uint64
+	UsedPercent float64
+}
+
+func (a *App) FetchDisks() []Disk {
+	disks := []Disk{}
+	partitions, _ := disk.Partitions(true)
+
+	for _, partition := range partitions {
+		usageStat, err := disk.Usage(partition.Mountpoint)
+		if err != nil {
+			fmt.Printf("Error getting usage for %s: %v\n", partition.Mountpoint, err)
+			continue
+		}
+
+		disks = append(disks, Disk{
+			Name:        partition.Device,
+			Mountpoint:  partition.Mountpoint,
+			Filesystem:  partition.Fstype,
+			Total:       usageStat.Total,
+			Used:        usageStat.Used,
+			Free:        usageStat.Free,
+			UsedPercent: usageStat.UsedPercent,
+		})
+	}
+
+	return disks
+}
+
+// Sep returns the path separator for the current OS
+// Windows uses backslashes, while Unix uses forward slashes
+func (a *App) Sep() string {
+	if runtime.GOOS == "windows" {
+		return "\\"
+	} else {
+		return "/"
+	}
+}
+
+func (a *App) FetchKnownFolders() map[string]string {
+	// Check if starred dir exists
+	// if not, create it
+	starredDir := filepath.Join(xdg.ConfigHome, "origami", "starred")
+
+	if _, err := os.Stat(starredDir); os.IsNotExist(err) {
+		os.MkdirAll(starredDir, 0755)
+	}
+
+	fmt.Println(xdg.DataHome)
+
+	return map[string]string{
+		"starred":   starredDir,
+		"home":      filepath.Join(xdg.UserDirs.Desktop, "../"),
+		"desktop":   xdg.UserDirs.Desktop,
+		"downloads": xdg.UserDirs.Download,
+		"documents": xdg.UserDirs.Documents,
+		"pictures":  xdg.UserDirs.Pictures,
+	}
+}
+
+
+func (a *App) OpenFile(path string) {
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command(runDll32, "url.dll,FileProtocolHandler", path)
+		cmd.Start()
+	} else if runtime.GOOS == "darwin" {
+		cmd := exec.Command("open", path)
+		cmd.Start()
+	} else {
+		cmd := exec.Command("xdg-open", path)
+		cmd.Start()
+	}
+
+}
