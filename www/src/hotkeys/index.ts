@@ -1,6 +1,7 @@
 export * from "./delete";
 export * from "./file-dialog";
 export * from "./folder-dialog";
+export * from "./parent-dir";
 export * from "./reload";
 export * from "./rename-entry";
 export * from "./select-all-entries";

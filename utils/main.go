@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"path/filepath"
 	"runtime"
 )
 
@@ -34,4 +35,9 @@ func (u *Utils) Sep() string {
 // For more values: https://go.dev/doc/install/source#environment
 func (u *Utils) OsName() string {
 	return runtime.GOOS
+}
+
+// Path.Join wrapper for frontend usage
+func (u *Utils) JoinPath(paths []string) string {
+	return filepath.Join(paths...)
 }

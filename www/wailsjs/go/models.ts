@@ -7,6 +7,8 @@ export namespace fs {
 	    IsSymlink: boolean;
 	    IsHidden: boolean;
 	    IsStarred: boolean;
+	    LastModified: string;
+	    Size: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new DirEntry(source);
@@ -20,6 +22,8 @@ export namespace fs {
 	        this.IsSymlink = source["IsSymlink"];
 	        this.IsHidden = source["IsHidden"];
 	        this.IsStarred = source["IsStarred"];
+	        this.LastModified = source["LastModified"];
+	        this.Size = source["Size"];
 	    }
 	}
 	export class Disk {

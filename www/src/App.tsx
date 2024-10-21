@@ -11,6 +11,7 @@ import {
   hotkeyDelete,
   hotkeyFileDialog,
   hotkeyFolderDialog,
+  hotkeyParentDir,
   hotkeyReload,
   hotkeyRenameEntry,
   hotkeySelectAllEntries,
@@ -48,6 +49,7 @@ function App() {
   hotkeyDelete();
   hotkeyFileDialog();
   hotkeyFolderDialog();
+  hotkeyParentDir();
   hotkeyReload();
   hotkeyRenameEntry();
   hotkeySelectAllEntries();

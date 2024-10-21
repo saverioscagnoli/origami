@@ -14,7 +14,7 @@ import { useCurrentDir } from "~/zustand/dir";
 import { useSettings } from "~/zustand/settings";
 import { BlankSpaceContextMenu } from "./context-menu/blank-space";
 import { SelectedEntriesContextMenu } from "./context-menu/selected";
-import { GridEntry, ListEntry } from "./entry";
+import { Entry } from "./entry";
 
 const Workspace: React.FC = () => {
   const [cd, dir, entries, setEntries] = useCurrentDir(s => [
@@ -168,9 +168,7 @@ const Workspace: React.FC = () => {
               totalCount={filtered.length}
               fixedItemHeight={24}
               customScrollParent={scrollRef ?? undefined}
-              itemContent={(_, entry) => (
-                <ListEntry {...entry} key={entry.Path} />
-              )}
+              itemContent={(_, entry) => <Entry {...entry} key={entry.Path} />}
               components={listComponents}
             />
           ) : (
@@ -180,7 +178,7 @@ const Workspace: React.FC = () => {
               customScrollParent={scrollRef ?? undefined}
               itemContent={(_, entry) => (
                 <SelectedEntriesContextMenu>
-                  <GridEntry {...entry} key={entry.Path} />
+                  <Entry {...entry} key={entry.Path} />
                 </SelectedEntriesContextMenu>
               )}
               components={gridComponents}

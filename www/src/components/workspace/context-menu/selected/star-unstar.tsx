@@ -13,12 +13,12 @@ const StarUnstarMenuItem = () => {
   );
 
   const onSelect = () => {
-    const paths = selected.map(e => e.Path);
-
     if (areStarred) {
+      const paths = selected.map(e => e.Path);
+
       UnstarEntries(paths);
     } else {
-      StarEntries(paths);
+      StarEntries(selected);
     }
   };
 

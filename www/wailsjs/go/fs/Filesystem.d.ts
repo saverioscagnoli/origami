@@ -13,13 +13,13 @@ export function FetchKnownFolders():Promise<{[key: string]: string}>;
 
 export function ListDir(arg1:string):Promise<Array<fs.DirEntry>>;
 
-export function OpenFile(arg1:string):Promise<void>;
+export function OpenFiles(arg1:Array<string>):Promise<void>;
 
 export function RenameEntry(arg1:string,arg2:string):Promise<void>;
 
 export function SetContext(arg1:context.Context):Promise<void>;
 
-export function StarEntries(arg1:Array<string>):Promise<void>;
+export function StarEntries(arg1:Array<fs.DirEntry>):Promise<void>;
 
 export function StartDirWatcher():Promise<void>;
 

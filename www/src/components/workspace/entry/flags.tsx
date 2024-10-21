@@ -12,12 +12,16 @@ type EntryFlagsProps = {
   IsSymlink: boolean;
   IsHidden: boolean;
   IsStarred: boolean;
+  isCutting: boolean;
+  isCopying: boolean;
 };
 
 const EntryFlags: FC<EntryFlagsProps> = ({
   IsSymlink,
   IsHidden,
-  IsStarred
+  IsStarred,
+  isCutting,
+  isCopying
 }) => {
   return (
     <span className={cn("flex items-center gap-2")}>
@@ -47,7 +51,7 @@ const EntryFlags: FC<EntryFlagsProps> = ({
 
       <span
         className={cn("invisible", {
-          visible: false
+          visible: isCutting
         })}
       >
         <ScissorsIcon />
@@ -55,7 +59,7 @@ const EntryFlags: FC<EntryFlagsProps> = ({
 
       <span
         className={cn("invisible", {
-          visible: false
+          visible: isCopying
         })}
       >
         <ClipboardIcon />

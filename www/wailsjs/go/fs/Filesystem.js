@@ -22,8 +22,8 @@ export function ListDir(arg1) {
   return window['go']['fs']['Filesystem']['ListDir'](arg1);
 }
 
-export function OpenFile(arg1) {
-  return window['go']['fs']['Filesystem']['OpenFile'](arg1);
+export function OpenFiles(arg1) {
+  return window['go']['fs']['Filesystem']['OpenFiles'](arg1);
 }
 
 export function RenameEntry(arg1, arg2) {

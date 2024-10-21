@@ -16,12 +16,14 @@ import (
 // DirEntry represents a file or directory in the filesystem
 // It differs from the os.DirEntry
 type DirEntry struct {
-	Name      string
-	IsDir     bool
-	Path      string
-	IsSymlink bool
-	IsHidden  bool
-	IsStarred bool
+	Name         string
+	IsDir        bool
+	Path         string
+	IsSymlink    bool
+	IsHidden     bool
+	IsStarred    bool
+	LastModified string
+	Size         int64
 }
 
 // Helper function for windows, checks if the file is hidden
@@ -87,12 +89,14 @@ func NewDirEntryFromPath(path string) DirEntry {
 	name := info.Name()
 
 	return DirEntry{
-		Name:      name,
-		IsDir:     info.IsDir(),
-		Path:      path,
-		IsSymlink: info.Mode() == os.ModeSymlink,
-		IsHidden:  IsPathHidden(path, name),
-		IsStarred: IsPathStarred(path),
+		Name:         name,
+		IsDir:        info.IsDir(),
+		Path:         path,
+		IsSymlink:    info.Mode() == os.ModeSymlink,
+		IsHidden:     IsPathHidden(path, name),
+		IsStarred:    IsPathStarred(path),
+		LastModified: info.ModTime().Format("02/01/06 15:04"),
+		Size:         info.Size(),
 	}
 }
 
@@ -128,13 +132,17 @@ func (f *Filesystem) ListDir(path string) ([]DirEntry, error) {
 
 			name := entry.Name()
 			path := filepath.Join(path, name)
+			info, _ := entry.Info()
+
 			results <- DirEntry{
-				Name:      entry.Name(),
-				IsDir:     entry.IsDir(),
-				Path:      path,
-				IsSymlink: entry.Type() == os.ModeSymlink,
-				IsHidden:  IsPathHidden(path, name),
-				IsStarred: IsPathStarred(path),
+				Name:         entry.Name(),
+				IsDir:        entry.IsDir(),
+				Path:         path,
+				IsSymlink:    entry.Type() == os.ModeSymlink,
+				IsHidden:     IsPathHidden(path, name),
+				IsStarred:    IsPathStarred(path),
+				LastModified: info.ModTime().Format("02/01/2006 15:04"),
+				Size:         info.Size(),
 			}
 		}(entry)
 	}
@@ -189,28 +197,28 @@ func (f *Filesystem) RenameEntry(oldPath string, newName string) {
 
 var runDll32 = filepath.Join(os.Getenv("SYSTEMROOT"), "System32", "rundll32.exe")
 
-// Opens a file with the default application
+// Opens files with the default application
 // on windows, it uses rundll32.exe
-func (f *Filesystem) OpenFile(path string) {
-	if runtime.GOOS == "windows" {
-		cmd := exec.Command(runDll32, "url.dll,FileProtocolHandler", path)
-		cmd.Start()
-	} else if runtime.GOOS == "darwin" {
-		cmd := exec.Command("open", path)
-		cmd.Start()
-	} else {
-		cmd := exec.Command("xdg-open", path)
-		cmd.Start()
+func (f *Filesystem) OpenFiles(paths []string) {
+	for _, path := range paths {
+		if runtime.GOOS == "windows" {
+			cmd := exec.Command(runDll32, "url.dll,FileProtocolHandler", path)
+			cmd.Start()
+		} else if runtime.GOOS == "darwin" {
+			cmd := exec.Command("open", path)
+			cmd.Start()
+		} else {
+			cmd := exec.Command("xdg-open", path)
+			cmd.Start()
+		}
 	}
-
 }
 
 // Stars a list of entries
 // By starring an entry, we create a symlink in the starred directory
-func (f *Filesystem) StarEntries(paths []string) {
-	for _, path := range paths {
-		name := filepath.Base(path)
-		starredPath := filepath.Join(StarredDir, name)
+func (f *Filesystem) StarEntries(entries []DirEntry) {
+	for _, entry := range entries {
+		starredPath := filepath.Join(StarredDir, entry.Name)
 
 		// Check if starredPath exists in the starred directory
 		if _, err := os.Stat(starredPath); err == nil {
@@ -224,37 +232,36 @@ func (f *Filesystem) StarEntries(paths []string) {
 			isElevated := false
 
 			if isElevated {
-				err := os.Link(path, starredPath)
+				err := os.Symlink(entry.Path, starredPath)
 
 				if err != nil {
 					fmt.Println(err)
 				}
 			} else {
-				info, err := os.Lstat(path)
-
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-
-				if info.IsDir() {
-					cmd := exec.Command("cmd", "/C", "mklink", "/J", starredPath, path)
+				if entry.IsDir {
+					// Idk why but creating a junction with a syscall
+					// requires admin privileges, so we use cmd
+					cmd := exec.Command("cmd", "/c", "mklink", "/J", starredPath, entry.Path)
+					cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 					cmd.Run()
 				} else {
-					cmd := exec.Command("cmd", "/C", "mklink", "/h", starredPath, path)
-					cmd.Run()
+					err := os.Link(entry.Path, starredPath)
+
+					if err != nil {
+						fmt.Println(err)
+					}
 				}
 			}
 
 		} else {
-			err := os.Symlink(path, starredPath)
+			err := os.Symlink(entry.Path, starredPath)
 
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 
-		wails.EventsEmit(f.ctx, "f:star", path)
+		wails.EventsEmit(f.ctx, "f:star", entry.Path)
 	}
 }
 

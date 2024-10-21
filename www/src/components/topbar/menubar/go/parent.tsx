@@ -1,11 +1,15 @@
 import { ArrowUpIcon } from "@radix-ui/react-icons";
+import { JoinPath } from "@wails/methods/utils/Utils";
 import { Menubar } from "~/components/tredici";
 import { useCurrentDir } from "~/zustand/dir";
 
 const ParentDirectoryMenuItem = () => {
-  const dir = useCurrentDir(s => s.dir);
+  const [cd, dir] = useCurrentDir(s => [s.cd, s.dir]);
 
-  const onSelect = async () => {};
+  const onSelect = async () => {
+    const parentDir = await JoinPath([dir, ".."]);
+    cd(parentDir);
+  };
 
   return (
     <Menubar.Item
