@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -9,7 +10,9 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
+	"github.com/google/uuid"
 	wails "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -336,6 +339,79 @@ func copyDir(src string, dest string) error {
 	return nil
 }
 
+func copyFileWithProgress(src string, dest string, progressChan chan<- [2]int, interval time.Duration) error {
+	start := time.Now()
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	destFile, err := os.Create(dest)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	srcFileInfo, err := srcFile.Stat()
+	if err != nil {
+		return err
+	}
+
+	totalSize := srcFileInfo.Size()
+	buffer := make([]byte, 4*1024*1024)
+	var copied int64
+
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	srcReader := bufio.NewReader(srcFile)
+	destWriter := bufio.NewWriter(destFile)
+
+	for {
+		n, err := srcReader.Read(buffer)
+		if err != nil && err.Error() != "EOF" {
+			return err
+		}
+
+		if n == 0 {
+			break
+		}
+
+		if _, err := destWriter.Write(buffer[:n]); err != nil {
+			return err
+		}
+
+		copied += int64(n)
+
+		select {
+		case <-ticker.C:
+			progressChan <- [2]int{int(copied), int(totalSize)}
+		default:
+			// Do nothing if ticker hasn't ticked
+		}
+
+		if copied == totalSize {
+			break
+		}
+	}
+
+	// Ensure the final progress is reported
+	progressChan <- [2]int{int(copied), int(totalSize)}
+
+	// Flush any remaining data in the buffer to the destination file
+	if err := destWriter.Flush(); err != nil {
+		return err
+	}
+
+	fmt.Println("Copied", copied, "bytes in", time.Since(start))
+
+	// Close the progress channel
+	close(progressChan)
+
+	return nil
+}
+
 func move(src string, dest string) error {
 	err := os.Rename(src, dest)
 
@@ -347,12 +423,8 @@ func move(src string, dest string) error {
 }
 
 func (f *Filesystem) PasteEntries(entries []DirEntry, destDir string, cutting bool) {
-	var wg sync.WaitGroup
-
 	for _, entry := range entries {
-		wg.Add(1)
 		go func(entry DirEntry) {
-			defer wg.Done()
 			destPath := filepath.Join(destDir, entry.Name)
 
 			if entry.IsDir {
@@ -365,11 +437,31 @@ func (f *Filesystem) PasteEntries(entries []DirEntry, destDir string, cutting bo
 				if cutting {
 					move(entry.Path, destPath)
 				} else {
-					copyFile(entry.Path, destPath)
+					size := entry.Size
+
+					if size > 1024*1024*1024 {
+						// Emit event to spawn a notification
+						// Which will show the progress of the copy
+						notificationID := uuid.New().String()
+						wails.EventsEmit(f.ctx, "f:notification", [3]string{notificationID, entry.Name, destDir})
+
+						progressChan := make(chan [2]int)
+
+						go func() {
+							for progress := range progressChan {
+								wails.EventsEmit(f.ctx, "f:progress", [2]interface{}{progress, notificationID})
+							}
+						}()
+
+						copyFileWithProgress(entry.Path, destPath, progressChan, 100*time.Millisecond)
+						// Emit the event to close the notification
+						wails.EventsEmit(f.ctx, "f:notification-close", notificationID)
+
+					} else {
+						copyFile(entry.Path, destPath)
+					}
 				}
 			}
 		}(entry)
 	}
-
-	wg.Wait()
 }

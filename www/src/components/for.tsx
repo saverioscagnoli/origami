@@ -2,15 +2,18 @@ import React from "react";
 
 type ForProps<T> = {
   of: T[];
+  fallback?: React.ReactNode;
   children: (item: T, index: number) => React.ReactNode;
 };
 
-const For = <T,>({ of, children }: ForProps<T>) => {
+const For = <T,>({ of, fallback, children }: ForProps<T>) => {
   return (
     <>
-      {of.map((item, index) => (
-        <React.Fragment key={index}>{children(item, index)}</React.Fragment>
-      ))}
+      {of.length === 0
+        ? fallback
+        : of.map((item, index) => (
+            <React.Fragment key={index}>{children(item, index)}</React.Fragment>
+          ))}
     </>
   );
 };

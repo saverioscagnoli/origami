@@ -1,7 +1,24 @@
+import {
+  SetShowCheckboxes,
+  SetShowHidden,
+  SetTheme,
+  SetView
+} from "@wails/methods/config/Config";
+import { useEffect } from "react";
 import { customCreate } from "./store";
 
 type Theme = "dark" | "light" | "system";
 type View = "list" | "grid";
+
+// The json object coming from the backend
+type Config = {
+  theme: Theme;
+  showCheckboxes: boolean;
+  showHidden: boolean;
+  view: View;
+};
+
+export type { Config, Theme, View };
 
 type SettingsState = {
   theme: Theme;
@@ -26,3 +43,38 @@ const useSettings = customCreate<SettingsState>(set => ({
 }));
 
 export { useSettings };
+
+/**
+ * Internally uses an useEffect that
+ * watches any changes in the settings and invokkes the
+ * backend functions to write to file.
+ */
+const settingsEffect = () => {
+  const [theme, showHidden, showCheckboxes, view] = useSettings(s => [
+    s.theme,
+    s.showHidden,
+    s.showCheckboxes,
+    s.view
+  ]);
+
+  /**
+   * TODO: this sucks
+   */
+  useEffect(() => {
+    SetTheme(theme);
+  }, [theme]);
+
+  useEffect(() => {
+    SetShowHidden(showHidden);
+  }, [showHidden]);
+
+  useEffect(() => {
+    SetShowCheckboxes(showCheckboxes);
+  }, [showCheckboxes]);
+
+  useEffect(() => {
+    SetView(view);
+  }, [view]);
+};
+
+export { settingsEffect };

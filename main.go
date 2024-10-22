@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"origami/config"
 	"origami/fs"
 	"origami/utils"
 
@@ -18,6 +19,7 @@ func main() {
 	// Create an instance of the app structure
 	fs := fs.New()
 	utils := utils.New()
+	config := config.New()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -33,13 +35,14 @@ func main() {
 		OnStartup: func(ctx context.Context) {
 			fs.SetContext(ctx)
 			utils.SetContext(ctx)
+			config.SetContext(ctx)
 
 			go fs.StartFetchDisksInterval()
 			go fs.StartDirWatcher()
 		},
 		EnableDefaultContextMenu: false,
 		Bind: []interface{}{
-			fs, utils,
+			fs, utils, config,
 		},
 		Debug: options.Debug{
 			OpenInspectorOnStartup: true,

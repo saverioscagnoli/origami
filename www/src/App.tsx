@@ -1,7 +1,8 @@
 import { useEvent } from "@util-hooks/use-event";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
+import { GetConfig } from "@wails/methods/config/Config";
 import { OsName, Sep } from "@wails/methods/utils/Utils";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { Bottombar } from "~/components/bottombar";
 import { CreateEntryDialog } from "~/components/dialogs/create-entry";
 import { Sidebar } from "~/components/sidebar";
@@ -26,22 +27,39 @@ import {
 import { cn } from "~/lib/utils";
 import { useCurrentDir } from "~/zustand/dir";
 import { useEnv } from "~/zustand/env";
-import { useSettings } from "~/zustand/settings";
+import { settingsEffect, Theme, useSettings, View } from "~/zustand/settings";
 
 function App() {
   const cd = useCurrentDir(s => s.cd);
   const [setSep, setOs] = useEnv(s => [s.setSep, s.setOs]);
-  const theme = useSettings(s => s.theme);
+
+  const [theme, setTheme, setShowHidden, setShowCheckboxes, setView] =
+    useSettings(s => [
+      s.theme,
+      s.setTheme,
+      s.setShowHidden,
+      s.setShowCheckboxes,
+      s.setView
+    ]);
 
   /**
    * On start:
+   * - Load the config from the backend.
    * - Fetch the path separator from the backend.
    * - Fetch the OS name from the backend.
    * - Cd into the default directory.
    */
-  useEffect(() => {
-    Sep().then(setSep);
-    OsName().then(setOs);
+  useLayoutEffect(() => {
+    Promise.all([GetConfig(), Sep(), OsName()]).then(
+      ([config, sep, osName]) => {
+        setTheme(config.theme as Theme);
+        setShowHidden(config.showHidden);
+        setShowCheckboxes(config.showCheckboxes);
+        setView(config.view as View);
+        setSep(sep);
+        setOs(osName);
+      }
+    );
 
     cd("C:");
   }, []);
@@ -63,6 +81,11 @@ function App() {
   hotkeyToggleShowHidden();
   hotkeyToggleTheme();
   hotkeyToggleView();
+
+  /**
+   * Watch for changes in the settings with useEffects
+   */
+  settingsEffect();
 
   /**
    * When the theme state changes, reflect the changes

@@ -9,6 +9,10 @@ type BackendEventMap = {
   "f:rename": string;
   "f:star": string;
   "f:unstar": string;
+  "f:progress": [[number, number], string];
+  "f:notification": [string, string, string];
+  "f:notification-close": string;
+  "config:load": string;
   disks: fs.Disk[];
 };
 

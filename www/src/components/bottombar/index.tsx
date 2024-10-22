@@ -1,12 +1,13 @@
 import React from "react";
 import { cn } from "~/lib/utils";
 import { useCurrentDir } from "~/zustand/dir";
+import { NotificationsButton } from "./notifications";
 
 const Bottombar: React.FC = () => {
   const [entries, selected] = useCurrentDir(s => [s.entries, s.selected]);
 
   return (
-    <nav
+    <div
       className={cn(
         "w-full h-6",
         "fixed bottom-0 left-0",
@@ -20,7 +21,8 @@ const Bottombar: React.FC = () => {
         {entries.length} Item{entries.length > 1 && "s"}
         {selected.length > 0 && ` - ${selected.length} Selected`}
       </p>
-    </nav>
+      <NotificationsButton />
+    </div>
   );
 };
 

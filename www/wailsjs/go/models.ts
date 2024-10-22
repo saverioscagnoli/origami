@@ -1,3 +1,26 @@
+export namespace config {
+	
+	export class Config {
+	    theme: string;
+	    showHidden: boolean;
+	    showCheckboxes: boolean;
+	    view: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Config(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.theme = source["theme"];
+	        this.showHidden = source["showHidden"];
+	        this.showCheckboxes = source["showCheckboxes"];
+	        this.view = source["view"];
+	    }
+	}
+
+}
+
 export namespace fs {
 	
 	export class DirEntry {
