@@ -38,6 +38,7 @@ const Disk: React.FC<fs.Disk> = ({ Mountpoint, Total, Free, UsedPercent }) => {
       </div>
       <Progress
         className={cn("w-full xl:h-[7px]", "sm:rounded-sm")}
+        indicatorClassName={cn("sm:rounded-sm")}
         max={Total}
         value={Total - Free}
       />

@@ -180,7 +180,7 @@ func (f *Filesystem) CreateEntry(path string, isDir bool) {
 // Bound to the frontend
 func (f *Filesystem) DeleteEntries(paths []string) {
 	for _, path := range paths {
-		err := os.Remove(path)
+		err := os.RemoveAll(path)
 
 		if err != nil {
 			fmt.Println(err)
@@ -290,4 +290,86 @@ func (f *Filesystem) UnstarEntries(paths []string) {
 			wails.EventsEmit(f.ctx, "f:unstar", path)
 		}
 	}
+}
+
+func copyFile(src string, dest string) error {
+	i, e := os.Open(src)
+	if e != nil {
+		return e
+	}
+
+	defer i.Close()
+
+	o, e := os.Create(dest)
+
+	if e != nil {
+		return e
+	}
+
+	defer o.Close()
+
+	o.ReadFrom(i)
+
+	return nil
+}
+
+func copyDir(src string, dest string) error {
+	i, e := os.ReadDir(src)
+
+	if e != nil {
+		return e
+	}
+
+	os.MkdirAll(dest, 0755)
+
+	for _, entry := range i {
+		srcPath := filepath.Join(src, entry.Name())
+		destPath := filepath.Join(dest, entry.Name())
+
+		if entry.IsDir() {
+			copyDir(srcPath, destPath)
+		} else {
+			copyFile(srcPath, destPath)
+		}
+	}
+
+	return nil
+}
+
+func move(src string, dest string) error {
+	err := os.Rename(src, dest)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *Filesystem) PasteEntries(entries []DirEntry, destDir string, cutting bool) {
+	var wg sync.WaitGroup
+
+	for _, entry := range entries {
+		wg.Add(1)
+		go func(entry DirEntry) {
+			defer wg.Done()
+			destPath := filepath.Join(destDir, entry.Name)
+
+			if entry.IsDir {
+				if cutting {
+					move(entry.Path, destPath)
+				} else {
+					copyDir(entry.Path, destPath)
+				}
+			} else {
+				if cutting {
+					move(entry.Path, destPath)
+				} else {
+					copyFile(entry.Path, destPath)
+				}
+			}
+		}(entry)
+	}
+
+	wg.Wait()
 }

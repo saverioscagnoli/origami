@@ -1,6 +1,7 @@
 import {
   ArchiveIcon,
   CubeIcon,
+  DiscIcon,
   FileIcon,
   FileTextIcon,
   GearIcon,
@@ -59,7 +60,9 @@ const fileIconMap = new Map([
   ["webp", <ImageIcon />],
   ["ico", <ImageIcon />],
   ["tiff", <ImageIcon />],
-  ["jfif", <ImageIcon />]
+  ["jfif", <ImageIcon />],
+
+  ["iso", <DiscIcon />]
 ]);
 
 function getIconFromExtension(extension?: string): JSX.Element {

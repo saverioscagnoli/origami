@@ -1,17 +1,20 @@
 import { useEvent } from "@util-hooks/use-event";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 import { OsName, Sep } from "@wails/methods/utils/Utils";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Bottombar } from "~/components/bottombar";
 import { CreateEntryDialog } from "~/components/dialogs/create-entry";
 import { Sidebar } from "~/components/sidebar";
 import { Topbar } from "~/components/topbar";
 import { Workspace } from "~/components/workspace";
 import {
+  hotkeyCopy,
+  hotkeyCut,
   hotkeyDelete,
   hotkeyFileDialog,
   hotkeyFolderDialog,
   hotkeyParentDir,
+  hotkeyPaste,
   hotkeyReload,
   hotkeyRenameEntry,
   hotkeySelectAllEntries,
@@ -46,10 +49,13 @@ function App() {
   /**
    * Setup all the hotkey listeners
    */
+  hotkeyCopy();
+  hotkeyCut();
   hotkeyDelete();
   hotkeyFileDialog();
   hotkeyFolderDialog();
   hotkeyParentDir();
+  hotkeyPaste();
   hotkeyReload();
   hotkeyRenameEntry();
   hotkeySelectAllEntries();
@@ -92,8 +98,22 @@ function App() {
   useHotkey([Modifier.Ctrl, Modifier.Shift], Key.J, e => e.preventDefault());
   useHotkey([Modifier.Ctrl, Modifier.Shift], Key.C, e => e.preventDefault());
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Prevent zooming in/out with ctrl + scroll
+   */
+  useEvent(wrapperRef, "wheel", e => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+    }
+  });
+
   return (
-    <div className={cn("w-full h-full", "flex flex-col", "select-none")}>
+    <div
+      className={cn("w-full h-full", "flex flex-col", "select-none")}
+      ref={wrapperRef}
+    >
       <Topbar />
       <div
         className={cn("w-full h-[calc(100vh-3.5rem)]", "fixed top-8", "flex")}

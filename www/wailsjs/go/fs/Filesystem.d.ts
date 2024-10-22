@@ -15,6 +15,8 @@ export function ListDir(arg1:string):Promise<Array<fs.DirEntry>>;
 
 export function OpenFiles(arg1:Array<string>):Promise<void>;
 
+export function PasteEntries(arg1:Array<fs.DirEntry>,arg2:string,arg3:boolean):Promise<void>;
+
 export function RenameEntry(arg1:string,arg2:string):Promise<void>;
 
 export function SetContext(arg1:context.Context):Promise<void>;

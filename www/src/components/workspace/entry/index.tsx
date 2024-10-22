@@ -25,7 +25,8 @@ const Entry = React.memo<fs.DirEntry>(entry => {
    * I hate windows
    */
   if (os === "windows" && entry.IsStarred && entry.IsSymlink) {
-    entry.IsDir = true;
+    // Copy object because IsDir is not writable
+    entry = { ...entry, IsDir: true };
   }
 
   const [cd, selected, setSelected] = useCurrentDir(s => [

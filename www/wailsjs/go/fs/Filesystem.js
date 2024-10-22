@@ -26,6 +26,10 @@ export function OpenFiles(arg1) {
   return window['go']['fs']['Filesystem']['OpenFiles'](arg1);
 }
 
+export function PasteEntries(arg1, arg2, arg3) {
+  return window['go']['fs']['Filesystem']['PasteEntries'](arg1, arg2, arg3);
+}
+
 export function RenameEntry(arg1, arg2) {
   return window['go']['fs']['Filesystem']['RenameEntry'](arg1, arg2);
 }
