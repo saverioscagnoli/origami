@@ -10,6 +10,10 @@ export function Load() {
   return window['go']['config']['Config']['Load']();
 }
 
+export function LoadCustomCSS() {
+  return window['go']['config']['Config']['LoadCustomCSS']();
+}
+
 export function Save() {
   return window['go']['config']['Config']['Save']();
 }

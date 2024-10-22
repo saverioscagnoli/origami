@@ -5,6 +5,7 @@ import { useWailsEvent } from "~/hooks/use-wails-events";
 import { cn } from "~/lib/utils";
 import { useDisks } from "~/zustand/disks";
 import { Disk } from "./disk";
+import { DiskContextMenu } from "./disk-context-menu";
 
 const DiskGroup: React.FC = () => {
   const [disks, setDisks] = useDisks(s => [s.disks, s.setDisks]);
@@ -35,7 +36,11 @@ const DiskGroup: React.FC = () => {
           return 0;
         })}
       >
-        {(d, i) => <Disk key={i} {...d} />}
+        {(d, i) => (
+          <DiskContextMenu {...d}>
+            <Disk key={i} {...d} />
+          </DiskContextMenu>
+        )}
       </For>
     </div>
   );

@@ -7,6 +7,8 @@ export function GetConfig():Promise<config.Config>;
 
 export function Load():Promise<void>;
 
+export function LoadCustomCSS():Promise<Array<string>>;
+
 export function Save():Promise<void>;
 
 export function SetContext(arg1:context.Context):Promise<void>;

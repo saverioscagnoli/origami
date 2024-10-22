@@ -85,7 +85,7 @@ func (c *Config) Save() error {
 	if err != nil {
 		return err
 	}
-	
+
 	defer file.Close()
 
 	encoder := json.NewEncoder(file)
@@ -100,4 +100,15 @@ func (c *Config) Save() error {
 
 func (c *Config) GetConfig() *Config {
 	return c
+}
+
+func (c *Config) LoadCustomCSS() []string {
+	var sources []string
+	paths := GetCssFilesInConfig()
+
+	for _, path := range paths {
+		sources = append(sources, LoadCssString(filepath.Join(ConfigDir, path)))
+	}
+
+	return sources
 }

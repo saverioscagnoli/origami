@@ -1,6 +1,6 @@
 import { useEvent } from "@util-hooks/use-event";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
-import { GetConfig } from "@wails/methods/config/Config";
+import { GetConfig, LoadCustomCSS } from "@wails/methods/config/Config";
 import { OsName, Sep } from "@wails/methods/utils/Utils";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { Bottombar } from "~/components/bottombar";
@@ -50,14 +50,27 @@ function App() {
    * - Cd into the default directory.
    */
   useLayoutEffect(() => {
-    Promise.all([GetConfig(), Sep(), OsName()]).then(
-      ([config, sep, osName]) => {
+    Promise.all([GetConfig(), Sep(), OsName(), LoadCustomCSS()]).then(
+      ([config, sep, osName, css]) => {
         setTheme(config.theme as Theme);
         setShowHidden(config.showHidden);
         setShowCheckboxes(config.showCheckboxes);
         setView(config.view as View);
         setSep(sep);
         setOs(osName);
+
+        /**
+         * Inject the custom css into the head of the document.
+         * TODO: Actually check if the css is valid.
+         * also, this sketchy af.
+         */
+        if (css) {
+          for (const style of css) {
+            const styleElement = document.createElement("style");
+            styleElement.innerHTML = style;
+            document.head.appendChild(styleElement);
+          }
+        }
       }
     );
 
