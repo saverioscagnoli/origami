@@ -3,9 +3,9 @@
   "name": "origami",
   "outputfilename": "origami",
   "frontend:dir": "./www",
-  "frontend:install": "yarn --cwd www install",
-  "frontend:build": "yarn --cwd www build",
-  "frontend:dev:watcher": "yarn --cwd www dev",
+  "frontend:install": "yarn install",
+  "frontend:build": "yarn build",
+  "frontend:dev:watcher": "yarn dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
     "name": "Saverio Scagnoli",
