@@ -4,11 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/adrg/xdg"
 )
-
-var ConfigDir = filepath.Join(xdg.ConfigHome, "origami")
 
 func GetCssFilesInConfig() []string {
 	entries, err := os.ReadDir(ConfigDir)

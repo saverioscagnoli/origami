@@ -1,10 +1,25 @@
 export namespace config {
 	
+	export class Filter {
+	    kind: string;
+	    asc: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Filter(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.kind = source["kind"];
+	        this.asc = source["asc"];
+	    }
+	}
 	export class Config {
 	    theme: string;
 	    showHidden: boolean;
 	    showCheckboxes: boolean;
 	    view: string;
+	    filter: Filter;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -16,7 +31,26 @@ export namespace config {
 	        this.showHidden = source["showHidden"];
 	        this.showCheckboxes = source["showCheckboxes"];
 	        this.view = source["view"];
+	        this.filter = this.convertValues(source["filter"], Filter);
 	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

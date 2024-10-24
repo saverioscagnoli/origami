@@ -5,6 +5,8 @@ import {context} from '../models';
 
 export function GetConfig():Promise<config.Config>;
 
+export function GetConfigDir():Promise<string>;
+
 export function Load():Promise<void>;
 
 export function LoadCustomCSS():Promise<Array<string>>;
@@ -12,6 +14,8 @@ export function LoadCustomCSS():Promise<Array<string>>;
 export function Save():Promise<void>;
 
 export function SetContext(arg1:context.Context):Promise<void>;
+
+export function SetFilter(arg1:config.Filter):Promise<void>;
 
 export function SetShowCheckboxes(arg1:boolean):Promise<void>;
 

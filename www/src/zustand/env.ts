@@ -20,6 +20,8 @@ type EnvState = {
   setOs: (os: string) => void;
   knownFolders: KnownFolder[];
   setKnownFolders: (folders: KnownFolder[]) => void;
+  configDir: string;
+  setConfigDir: (configDir: string) => void;
 };
 
 const useEnv = customCreate<EnvState>(set => ({
@@ -28,7 +30,9 @@ const useEnv = customCreate<EnvState>(set => ({
   sep: "",
   setSep: sep => set({ sep }),
   os: "",
-  setOs: os => set({ os })
+  setOs: os => set({ os }),
+  configDir: "",
+  setConfigDir: configDir => set({ configDir })
 }));
 
 export { useEnv };

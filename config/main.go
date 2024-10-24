@@ -9,7 +9,13 @@ import (
 	"github.com/adrg/xdg"
 )
 
-var ConfigPath = filepath.Join(xdg.ConfigHome, "origami", "config.json")
+var ConfigDir = filepath.Join(xdg.ConfigHome, "origami")
+var ConfigPath = filepath.Join(ConfigDir, "config.json")
+
+type Filter struct {
+	Kind string `json:"kind"` // name, size, date
+	Asc  bool   `json:"asc"`  // ascending or descending
+}
 
 type Config struct {
 	ctx            context.Context
@@ -17,6 +23,7 @@ type Config struct {
 	ShowHidden     bool   `json:"showHidden"`
 	ShowCheckboxes bool   `json:"showCheckboxes"`
 	View           string `json:"view"`
+	Filter         Filter `json:"filter"`
 }
 
 func New() *Config {
@@ -51,6 +58,11 @@ func (c *Config) SetView(value string) {
 	c.Save()
 }
 
+func (c *Config) SetFilter(filter Filter) {
+	c.Filter = filter
+	c.Save()
+}
+
 func (c *Config) Load() error {
 	// Create the config file if it doesn't exist
 	if _, err := os.Stat(ConfigPath); os.IsNotExist(err) {
@@ -59,6 +71,10 @@ func (c *Config) Load() error {
 			ShowHidden:     false,
 			ShowCheckboxes: false,
 			View:           "list",
+			Filter: Filter{
+				Kind: "name",
+				Asc:  true,
+			},
 		}
 
 		defaultConfig.Save()
@@ -100,6 +116,10 @@ func (c *Config) Save() error {
 
 func (c *Config) GetConfig() *Config {
 	return c
+}
+
+func (c *Config) GetConfigDir() string {
+	return ConfigDir
 }
 
 func (c *Config) LoadCustomCSS() []string {

@@ -1,6 +1,10 @@
 import { useEvent } from "@util-hooks/use-event";
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
-import { GetConfig, LoadCustomCSS } from "@wails/methods/config/Config";
+import {
+  GetConfig,
+  GetConfigDir,
+  LoadCustomCSS
+} from "@wails/methods/config/Config";
 import { OsName, Sep } from "@wails/methods/utils/Utils";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { Bottombar } from "~/components/bottombar";
@@ -18,6 +22,7 @@ import {
   hotkeyPaste,
   hotkeyReload,
   hotkeyRenameEntry,
+  hotkeySearchHere,
   hotkeySelectAllEntries,
   hotkeyToggleShowCheckboxes,
   hotkeyToggleShowHidden,
@@ -31,16 +36,27 @@ import { settingsEffect, Theme, useSettings, View } from "~/zustand/settings";
 
 function App() {
   const cd = useCurrentDir(s => s.cd);
-  const [setSep, setOs] = useEnv(s => [s.setSep, s.setOs]);
+  const [setSep, setOs, setConfigDir] = useEnv(s => [
+    s.setSep,
+    s.setOs,
+    s.setConfigDir
+  ]);
 
-  const [theme, setTheme, setShowHidden, setShowCheckboxes, setView] =
-    useSettings(s => [
-      s.theme,
-      s.setTheme,
-      s.setShowHidden,
-      s.setShowCheckboxes,
-      s.setView
-    ]);
+  const [
+    theme,
+    setTheme,
+    setShowHidden,
+    setShowCheckboxes,
+    setView,
+    setFilter
+  ] = useSettings(s => [
+    s.theme,
+    s.setTheme,
+    s.setShowHidden,
+    s.setShowCheckboxes,
+    s.setView,
+    s.setFilter
+  ]);
 
   /**
    * On start:
@@ -50,29 +66,35 @@ function App() {
    * - Cd into the default directory.
    */
   useLayoutEffect(() => {
-    Promise.all([GetConfig(), Sep(), OsName(), LoadCustomCSS()]).then(
-      ([config, sep, osName, css]) => {
-        setTheme(config.theme as Theme);
-        setShowHidden(config.showHidden);
-        setShowCheckboxes(config.showCheckboxes);
-        setView(config.view as View);
-        setSep(sep);
-        setOs(osName);
+    Promise.all([
+      GetConfig(),
+      Sep(),
+      OsName(),
+      GetConfigDir(),
+      LoadCustomCSS()
+    ]).then(([config, sep, osName, configDir, css]) => {
+      setTheme(config.theme as Theme);
+      setShowHidden(config.showHidden);
+      setShowCheckboxes(config.showCheckboxes);
+      setView(config.view as View);
+      setFilter(config.filter);
+      setSep(sep);
+      setConfigDir(configDir);
+      setOs(osName);
 
-        /**
-         * Inject the custom css into the head of the document.
-         * TODO: Actually check if the css is valid.
-         * also, this sketchy af.
-         */
-        if (css) {
-          for (const style of css) {
-            const styleElement = document.createElement("style");
-            styleElement.innerHTML = style;
-            document.head.appendChild(styleElement);
-          }
+      /**
+       * Inject the custom css into the head of the document.
+       * TODO: Actually check if the css is valid.
+       * also, this sketchy af.
+       */
+      if (css) {
+        for (const style of css) {
+          const styleElement = document.createElement("style");
+          styleElement.innerHTML = style;
+          document.head.appendChild(styleElement);
         }
       }
-    );
+    });
 
     cd("C:");
   }, []);
@@ -89,6 +111,7 @@ function App() {
   hotkeyPaste();
   hotkeyReload();
   hotkeyRenameEntry();
+  hotkeySearchHere();
   hotkeySelectAllEntries();
   hotkeyToggleShowCheckboxes();
   hotkeyToggleShowHidden();

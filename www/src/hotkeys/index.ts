@@ -7,6 +7,7 @@ export * from "./parent-dir";
 export * from "./paste";
 export * from "./reload";
 export * from "./rename-entry";
+export * from "./search-here";
 export * from "./select-all-entries";
 export * from "./toggle-show-checkboxes";
 export * from "./toggle-show-hidden";

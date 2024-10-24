@@ -6,6 +6,10 @@ export function GetConfig() {
   return window['go']['config']['Config']['GetConfig']();
 }
 
+export function GetConfigDir() {
+  return window['go']['config']['Config']['GetConfigDir']();
+}
+
 export function Load() {
   return window['go']['config']['Config']['Load']();
 }
@@ -20,6 +24,10 @@ export function Save() {
 
 export function SetContext(arg1) {
   return window['go']['config']['Config']['SetContext'](arg1);
+}
+
+export function SetFilter(arg1) {
+  return window['go']['config']['Config']['SetFilter'](arg1);
 }
 
 export function SetShowCheckboxes(arg1) {

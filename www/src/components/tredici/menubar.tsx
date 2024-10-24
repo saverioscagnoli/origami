@@ -1,4 +1,3 @@
-import { cn } from "~/lib/utils";
 import {
   CheckIcon,
   ChevronRightIcon,
@@ -14,6 +13,7 @@ import {
   forwardRef,
   useContext
 } from "react";
+import { cn } from "~/lib/utils";
 
 import "@radix-ui/colors/plum-dark.css";
 import "@radix-ui/colors/plum.css";
@@ -332,6 +332,7 @@ type MenubarSubTriggerProps = RxMenubar.MenubarSubTriggerProps & {
   colorScheme?: MenubarColorScheme;
   leftIcon?: ReactNode;
   icon?: ReactNode;
+  iconSpacing?: number;
 };
 
 const MenubarSubTrigger = forwardRef<HTMLDivElement, MenubarSubTriggerProps>(
@@ -342,6 +343,7 @@ const MenubarSubTrigger = forwardRef<HTMLDivElement, MenubarSubTriggerProps>(
       colorScheme,
       leftIcon,
       icon = <ChevronRightIcon />,
+      iconSpacing = 4,
       ...props
     },
     ref
@@ -364,7 +366,9 @@ const MenubarSubTrigger = forwardRef<HTMLDivElement, MenubarSubTriggerProps>(
       >
         <div className="w-7 flex justify-center items-center">{leftIcon}</div>
         {children}
-        <span className="ml-auto">{icon}</span>
+        <span style={{ marginLeft: "auto", paddingLeft: `${iconSpacing}px` }}>
+          {icon}
+        </span>
       </RxMenubar.SubTrigger>
     );
   }

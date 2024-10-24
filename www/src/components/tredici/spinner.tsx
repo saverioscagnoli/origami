@@ -1,6 +1,6 @@
-import { cn } from "~/lib/utils";
 import { cva } from "class-variance-authority";
 import { ComponentPropsWithoutRef, forwardRef } from "react";
+import { cn } from "~/lib/utils";
 
 type SpinnerColorScheme =
   | "plum"
@@ -48,8 +48,6 @@ const Spinner = forwardRef<SVGSVGElement, SpinnerProps>(
         ref={ref}
         viewBox="0 0 15 15"
         fill="none"
-        width={size}
-        height={size}
         xmlns="http://www.w3.org/2000/svg"
         className={spinnerVariants({
           className: cn("animate-spin", className),

@@ -1,4 +1,5 @@
 import { Menubar } from "~/components/tredici";
+import { FilterMenuItems } from "./filter";
 import { ReloadMenuItem } from "./reload";
 import { ShowCheckboxesMenuItem } from "./show-checkboxes";
 import { ShowHiddenMenuItem } from "./show-hidden";
@@ -18,6 +19,8 @@ const TopbarViewMenu = () => {
         <ThemeMenuItem />
         <Menubar.Separator />
         <ViewTypeMenuItems />
+        <Menubar.Separator />
+        <FilterMenuItems />
       </Menubar.Content>
     </Menubar.Menu>
   );

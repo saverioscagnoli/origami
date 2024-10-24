@@ -1,5 +1,6 @@
 import { Menubar } from "~/components/tredici";
 import { BackMenuItem } from "./back";
+import { ConfigDirectoryMenuItem } from "./config-dir";
 import { ForwardMenuItem } from "./forward";
 import { KnownFoldersMenuItems } from "./known-folders";
 import { ParentDirectoryMenuItem } from "./parent";
@@ -15,6 +16,8 @@ const TopbarGoMenu = () => {
         <ForwardMenuItem />
         <Menubar.Separator />
         <KnownFoldersMenuItems />
+        <Menubar.Separator />
+        <ConfigDirectoryMenuItem />
       </Menubar.Content>
     </Menubar.Menu>
   );

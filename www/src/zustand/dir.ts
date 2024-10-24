@@ -4,6 +4,12 @@ import { customCreate } from "./store";
 
 type CurrentDirState = {
   dir: string;
+  /**
+   * Flag to indicate that the directory is changing.
+   * This is used for when the directory is large, and
+   * the system might take a while to list all the files.
+   */
+  changing: boolean;
   setCurrentDir: (dir: string) => void;
   selected: fs.DirEntry[];
   setSelected: (selected: fs.DirEntry[]) => void;
@@ -14,6 +20,7 @@ type CurrentDirState = {
 
 const useCurrentDir = customCreate<CurrentDirState>(set => ({
   dir: "/",
+  changing: false,
   setCurrentDir: dir => set({ dir }),
   entries: [],
   setEntries: entries => set({ entries }),
@@ -22,14 +29,17 @@ const useCurrentDir = customCreate<CurrentDirState>(set => ({
   cd: async dir => {
     let entries: fs.DirEntry[];
 
+    set({ changing: true });
+
     try {
       entries = await ListDir(dir);
     } catch (e) {
       console.log(e);
+      set({ changing: false });
       return;
     }
 
-    set({ dir, entries, selected: [] });
+    set({ dir, entries, selected: [], changing: false });
   }
 }));
 

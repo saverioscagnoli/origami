@@ -16,6 +16,50 @@ import { BlankSpaceContextMenu } from "./context-menu/blank-space";
 import { SelectedEntriesContextMenu } from "./context-menu/selected";
 import { Entry } from "./entry";
 
+function nameSort(a: fs.DirEntry, b: fs.DirEntry, asc: boolean) {
+  // Put directories first
+  if (a.IsDir && !b.IsDir) return -1;
+  if (!a.IsDir && b.IsDir) return 1;
+
+  // Sort by name
+  let comp = a.Name.toLowerCase().localeCompare(b.Name.toLowerCase());
+  return asc ? comp : -comp;
+}
+
+function sizeSort(a: fs.DirEntry, b: fs.DirEntry, asc: boolean) {
+  // Put files first
+  if (a.IsDir && !b.IsDir) return 1;
+  if (!a.IsDir && b.IsDir) return -1;
+
+  // If both are files, sort by size
+  if (!a.IsDir && !b.IsDir) {
+    return asc ? a.Size - b.Size : b.Size - a.Size;
+  }
+
+  // If both are directories, sort by name
+  if (a.IsDir && b.IsDir) {
+    let comp = a.Name.localeCompare(b.Name);
+    return asc ? comp : -comp;
+  }
+
+  return 0;
+}
+
+function parseDate(date: string) {
+  // Date is in format "DD/MM/YYYY HH:MM"
+  let [d, m, y, h, min] = date.split(/[ /:]/);
+  return new Date(+y, +m - 1, +d, +h, +min);
+}
+
+function dateSort(a: fs.DirEntry, b: fs.DirEntry, asc: boolean) {
+  let dateA = parseDate(a.LastModified);
+  let dateB = parseDate(b.LastModified);
+
+  return asc
+    ? dateB.getTime() - dateA.getTime()
+    : dateA.getTime() - dateB.getTime();
+}
+
 const Workspace: React.FC = () => {
   const [cd, dir, entries, setEntries] = useCurrentDir(s => [
     s.cd,
@@ -23,7 +67,12 @@ const Workspace: React.FC = () => {
     s.entries,
     s.setEntries
   ]);
-  const [showHidden, view] = useSettings(s => [s.showHidden, s.view]);
+  const [showHidden, view, filter] = useSettings(s => [
+    s.showHidden,
+    s.view,
+    s.filter
+  ]);
+
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
 
   const [toAdd, setToAdd] = useState<fs.DirEntry[]>([]);
@@ -32,16 +81,32 @@ const Workspace: React.FC = () => {
   const [toStar, setToStar] = useState<string[]>([]);
   const [toUnstar, setToUnstar] = useState<string[]>([]);
 
+  const filterFn = useMemo(() => {
+    switch (filter.kind) {
+      case "name": {
+        return nameSort;
+      }
+
+      case "size": {
+        return sizeSort;
+      }
+
+      case "date": {
+        return dateSort;
+      }
+
+      default: {
+        return nameSort;
+      }
+    }
+  }, [filter]);
+
   const filtered = useMemo(
     () =>
       entries
         .filter(e => showHidden || !e.IsHidden)
-        .sort((a, b) => {
-          if (a.IsDir && !b.IsDir) return -1;
-          if (!a.IsDir && b.IsDir) return 1;
-          return a.Name.toLowerCase().localeCompare(b.Name.toLowerCase());
-        }),
-    [entries, showHidden]
+        .sort((a, b) => filterFn(a, b, filter.asc)),
+    [entries, showHidden, filterFn, filter.asc]
   );
 
   useWailsEvent(

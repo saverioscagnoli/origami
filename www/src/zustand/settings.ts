@@ -1,9 +1,11 @@
 import {
+  SetFilter,
   SetShowCheckboxes,
   SetShowHidden,
   SetTheme,
   SetView
 } from "@wails/methods/config/Config";
+import { config } from "@wails/methods/models";
 import { useEffect } from "react";
 import { customCreate } from "./store";
 
@@ -16,6 +18,7 @@ type Config = {
   showCheckboxes: boolean;
   showHidden: boolean;
   view: View;
+  filter: config.Filter;
 };
 
 export type { Config, Theme, View };
@@ -29,6 +32,8 @@ type SettingsState = {
   setShowCheckboxes: (showCheckboxes: boolean) => void;
   view: View;
   setView: (view: View) => void;
+  filter: config.Filter;
+  setFilter: (filter: config.Filter) => void;
 };
 
 const useSettings = customCreate<SettingsState>(set => ({
@@ -39,22 +44,25 @@ const useSettings = customCreate<SettingsState>(set => ({
   showCheckboxes: true,
   setShowCheckboxes: (showCheckboxes: boolean) => set({ showCheckboxes }),
   view: "list",
-  setView: (view: View) => set({ view })
+  setView: (view: View) => set({ view }),
+  filter: { kind: "name", asc: true },
+  setFilter: (filter: config.Filter) => set({ filter })
 }));
 
 export { useSettings };
 
 /**
- * Internally uses an useEffect that
- * watches any changes in the settings and invokkes the
+ * Internally uses useEffects that
+ * watches any changes in the settings and invokes the
  * backend functions to write to file.
  */
 const settingsEffect = () => {
-  const [theme, showHidden, showCheckboxes, view] = useSettings(s => [
+  const [theme, showHidden, showCheckboxes, view, filter] = useSettings(s => [
     s.theme,
     s.showHidden,
     s.showCheckboxes,
-    s.view
+    s.view,
+    s.filter
   ]);
 
   /**
@@ -75,6 +83,10 @@ const settingsEffect = () => {
   useEffect(() => {
     SetView(view);
   }, [view]);
+
+  useEffect(() => {
+    SetFilter(filter);
+  }, [filter]);
 };
 
 export { settingsEffect };
