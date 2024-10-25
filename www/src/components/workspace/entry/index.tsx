@@ -41,6 +41,10 @@ const Entry = React.memo<fs.DirEntry>(entry => {
   );
 
   const [showCheckboxes, view] = useSettings(s => [s.showCheckboxes, s.view]);
+  const [clipboard, setSearching] = useStates(s => [
+    s.clipboard,
+    s.setSearching
+  ]);
 
   const onClick: MouseEventHandler<HTMLParagraphElement> = e => {
     if (e.detail == 1) {
@@ -69,6 +73,7 @@ const Entry = React.memo<fs.DirEntry>(entry => {
 
     if (e.detail == 2) {
       if (entry.IsDir) {
+        setSearching({ query: "", state: false });
         cd(entry.Path);
       } else {
         OpenFiles([entry.Path]);
@@ -91,8 +96,6 @@ const Entry = React.memo<fs.DirEntry>(entry => {
       setSelected([...selected, entry]);
     }
   };
-
-  const clipboard = useStates(s => s.clipboard);
 
   const inClipboard = useMemo(
     () => clipboard.entries.findIndex(e => e.Path === entry.Path) !== -1,

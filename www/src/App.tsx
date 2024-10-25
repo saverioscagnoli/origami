@@ -162,6 +162,7 @@ function App() {
   /**
    * Prevent zooming in/out with ctrl + scroll
    */
+  // @ts-ignore
   useEvent(wrapperRef, "wheel", e => {
     if (e.ctrlKey) {
       e.preventDefault();

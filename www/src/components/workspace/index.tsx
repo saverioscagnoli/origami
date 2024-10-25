@@ -2,6 +2,7 @@ import { fs } from "@wails/methods/models";
 import React, {
   ComponentPropsWithoutRef,
   forwardRef,
+  useEffect,
   useMemo,
   useState
 } from "react";
@@ -9,12 +10,15 @@ import { Virtuoso, VirtuosoGrid } from "react-virtuoso";
 import { ScrollArea } from "~/components/tredici";
 import useDebounce from "~/hooks/use-debounce";
 import { useWailsEvent } from "~/hooks/use-wails-events";
-import { cn } from "~/lib/utils";
+import { cn, filterWithWorker } from "~/lib/utils";
 import { useCurrentDir } from "~/zustand/dir";
 import { useSettings } from "~/zustand/settings";
+import { useStates } from "~/zustand/states";
 import { BlankSpaceContextMenu } from "./context-menu/blank-space";
 import { SelectedEntriesContextMenu } from "./context-menu/selected";
 import { Entry } from "./entry";
+
+import FilterWorker from "~/lib/filter-worker?worker";
 
 function nameSort(a: fs.DirEntry, b: fs.DirEntry, asc: boolean) {
   // Put directories first
@@ -73,6 +77,17 @@ const Workspace: React.FC = () => {
     s.filter
   ]);
 
+  /**
+   * Define a worker thread to filter entries.
+   * So that the ui doesn't freeze when searching.
+   */
+  const worker = useMemo(() => new FilterWorker(), []);
+  const [searching, setSearching] = useStates(s => [
+    s.searching,
+    s.setSearching
+  ]);
+  const [filtered, setFiltered] = useState<fs.DirEntry[]>([]);
+
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
 
   const [toAdd, setToAdd] = useState<fs.DirEntry[]>([]);
@@ -101,13 +116,25 @@ const Workspace: React.FC = () => {
     }
   }, [filter]);
 
-  const filtered = useMemo(
-    () =>
-      entries
-        .filter(e => showHidden || !e.IsHidden)
-        .sort((a, b) => filterFn(a, b, filter.asc)),
-    [entries, showHidden, filterFn, filter.asc]
-  );
+  /**
+   * Every time any of the dependencies change, filter the entries.
+   * The first if filter even if the searching state if off, to make
+   * filtered entries remain the when the user presses enter, so they can access them using the keyboard, or when the click
+   * on the entries they dont reset
+   */
+  useEffect(() => {
+    let filteredEntries = entries
+      .filter(e => showHidden || !e.IsHidden)
+      .sort((a, b) => filterFn(a, b, filter.asc));
+
+    if (searching.query !== "" && searching.where === "here") {
+      filterWithWorker(filteredEntries, searching.query, worker).then(
+        setFiltered
+      );
+    } else {
+      setFiltered(filteredEntries);
+    }
+  }, [entries, showHidden, searching, filterFn, filter.asc]);
 
   useWailsEvent(
     "f:write",

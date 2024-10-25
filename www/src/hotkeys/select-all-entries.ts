@@ -9,17 +9,21 @@ import { useStates } from "~/zustand/states";
 
 function hotkeySelectAllEntries() {
   const [entries, setSelected] = useCurrentDir(s => [s.entries, s.setSelected]);
-  const creating = useStates(s => s.creating);
+  const [creating, searching, renaming] = useStates(s => [
+    s.creating,
+    s.searching,
+    s.renaming
+  ]);
 
   useHotkey(
     [Modifier.Ctrl],
     Key.A,
     () => {
-      if (!creating.state) {
+      if (!creating.state && !searching.state && !renaming) {
         setSelected(entries);
       }
     },
-    [entries, creating]
+    [entries, creating, searching, renaming]
   );
 }
 

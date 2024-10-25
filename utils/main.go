@@ -4,6 +4,7 @@ import (
 	"context"
 	"path/filepath"
 	"runtime"
+	"sync"
 )
 
 type Utils struct {
@@ -40,4 +41,20 @@ func (u *Utils) OsName() string {
 // Path.Join wrapper for frontend usage
 func (u *Utils) JoinPath(paths []string) string {
 	return filepath.Join(paths...)
+}
+
+func Parallelize(functions ...func()) {
+	var wg sync.WaitGroup
+
+	wg.Add(len(functions))
+
+	defer wg.Wait()
+
+	for _, fn := range functions {
+		go func(f func()) {
+			runtime.LockOSThread()
+			defer wg.Done()
+			f()
+		}(fn)
+	}
 }

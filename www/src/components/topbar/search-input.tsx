@@ -52,7 +52,7 @@ const SearchInput = () => {
     <Input
       id="topbar-search-input"
       size="sm"
-      className={cn("!w-64", "!font-normal")}
+      className={cn("!w-64")}
       spellCheck={false}
       autoComplete="off"
       value={searching.query}

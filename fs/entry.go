@@ -3,6 +3,7 @@ package fs
 import (
 	"bufio"
 	"fmt"
+	"origami/embeds"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -423,6 +424,7 @@ func move(src string, dest string) error {
 }
 
 func (f *Filesystem) PasteEntries(entries []DirEntry, destDir string, cutting bool) {
+
 	for _, entry := range entries {
 		go func(entry DirEntry) {
 			destPath := filepath.Join(destDir, entry.Name)
@@ -440,6 +442,9 @@ func (f *Filesystem) PasteEntries(entries []DirEntry, destDir string, cutting bo
 					size := entry.Size
 
 					if size > 1024*1024*1024 {
+						// Lock the goroutine to a new OS thread
+						runtime.LockOSThread()
+
 						// Emit event to spawn a notification
 						// Which will show the progress of the copy
 						notificationID := uuid.New().String()
@@ -465,3 +470,84 @@ func (f *Filesystem) PasteEntries(entries []DirEntry, destDir string, cutting bo
 		}(entry)
 	}
 }
+
+// type CopyRequest struct {
+// 	Source      string
+// 	Destination string
+// }
+
+// func (f *Filesystem) PasteEntries(entries []DirEntry, destDir string, cutting bool) {
+// 	for _, entry := range entries {
+// 		go func(entry DirEntry) {
+// 			destPath := filepath.Join(destDir, entry.Name)
+
+// 			if entry.IsDir {
+// 				if cutting {
+// 					move(entry.Path, destPath)
+// 				} else {
+// 					copyDir(entry.Path, destPath)
+// 				}
+// 			} else {
+// 				if cutting {
+// 					move(entry.Path, destPath)
+// 				} else {
+// 					size := entry.Size
+
+// 					if size > 1024*1024*1024 {
+// 						// Emit event to spawn a notification
+// 						notificationID := uuid.New().String()
+// 						wails.EventsEmit(f.ctx, "f:notification", [3]string{notificationID, entry.Name, destDir})
+
+// 						// Prepare the copy request
+// 						req := CopyRequest{
+// 							Source:      entry.Path,
+// 							Destination: destPath,
+// 						}
+// 						reqJSON, _ := json.Marshal(req)
+
+// 						// Write the embedded copy.go to a temporary file
+// 						tmpFile, err := os.CreateTemp("", "copy-*.go")
+// 						if err != nil {
+// 							// Handle error
+// 							return
+// 						}
+// 						defer os.Remove(tmpFile.Name())
+
+// 						if _, err := tmpFile.Write(copyGo); err != nil {
+// 							// Handle error
+// 							return
+// 						}
+// 						if err := tmpFile.Close(); err != nil {
+// 							// Handle error
+// 							return
+// 						}
+
+// 						// Spawn the copy_worker process
+// 						cmd := exec.Command("go", "run", tmpFile.Name())
+// 						cmd.Stdin = bytes.NewReader(reqJSON)
+// 						stdout, _ := cmd.StdoutPipe()
+// 						cmd.Start()
+
+// 						// Read progress updates from the copy_worker process
+// 						go func() {
+// 							decoder := json.NewDecoder(stdout)
+// 							for {
+// 								var progress [2]int
+// 								if err := decoder.Decode(&progress); err != nil {
+// 									break
+// 								}
+// 								wails.EventsEmit(f.ctx, "f:progress", [2]interface{}{progress, notificationID})
+// 							}
+// 							// Emit the event to close the notification
+// 							wails.EventsEmit(f.ctx, "f:notification-close", notificationID)
+// 						}()
+
+// 						cmd.Wait()
+// 					} else {
+// 						copyFile(entry.Path, destPath)
+// 					}
+// 				}
+// 			}
+// 		}(entry)
+// 	}
+// }

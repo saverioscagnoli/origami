@@ -1,5 +1,5 @@
 {
-  "dependencies": {
-    "zustand": "^5.0.0-rc.2"
-  }
+    "scripts": {
+        "dev": "cd copy && cargo build --release && cd .. && wails dev"
+    }
 }

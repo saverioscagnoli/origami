@@ -24,15 +24,15 @@
     "@util-hooks/use-hotkey": "^2.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "19.0.0-rc-1631855f-20241023",
+    "react-dom": "19.0.0-rc-1631855f-20241023",
     "react-virtuoso": "^4.10.4",
     "tailwind-merge": "^2.5.3",
     "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
-    "@types/react": "^18.0.17",
-    "@types/react-dom": "^18.0.6",
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc",
     "@vitejs/plugin-react": "^2.0.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
@@ -40,5 +40,9 @@
     "typescript": "^4.6.4",
     "vite": "^3.0.7",
     "vite-tsconfig-paths": "^5.0.1"
+  },
+  "overrides": {
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc"
   }
 }
