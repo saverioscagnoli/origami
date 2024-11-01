@@ -1,23 +1,9 @@
-import { FolderIcon } from "~/components/icons/folder";
+import React from "react";
+import { FolderIcon } from "~/components/icons";
 import { Menubar } from "~/components/tredici";
-import { useStates } from "~/zustand/states";
 
-const NewFolderMenuItem = () => {
-  const setCreating = useStates(s => s.setCreating);
-
-  const onSelect = () => {
-    setCreating({ state: true, isDir: true });
-  };
-
-  return (
-    <Menubar.Item
-      leftIcon={<FolderIcon />}
-      shortcut="Ctrl + Shift + N"
-      onSelect={onSelect}
-    >
-      New Folder...
-    </Menubar.Item>
-  );
+const NewFolderItem: React.FC = () => {
+  return <Menubar.Item leftIcon={<FolderIcon />}>New Folder</Menubar.Item>;
 };
 
-export { NewFolderMenuItem };
+export { NewFolderItem };

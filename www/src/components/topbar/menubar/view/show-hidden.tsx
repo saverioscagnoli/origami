@@ -1,21 +1,22 @@
+import React from "react";
 import { Menubar } from "~/components/tredici";
-import { useSettings } from "~/zustand/settings";
+import { useConfig } from "~/stores/config";
 
-const ShowHiddenMenuItem = () => {
-  const [showHidden, setShowHidden] = useSettings(state => [
-    state.showHidden,
-    state.setShowHidden
-  ]);
+const ShowHiddenItem: React.FC = () => {
+  const [showHidden, setConfig] = useConfig(s => [s.showHidden, s.set]);
+
+  const onCheckedChange = (value: boolean) => {
+    setConfig({ showHidden: value });
+  };
 
   return (
     <Menubar.CheckboxItem
-      shortcut="Ctrl + H"
       checked={showHidden}
-      onCheckedChange={setShowHidden}
+      onCheckedChange={onCheckedChange}
     >
-      Show Hidden
+      ShowHidden
     </Menubar.CheckboxItem>
   );
 };
 
-export { ShowHiddenMenuItem };
+export { ShowHiddenItem };

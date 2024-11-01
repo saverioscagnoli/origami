@@ -7,24 +7,16 @@ export function CreateEntry(arg1:string,arg2:boolean):Promise<void>;
 
 export function DeleteEntries(arg1:Array<string>):Promise<void>;
 
+export function FetchConfigDir():Promise<string>;
+
 export function FetchDisks():Promise<Array<fs.Disk>>;
 
-export function FetchKnownFolders():Promise<{[key: string]: string}>;
+export function FetchKnownFolders():Promise<Array<string>>;
+
+export function Init(arg1:context.Context):Promise<void>;
 
 export function ListDir(arg1:string):Promise<Array<fs.DirEntry>>;
 
-export function OpenFiles(arg1:Array<string>):Promise<void>;
-
-export function PasteEntries(arg1:Array<fs.DirEntry>,arg2:string,arg3:boolean):Promise<void>;
-
-export function RenameEntry(arg1:string,arg2:string):Promise<void>;
-
-export function SetContext(arg1:context.Context):Promise<void>;
-
-export function StarEntries(arg1:Array<fs.DirEntry>):Promise<void>;
-
-export function StartDirWatcher():Promise<void>;
-
 export function StartFetchDisksInterval():Promise<void>;
 
-export function UnstarEntries(arg1:Array<string>):Promise<void>;
+export function StartWatcher():Promise<void>;

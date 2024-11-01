@@ -5,7 +5,8 @@ import {
   FileIcon,
   FileTextIcon,
   GearIcon,
-  ImageIcon
+  ImageIcon,
+  VideoIcon
 } from "@radix-ui/react-icons";
 
 const fileIconMap = new Map([
@@ -61,6 +62,21 @@ const fileIconMap = new Map([
   ["ico", <ImageIcon />],
   ["tiff", <ImageIcon />],
   ["jfif", <ImageIcon />],
+
+  /**
+   * VIDEO FILES
+   */
+  ["mp4", <VideoIcon />],
+  ["mkv", <VideoIcon />],
+  ["webm", <VideoIcon />],
+  ["avi", <VideoIcon />],
+  ["mov", <VideoIcon />],
+  ["wmv", <VideoIcon />],
+  ["flv", <VideoIcon />],
+  ["3gp", <VideoIcon />],
+  ["mpg", <VideoIcon />],
+  ["mpeg", <VideoIcon />],
+  ["m4v", <VideoIcon />],
 
   ["iso", <DiscIcon />]
 ]);

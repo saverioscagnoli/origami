@@ -1,21 +1,9 @@
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import React from "react";
 import { Menubar } from "~/components/tredici";
 
-const BackMenuItem = () => {
-  //const [index, goBack] = useCurrentDir(s => [s.historyIndex, s.goBack]);
-
-  //const canGoBack = useMemo(() => index > 0, [index]);
-
-  return (
-    <Menubar.Item
-      leftIcon={<ArrowLeftIcon />}
-      shortcut="Ctrl + Left"
-      //disabled={!canGoBack}
-      //onSelect={goBack}
-    >
-      Back
-    </Menubar.Item>
-  );
+const BackItem: React.FC = () => {
+  return <Menubar.Item leftIcon={<ArrowLeftIcon />}>Back</Menubar.Item>;
 };
 
-export { BackMenuItem };
+export { BackItem };

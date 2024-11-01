@@ -1,23 +1,24 @@
 import React from "react";
 import { cn } from "~/lib/utils";
-import { ButtonGroup } from "./button-group";
+import { TopbarButtonGroup } from "./button-group";
 import { DirDisplay } from "./dir-display";
 import { TopbarMenu } from "./menubar";
 
 const Topbar: React.FC = () => {
   return (
-    <nav
+    <div
+      style={{ widows: 1 }}
       className={cn(
-        "w-full h-8",
-        "fixed top-0 left-0 right-0",
+        "w-full h-7",
         "flex items-center justify-between",
+        "fixed top-0",
         "border-b border-b-[--gray-6]"
       )}
     >
       <TopbarMenu />
       <DirDisplay />
-      <ButtonGroup />
-    </nav>
+      <TopbarButtonGroup />
+    </div>
   );
 };
 

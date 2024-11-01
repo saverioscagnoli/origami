@@ -1,69 +1,26 @@
-import {
-  ArrowLeftIcon,
-  ClipboardIcon,
-  EyeClosedIcon,
-  ScissorsIcon,
-  StarFilledIcon
-} from "@radix-ui/react-icons";
-import { FC } from "react";
+import { ArrowLeftIcon, EyeClosedIcon } from "@radix-ui/react-icons";
+import React from "react";
 import { cn } from "~/lib/utils";
 
 type EntryFlagsProps = {
-  IsSymlink: boolean;
-  IsHidden: boolean;
-  IsStarred: boolean;
-  isCutting: boolean;
-  isCopying: boolean;
+  isHidden: boolean;
+  isSymlink: boolean;
 };
 
-const EntryFlags: FC<EntryFlagsProps> = ({
-  IsSymlink,
-  IsHidden,
-  IsStarred,
-  isCutting,
-  isCopying
-}) => {
+const EntryFlags: React.FC<EntryFlagsProps> = ({ isHidden, isSymlink }) => {
   return (
-    <span className={cn("flex items-center gap-2")}>
-      <span
+    <span className={cn("flex gap-2")}>
+      <EyeClosedIcon
         className={cn("invisible", {
-          visible: IsHidden
+          visible: isHidden
         })}
-      >
-        <EyeClosedIcon />
-      </span>
+      />
 
-      <span
+      <ArrowLeftIcon
         className={cn("invisible", {
-          visible: IsSymlink
+          visible: isSymlink
         })}
-      >
-        <ArrowLeftIcon />
-      </span>
-
-      <span
-        className={cn("invisible", {
-          visible: IsStarred
-        })}
-      >
-        <StarFilledIcon />
-      </span>
-
-      <span
-        className={cn("invisible", {
-          visible: isCutting
-        })}
-      >
-        <ScissorsIcon />
-      </span>
-
-      <span
-        className={cn("invisible", {
-          visible: isCopying
-        })}
-      >
-        <ClipboardIcon />
-      </span>
+      />
     </span>
   );
 };

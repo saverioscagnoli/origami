@@ -1,57 +1,47 @@
 import React from "react";
-import { FolderIcon } from "~/components/icons/folder";
+import { FolderIcon } from "~/components/icons";
+import { Checkbox } from "~/components/tredici";
 import { getIconFromExtension } from "~/lib/file-icon-map";
 import { cn } from "~/lib/utils";
-import { RenamePopover } from "./rename-popover";
+import { useConfig } from "~/stores/config";
 
-type DisplayProps = {
-  IsDir: boolean;
-  Name: string;
+type EntryDisplayProps = {
+  name: string;
+  isDir: boolean;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
 };
 
-const ListEntryDisplay: React.FC<DisplayProps> = ({ IsDir, Name }) => {
+const EntryDisplay: React.FC<EntryDisplayProps> = ({
+  name,
+  isDir,
+  checked,
+  onCheckedChange
+}) => {
+  const showCheckboxes = useConfig(s => s.showCheckboxes);
+
   return (
-    <span className={cn("flex items-center gap-1.5")}>
-      <RenamePopover name={Name}>
-        <span className={cn("min-w-4")}>
-          {IsDir ? (
-            <FolderIcon />
-          ) : (
-            getIconFromExtension(Name.split(".").pop()!)
+    <span className={cn("flex items-center gap-2")}>
+      {showCheckboxes && (
+        <Checkbox
+          size="sm"
+          className={cn(
+            "w-3.5 h-3.5",
+            "!rounded",
+            "border-[1px]",
+            "z-50",
+            checked ? "visible" : "invisible",
+            "group-hover:visible"
           )}
-        </span>
-      </RenamePopover>
-      <p className={cn("w-32 md:w-40 lg:w-52 xl:w-64", "truncate")}>{Name}</p>
-    </span>
-  );
-};
-
-const GridEntryDisplay: React.FC<DisplayProps> = ({ IsDir, Name }) => {
-  return (
-    <span
-      className={cn(
-        "w-full h-full",
-        "flex flex-col items-center justify-center gap-2"
+          checked={checked}
+          onCheckedChange={onCheckedChange}
+          onClick={e => e.stopPropagation()}
+        />
       )}
-    >
-      <span className={"w-16 h-16"}>
-        {IsDir ? (
-          <FolderIcon className={cn("w-full h-full")} />
-        ) : (
-          React.cloneElement(getIconFromExtension(Name.split(".").pop()!), {
-            className: cn("w-full h-full")
-          })
-        )}
-      </span>
-      <RenamePopover name={Name}>
-        <p
-          className={cn("w-full", "cursor-default", "truncate", "text-center")}
-        >
-          {Name}
-        </p>
-      </RenamePopover>
+      {isDir ? <FolderIcon /> : getIconFromExtension(name.split(".").pop())}
+      <p className={cn("w-32 md:w-40 lg:w-52 xl:w-64", "truncate")}>{name}</p>
     </span>
   );
 };
 
-export { GridEntryDisplay, ListEntryDisplay };
+export { EntryDisplay };

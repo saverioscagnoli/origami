@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"embed"
-	"origami/config"
 	"origami/fs"
 	"origami/utils"
 
@@ -15,35 +14,36 @@ import (
 //go:embed all:www/dist
 var assets embed.FS
 
-
 func main() {
-	// Create an instance of the app structure
 	fs := fs.New()
 	utils := utils.New()
-	config := config.New()
 
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "origami",
 		Width:  1024,
 		Height: 768,
-		AssetServer: &assetserver.Options{
-			Assets: assets,
-		},
+
+		// Start hidden and then show the window
+		// in the frontend, to avoid the blank window while loading
+		StartHidden: true,
+
 		Frameless:       true,
 		CSSDragProperty: "widows",
 		CSSDragValue:    "1",
-		OnStartup: func(ctx context.Context) {
-			fs.SetContext(ctx)
-			utils.SetContext(ctx)
-			config.SetContext(ctx)
 
-			go fs.StartFetchDisksInterval()
-			go fs.StartDirWatcher()
+		AssetServer: &assetserver.Options{
+			Assets: assets,
 		},
-		EnableDefaultContextMenu: false,
+		OnStartup: func(ctx context.Context) {
+			fs.Init(ctx)
+			utils.Init(ctx)
+
+			go fs.StartWatcher()
+			go fs.StartFetchDisksInterval()
+		},
 		Bind: []interface{}{
-			fs, utils, config,
+			fs, utils,
 		},
 		Debug: options.Debug{
 			OpenInspectorOnStartup: true,

@@ -1,12 +1,13 @@
 import { MagicWandIcon } from "@radix-ui/react-icons";
+import React from "react";
 import { Menubar } from "~/components/tredici";
-import { useSettings } from "~/zustand/settings";
+import { Theme, useConfig } from "~/stores/config";
 
-const ThemeMenuItem = () => {
-  const [theme, setTheme] = useSettings(s => [s.theme, s.setTheme]);
+const ThemeItem: React.FC = () => {
+  const [theme, setConfig] = useConfig(s => [s.theme, s.set]);
 
-  const onValueChange = (v: string) => {
-    setTheme(v as "light" | "dark" | "system");
+  const onValueChange = (value: string) => {
+    setConfig({ theme: value as Theme });
   };
 
   return (
@@ -25,4 +26,4 @@ const ThemeMenuItem = () => {
   );
 };
 
-export { ThemeMenuItem };
+export { ThemeItem };

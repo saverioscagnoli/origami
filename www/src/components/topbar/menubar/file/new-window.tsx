@@ -1,18 +1,11 @@
 import { OpenInNewWindowIcon } from "@radix-ui/react-icons";
+import React from "react";
 import { Menubar } from "~/components/tredici";
 
-const NewWindowMenuItem = () => {
-  const onSelect = () => {};
-
+const NewWindowItem: React.FC = () => {
   return (
-    <Menubar.Item
-      leftIcon={<OpenInNewWindowIcon />}
-      shortcut="Ctrl + Shift + W"
-      onSelect={onSelect}
-    >
-      New Window
-    </Menubar.Item>
+    <Menubar.Item leftIcon={<OpenInNewWindowIcon />}>New Window</Menubar.Item>
   );
 };
 
-export { NewWindowMenuItem };
+export { NewWindowItem };

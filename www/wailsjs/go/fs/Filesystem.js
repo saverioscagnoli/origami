@@ -10,6 +10,10 @@ export function DeleteEntries(arg1) {
   return window['go']['fs']['Filesystem']['DeleteEntries'](arg1);
 }
 
+export function FetchConfigDir() {
+  return window['go']['fs']['Filesystem']['FetchConfigDir']();
+}
+
 export function FetchDisks() {
   return window['go']['fs']['Filesystem']['FetchDisks']();
 }
@@ -18,38 +22,18 @@ export function FetchKnownFolders() {
   return window['go']['fs']['Filesystem']['FetchKnownFolders']();
 }
 
+export function Init(arg1) {
+  return window['go']['fs']['Filesystem']['Init'](arg1);
+}
+
 export function ListDir(arg1) {
   return window['go']['fs']['Filesystem']['ListDir'](arg1);
-}
-
-export function OpenFiles(arg1) {
-  return window['go']['fs']['Filesystem']['OpenFiles'](arg1);
-}
-
-export function PasteEntries(arg1, arg2, arg3) {
-  return window['go']['fs']['Filesystem']['PasteEntries'](arg1, arg2, arg3);
-}
-
-export function RenameEntry(arg1, arg2) {
-  return window['go']['fs']['Filesystem']['RenameEntry'](arg1, arg2);
-}
-
-export function SetContext(arg1) {
-  return window['go']['fs']['Filesystem']['SetContext'](arg1);
-}
-
-export function StarEntries(arg1) {
-  return window['go']['fs']['Filesystem']['StarEntries'](arg1);
-}
-
-export function StartDirWatcher() {
-  return window['go']['fs']['Filesystem']['StartDirWatcher']();
 }
 
 export function StartFetchDisksInterval() {
   return window['go']['fs']['Filesystem']['StartFetchDisksInterval']();
 }
 
-export function UnstarEntries(arg1) {
-  return window['go']['fs']['Filesystem']['UnstarEntries'](arg1);
+export function StartWatcher() {
+  return window['go']['fs']['Filesystem']['StartWatcher']();
 }

@@ -1,20 +1,19 @@
 import { Key, useHotkey } from "@util-hooks/use-hotkey";
-import { DeleteEntries } from "@wails/methods/fs/Filesystem";
-import { useCurrentDir } from "~/zustand/dir";
+import { DeleteEntries } from "@wails/go/fs/Filesystem";
+import { useDir } from "~/stores/dir";
 
 /**
- * Delete selected entries.
+ * Deletes the selected entries
+ * @default Delete
  */
 function hotkeyDelete() {
-  const [selected, setSelected] = useCurrentDir(s => [
-    s.selected,
-    s.setSelected
-  ]);
+  const selected = useDir(s => s.selected);
 
   useHotkey(
     Key.Delete,
-    () => {
-      DeleteEntries(selected.map(e => e.Path)).then(() => setSelected([]));
+    e => {
+      e.preventDefault();
+      DeleteEntries(selected.map(e => e.path));
     },
     [selected]
   );

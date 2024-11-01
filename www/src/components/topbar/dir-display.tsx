@@ -1,46 +1,34 @@
 import { StarFilledIcon } from "@radix-ui/react-icons";
 import React, { useMemo, useState } from "react";
-import { Spinner } from "~/components/tredici";
 import useDebounce from "~/hooks/use-debounce";
 import { cn } from "~/lib/utils";
-import { useCurrentDir } from "~/zustand/dir";
-import { useEnv } from "~/zustand/env";
-import { useStates } from "~/zustand/states";
-import { SearchInput } from "./search-input";
+import { useDir } from "~/stores/dir";
+import { useEnv } from "~/stores/env";
+import { Spinner } from "../tredici";
 
 const DirDisplay: React.FC = () => {
-  const [dir, changing] = useCurrentDir(s => [s.dir, s.changing]);
-  const [sep, knownFolders] = useEnv(s => [s.sep, s.knownFolders]);
-  const [showSpinner, setShowSpinner] = useState(false);
+  const [dir, isChanging] = useDir(s => [s.dir, s.isChanging]);
+  const [knownFolders, sep] = useEnv(s => [s.knownFolders, s.sep]);
 
-  const searching = useStates(s => s.searching);
+  const [showSpinner, setShowSpinner] = useState<boolean>(false);
 
   const starredDir = useMemo(
-    () => knownFolders.find(k => k.name == "Starred")?.path,
-    [dir]
+    () => knownFolders.find(f => f.name === "Starred")?.path,
+    [knownFolders]
   );
 
   useDebounce(
     () => {
-      setShowSpinner(changing);
+      setShowSpinner(isChanging);
     },
     50,
-    [changing]
+    [isChanging]
   );
 
   return (
-    <span
-      style={{ widows: 1 }}
-      className={cn(
-        "w-full h-full",
-        "text-sm",
-        "grid place-items-center",
-        "truncate"
-      )}
-    >
-      {searching.state ? (
-        <SearchInput />
-      ) : showSpinner ? (
+    <p className={cn("text-sm")}>
+      {/* Windows disks are like A:, B: (I dont like that they dont end with the separator :#) */}
+      {showSpinner ? (
         <Spinner />
       ) : starredDir && dir.endsWith(":") ? (
         dir + sep
@@ -52,7 +40,7 @@ const DirDisplay: React.FC = () => {
       ) : (
         dir
       )}
-    </span>
+    </p>
   );
 };
 

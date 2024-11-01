@@ -3,7 +3,7 @@
   "name": "origami",
   "outputfilename": "origami",
   "frontend:dir": "./www",
-  "frontend:install": "yarn install",
+  "frontend:install": "yarn",
   "frontend:build": "yarn build",
   "frontend:dev:watcher": "yarn dev",
   "frontend:dev:serverUrl": "auto",

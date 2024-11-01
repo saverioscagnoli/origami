@@ -1,14 +1,19 @@
-import { FetchDisks } from "@wails/methods/fs/Filesystem";
-import React, { useEffect } from "react";
-import { For } from "~/components/for";
-import { useWailsEvent } from "~/hooks/use-wails-events";
+import { FetchDisks } from "@wails/go/fs/Filesystem";
+import { fs } from "@wails/go/models";
+import React, { useEffect, useState } from "react";
+import { useWailsEvent } from "~/hooks/use-wails-event";
 import { cn } from "~/lib/utils";
-import { useDisks } from "~/zustand/disks";
+import { For } from "../for";
 import { Disk } from "./disk";
-import { DiskContextMenu } from "./disk-context-menu";
+
+function nameSort(a: fs.Disk, b: fs.Disk) {
+  if (a.mountpoint < b.mountpoint) return -1;
+  if (a.mountpoint > b.mountpoint) return 1;
+  return 0;
+}
 
 const DiskGroup: React.FC = () => {
-  const [disks, setDisks] = useDisks(s => [s.disks, s.setDisks]);
+  const [disks, setDisks] = useState<fs.Disk[]>([]);
 
   /**
    * On startup:
@@ -27,21 +32,9 @@ const DiskGroup: React.FC = () => {
   useWailsEvent("disks", setDisks);
 
   return (
-    <div className={cn("flex flex-col gap-1")}>
-      <p className={cn("px-2", "text-sm")}>Devices</p>
-      <For
-        of={disks.sort((a, b) => {
-          if (a.Mountpoint < b.Mountpoint) return -1;
-          if (a.Mountpoint > b.Mountpoint) return 1;
-          return 0;
-        })}
-      >
-        {(d, i) => (
-          <DiskContextMenu {...d}>
-            <Disk key={i} {...d} />
-          </DiskContextMenu>
-        )}
-      </For>
+    <div className={cn("flex flex-col gap-1", "mt-4")}>
+      <p className={cn("pl-3", "text-sm")}>Devices</p>
+      <For of={disks.sort(nameSort)}>{(d, i) => <Disk key={i} {...d} />}</For>
     </div>
   );
 };

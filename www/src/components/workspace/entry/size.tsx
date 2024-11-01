@@ -1,14 +1,14 @@
-import { FC } from "react";
+import React from "react";
 import { cn, formatBytes } from "~/lib/utils";
 
 type EntrySizeProps = {
-  IsDir: boolean;
-  Size: number;
+  isDir: boolean;
+  size: number;
 };
 
-const EntrySize: FC<EntrySizeProps> = ({ IsDir, Size }) => {
+const EntrySize: React.FC<EntrySizeProps> = ({ isDir, size }) => {
   return (
-    <span className={cn("text-[--gray-8]")}>{!IsDir && formatBytes(Size)}</span>
+    <span className={cn("text-[--gray-8]")}>{!isDir && formatBytes(size)}</span>
   );
 };
 

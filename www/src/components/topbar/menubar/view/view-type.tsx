@@ -1,17 +1,23 @@
 import React from "react";
 import { Menubar } from "~/components/tredici";
-import { useSettings } from "~/zustand/settings";
+import { useConfig, ViewType } from "~/stores/config";
 
-const ViewTypeMenuItems: React.FC = () => {
-  const [view, setView] = useSettings(s => [s.view, s.setView]);
+const ViewTypeItem: React.FC = () => {
+  const [view, setConfig] = useConfig(s => [s.view, s.set]);
+
+  const onValueChange = (value: string) => {
+    setConfig({ view: value as ViewType });
+  };
 
   return (
-    // @ts-ignore (View is "list" or "grid", but typescript doesn't know that)
-    <Menubar.RadioGroup value={view} onValueChange={setView}>
-      <Menubar.RadioItem value="list">List View</Menubar.RadioItem>
-      <Menubar.RadioItem value="grid">Grid View</Menubar.RadioItem>
-    </Menubar.RadioGroup>
+    <>
+      <Menubar.Label>View</Menubar.Label>
+      <Menubar.RadioGroup value={view} onValueChange={onValueChange}>
+        <Menubar.RadioItem value="list">List</Menubar.RadioItem>
+        <Menubar.RadioItem value="grid">Grid</Menubar.RadioItem>
+      </Menubar.RadioGroup>
+    </>
   );
 };
 
-export { ViewTypeMenuItems };
+export { ViewTypeItem };

@@ -1,21 +1,16 @@
 import { ArrowUpIcon } from "@radix-ui/react-icons";
+import React from "react";
 import { Menubar } from "~/components/tredici";
-import { useCurrentDir } from "~/zustand/dir";
+import { useDir } from "~/stores/dir";
 
-const SelectAllMenuItem = () => {
-  const [entries, setSelected] = useCurrentDir(s => [s.entries, s.setSelected]);
-
-  const onSelect = () => setSelected(entries);
+const SelectAllItem: React.FC = () => {
+  const selectAll = useDir(s => s.selectAll);
 
   return (
-    <Menubar.Item
-      leftIcon={<ArrowUpIcon />}
-      shortcut="Ctrl + A"
-      onSelect={onSelect}
-    >
+    <Menubar.Item leftIcon={<ArrowUpIcon />} onSelect={selectAll}>
       Select All
     </Menubar.Item>
   );
 };
 
-export { SelectAllMenuItem };
+export { SelectAllItem };

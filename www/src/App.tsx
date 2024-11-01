@@ -1,168 +1,99 @@
-import { useEvent } from "@util-hooks/use-event";
-import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
 import {
-  GetConfig,
-  GetConfigDir,
-  LoadCustomCSS
-} from "@wails/methods/config/Config";
-import { OsName, Sep } from "@wails/methods/utils/Utils";
-import { useEffect, useLayoutEffect, useRef } from "react";
-import { Bottombar } from "~/components/bottombar";
-import { CreateEntryDialog } from "~/components/dialogs/create-entry";
+  DesktopIcon,
+  DiscIcon,
+  DownloadIcon,
+  HomeIcon,
+  ImageIcon,
+  ReaderIcon,
+  StarFilledIcon,
+  VideoIcon
+} from "@radix-ui/react-icons";
+import { useEvent } from "@util-hooks/use-event";
+import { FetchConfigDir, FetchKnownFolders } from "@wails/go/fs/Filesystem";
+import { Sep } from "@wails/go/utils/Utils";
+import { WindowShow } from "@wails/runtime/Runtime";
+import { useEffect, useRef } from "react";
 import { Sidebar } from "~/components/sidebar";
 import { Topbar } from "~/components/topbar";
 import { Workspace } from "~/components/workspace";
+import { cn } from "~/lib/utils";
+import { watchTheme } from "~/stores/config";
+import { useDir, watchDir } from "~/stores/dir";
+import { useEnv } from "~/stores/env";
+import { Botbar } from "./components/botbar";
+import { CreateDialog } from "./components/dialogs/create";
 import {
-  hotkeyCopy,
-  hotkeyCut,
   hotkeyDelete,
-  hotkeyFileDialog,
-  hotkeyFolderDialog,
-  hotkeyParentDir,
-  hotkeyPaste,
+  hotkeyNewFile,
+  hotkeyNewFolder,
   hotkeyReload,
-  hotkeyRenameEntry,
-  hotkeySearchHere,
-  hotkeySelectAllEntries,
-  hotkeyToggleShowCheckboxes,
-  hotkeyToggleShowHidden,
+  hotkeySelectAll,
+  hotkeyShowCheckboxes,
+  hotkeyShowHidden,
   hotkeyToggleTheme,
   hotkeyToggleView
-} from "~/hotkeys";
-import { cn } from "~/lib/utils";
-import { useCurrentDir } from "~/zustand/dir";
-import { useEnv } from "~/zustand/env";
-import { settingsEffect, Theme, useSettings, View } from "~/zustand/settings";
+} from "./hotkeys";
 
 function App() {
-  const cd = useCurrentDir(s => s.cd);
-  const [setSep, setOs, setConfigDir] = useEnv(s => [
-    s.setSep,
-    s.setOs,
-    s.setConfigDir
-  ]);
-
-  const [
-    theme,
-    setTheme,
-    setShowHidden,
-    setShowCheckboxes,
-    setView,
-    setFilter
-  ] = useSettings(s => [
-    s.theme,
-    s.setTheme,
-    s.setShowHidden,
-    s.setShowCheckboxes,
-    s.setView,
-    s.setFilter
-  ]);
+  const cd = useDir(s => s.cd);
+  const setEnv = useEnv(s => s.set);
 
   /**
-   * On start:
-   * - Load the config from the backend.
-   * - Fetch the path separator from the backend.
-   * - Fetch the OS name from the backend.
-   * - Cd into the default directory.
+   * On startup:
+   * - Cd into the default directory
+   * - Show the window (so that a white screen is not shown when the webview is loading)
+   * - Fetch known folders (desktop, documents, downloads, etc)
+   * - Fetch the os' path separator
    */
-  useLayoutEffect(() => {
-    Promise.all([
-      GetConfig(),
-      Sep(),
-      OsName(),
-      GetConfigDir(),
-      LoadCustomCSS()
-    ]).then(([config, sep, osName, configDir, css]) => {
-      setTheme(config.theme as Theme);
-      setShowHidden(config.showHidden);
-      setShowCheckboxes(config.showCheckboxes);
-      setView(config.view as View);
-      setFilter(config.filter);
-      setSep(sep);
-      setConfigDir(configDir);
-      setOs(osName);
-
-      /**
-       * Inject the custom css into the head of the document.
-       * TODO: Actually check if the css is valid.
-       * also, this sketchy af.
-       */
-      if (css) {
-        for (const style of css) {
-          const styleElement = document.createElement("style");
-          styleElement.innerHTML = style;
-          document.head.appendChild(styleElement);
-        }
+  useEffect(() => {
+    Promise.all([cd("C:"), FetchKnownFolders(), Sep(), FetchConfigDir()]).then(
+      ([_, folders, sep, configDir]) => {
+        WindowShow();
+        setEnv({
+          knownFolders: [
+            { name: "Starred", path: folders[0], icon: <StarFilledIcon /> },
+            { name: "Home", path: folders[1], icon: <HomeIcon /> },
+            { name: "Desktop", path: folders[2], icon: <DesktopIcon /> },
+            { name: "Downloads", path: folders[3], icon: <DownloadIcon /> },
+            { name: "Documents", path: folders[4], icon: <ReaderIcon /> },
+            { name: "Pictures", path: folders[5], icon: <ImageIcon /> },
+            { name: "Music", path: folders[6], icon: <DiscIcon /> },
+            { name: "Videos", path: folders[7], icon: <VideoIcon /> }
+          ],
+          sep,
+          configDir
+        });
       }
-    });
-
-    cd("C:");
+    );
   }, []);
 
   /**
-   * Setup all the hotkey listeners
+   * Internally uses an useEffect that watches
+   * the theme states from the stores, and applies changes to the DOM
+   * @see ~/stores/*
    */
-  hotkeyCopy();
-  hotkeyCut();
+  watchTheme();
+  watchDir();
+
+  /**
+   * Setup all the hotkey handlers
+   */
   hotkeyDelete();
-  hotkeyFileDialog();
-  hotkeyFolderDialog();
-  hotkeyParentDir();
-  hotkeyPaste();
+  hotkeyNewFile();
+  hotkeyNewFolder();
   hotkeyReload();
-  hotkeyRenameEntry();
-  hotkeySearchHere();
-  hotkeySelectAllEntries();
-  hotkeyToggleShowCheckboxes();
-  hotkeyToggleShowHidden();
+  hotkeySelectAll();
+  hotkeyShowCheckboxes();
+  hotkeyShowHidden();
   hotkeyToggleTheme();
   hotkeyToggleView();
-
-  /**
-   * Watch for changes in the settings with useEffects
-   */
-  settingsEffect();
-
-  /**
-   * When the theme state changes, reflect the changes
-   */
-  useEffect(() => {
-    if (
-      theme === "system" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    ) {
-      document.documentElement.className = "dark";
-    } else {
-      document.documentElement.className = theme;
-    }
-  }, [theme]);
-
-  /**
-   * Disable The default context menu.
-   */
-  useEvent("contextmenu", e => e.preventDefault());
-
-  /**
-   * Prevent browser default behaviors
-   */
-  useHotkey([Modifier.Ctrl], Key.G, e => e.preventDefault());
-  useHotkey([Modifier.Ctrl], Key.U, e => e.preventDefault());
-  useHotkey([Modifier.Ctrl], Key.P, e => e.preventDefault());
-
-  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.G, e => e.preventDefault());
-  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.P, e => e.preventDefault());
-  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.I, e => e.preventDefault());
-  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.R, e => e.preventDefault());
-  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.S, e => e.preventDefault());
-  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.J, e => e.preventDefault());
-  useHotkey([Modifier.Ctrl, Modifier.Shift], Key.C, e => e.preventDefault());
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   /**
-   * Prevent zooming in/out with ctrl + scroll
+   * Prevents the zooming of the page when the user scrolls
+   * with control key pressed
    */
-  // @ts-ignore
   useEvent(wrapperRef, "wheel", e => {
     if (e.ctrlKey) {
       e.preventDefault();
@@ -176,17 +107,17 @@ function App() {
     >
       <Topbar />
       <div
-        className={cn("w-full h-[calc(100vh-3.5rem)]", "fixed top-8", "flex")}
+        className={cn("w-full h-[calc(100vh-3.25rem)]", "fixed top-7", "flex")}
       >
         <>
-          <CreateEntryDialog />
+          <CreateDialog />
         </>
         <Sidebar />
         <Workspace />
       </div>
-      <Bottombar />
+      <Botbar />
     </div>
   );
 }
 
-export default App;
+export { App };

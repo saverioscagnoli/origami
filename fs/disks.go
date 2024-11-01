@@ -2,45 +2,72 @@ package fs
 
 import (
 	"fmt"
+	"os"
+	"runtime"
+	"strings"
+	"syscall"
 	"time"
+	"unsafe"
 
 	"github.com/shirou/gopsutil/v4/disk"
 	wails "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// Represents a disk in the system
 type Disk struct {
-	Name        string
-	Mountpoint  string
-	Filesystem  string
-	Total       uint64
-	Used        uint64
-	Free        uint64
-	UsedPercent float64
+	Name        string  `json:"name"`
+	Mountpoint  string  `json:"mountpoint"`
+	Type        string  `json:"type"`
+	Free        uint64  `json:"free"`
+	Total       uint64  `json:"total"`
+	Removable   bool    `json:"removable"`
+	UsedPercent float64 `json:"usedPercent"`
 }
 
-// Retrieves the disks in the system
-// Builds information about each disk
-func (f *Filesystem) FetchDisks() []Disk {
-	disks := []Disk{}
-	partitions, _ := disk.Partitions(false)
+func isRemovable(mountpoint string, name string) bool {
+	if runtime.GOOS == "windows" {
+		kernel32 := syscall.NewLazyDLL("kernel32.dll")
+		getDriveType := kernel32.NewProc("GetDriveTypeW")
 
-	for _, partition := range partitions {
-		usageStat, err := disk.Usage(partition.Mountpoint)
+		// GetDriveTypeW returns 0 if it fails
+		ptr, _ := syscall.UTF16PtrFromString(mountpoint)
+		driveType, _, _ := getDriveType.Call(uintptr(unsafe.Pointer(ptr)))
+
+		return driveType == 2
+	} else {
+		deviceName := strings.TrimPrefix(name, "/dev/")
+		removablePath := fmt.Sprintf("/sys/block/%s/removable", deviceName)
+
+		data, err := os.ReadFile(removablePath)
 		if err != nil {
-			fmt.Printf("Error getting usage for %s: %v\n", partition.Mountpoint, err)
+			return false
+		}
+
+		return strings.TrimSpace(string(data)) == "1"
+	}
+}
+
+func (fs *Filesystem) FetchDisks() []Disk {
+	disks := []Disk{}
+	parts, _ := disk.Partitions(false)
+
+	for _, part := range parts {
+		usage, err := disk.Usage(part.Mountpoint)
+
+		if err != nil {
 			continue
 		}
 
-		disks = append(disks, Disk{
-			Name:        partition.Device,
-			Mountpoint:  partition.Mountpoint,
-			Filesystem:  partition.Fstype,
-			Total:       usageStat.Total,
-			Used:        usageStat.Used,
-			Free:        usageStat.Free,
-			UsedPercent: usageStat.UsedPercent,
-		})
+		disk := Disk{
+			Name:        part.Device,
+			Mountpoint:  part.Mountpoint,
+			Type:        part.Fstype,
+			Free:        usage.Free,
+			Total:       usage.Total,
+			Removable:   isRemovable(part.Mountpoint, part.Device),
+			UsedPercent: usage.UsedPercent,
+		}
+
+		disks = append(disks, disk)
 	}
 
 	return disks
@@ -60,6 +87,6 @@ func (f *Filesystem) StartFetchDisksInterval() {
 
 	}()
 
-	// Keep the main goroutine running indefinitely
+	// Keep the goroutine running indefinitely
 	<-make(chan struct{})
 }

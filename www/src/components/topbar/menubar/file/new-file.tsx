@@ -1,23 +1,20 @@
-import { FilePlusIcon } from "@radix-ui/react-icons";
+import { FileIcon } from "@radix-ui/react-icons";
+import React from "react";
 import { Menubar } from "~/components/tredici";
-import { useStates } from "~/zustand/states";
+import { useCreating } from "~/stores/states";
 
-const NewFileMenuItem = () => {
-  const setCreating = useStates(s => s.setCreating);
+const NewFileItem: React.FC = () => {
+  const setCreating = useCreating(s => s.set);
 
   const onSelect = () => {
-    setCreating({ state: true, isDir: false });
+    setCreating(prev => ({ state: !prev.state, isDir: false }));
   };
 
   return (
-    <Menubar.Item
-      leftIcon={<FilePlusIcon />}
-      shortcut="Ctrl + N"
-      onSelect={onSelect}
-    >
-      New File...
+    <Menubar.Item leftIcon={<FileIcon />} onSelect={onSelect}>
+      New File
     </Menubar.Item>
   );
 };
 
-export { NewFileMenuItem };
+export { NewFileItem };

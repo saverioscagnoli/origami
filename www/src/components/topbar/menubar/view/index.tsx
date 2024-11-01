@@ -1,29 +1,27 @@
+import React from "react";
 import { Menubar } from "~/components/tredici";
-import { FilterMenuItems } from "./filter";
-import { ReloadMenuItem } from "./reload";
-import { ShowCheckboxesMenuItem } from "./show-checkboxes";
-import { ShowHiddenMenuItem } from "./show-hidden";
-import { ThemeMenuItem } from "./theme";
-import { ViewTypeMenuItems } from "./view-type";
+import { ReloadItem } from "./reload";
+import { ShowCheckboxesItem } from "./show-checkboxes";
+import { ShowHiddenItem } from "./show-hidden";
+import { ThemeItem } from "./theme";
+import { ViewTypeItem } from "./view-type";
 
-const TopbarViewMenu = () => {
+const ViewMenu: React.FC = () => {
   return (
     <Menubar.Menu>
       <Menubar.Trigger>View</Menubar.Trigger>
       <Menubar.Content onCloseAutoFocus={e => e.preventDefault()}>
-        <ReloadMenuItem />
+        <ReloadItem />
         <Menubar.Separator />
-        <ShowHiddenMenuItem />
-        <ShowCheckboxesMenuItem />
+        <ShowHiddenItem />
+        <ShowCheckboxesItem />
         <Menubar.Separator />
-        <ThemeMenuItem />
+        <ThemeItem />
         <Menubar.Separator />
-        <ViewTypeMenuItems />
-        <Menubar.Separator />
-        <FilterMenuItems />
+        <ViewTypeItem />
       </Menubar.Content>
     </Menubar.Menu>
   );
 };
 
-export { TopbarViewMenu };
+export { ViewMenu };

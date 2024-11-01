@@ -8,5 +8,4 @@ export * from "./popover";
 export * from "./progress";
 export * from "./scroll-area";
 export * from "./spinner";
-export * from "./toast";
 export * from "./tooltip";

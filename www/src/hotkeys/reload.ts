@@ -1,20 +1,17 @@
 import { Key, Modifier, useHotkey } from "@util-hooks/use-hotkey";
-import { useCurrentDir } from "~/zustand/dir";
+import { useDir } from "~/stores/dir";
 
 /**
- * Ctrl + R reloads the current directory.
+ * Reloads the current directory
+ * @default Ctrl + R
  */
 function hotkeyReload() {
-  const [cd, dir] = useCurrentDir(s => [s.cd, s.dir]);
+  const reload = useDir(s => s.reload);
 
-  useHotkey(
-    [Modifier.Ctrl],
-    Key.R,
-    () => {
-      cd(dir);
-    },
-    [dir]
-  );
+  useHotkey([Modifier.Ctrl], Key.R, e => {
+    e.preventDefault();
+    reload();
+  });
 }
 
 export { hotkeyReload };

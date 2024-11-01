@@ -1,5 +1,5 @@
 {
-    "scripts": {
-        "dev": "cd copy && cargo build --release && cd .. && wails dev"
-    }
+  "scripts": {
+    "dev": "wails dev -loglevel \"Error\""
+  }
 }

@@ -1,7 +1,7 @@
 import * as RxDialog from "@radix-ui/react-dialog";
+import { Cross1Icon } from "@radix-ui/react-icons";
 import { forwardRef } from "react";
 import { cn } from "~/lib/utils";
-import { Cross1Icon } from "@radix-ui/react-icons";
 
 import "./dialog.css";
 
@@ -131,10 +131,10 @@ Dialog.displayName = RxDialog.Root.displayName;
 
 export { Dialog };
 export type {
-  DialogProps,
-  DialogTriggerProps,
+  DialogCloseProps,
   DialogContentProps,
-  DialogTitleProps,
   DialogDescriptionProps,
-  DialogCloseProps
+  DialogProps,
+  DialogTitleProps,
+  DialogTriggerProps
 };

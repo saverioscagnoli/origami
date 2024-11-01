@@ -1,16 +1,17 @@
+import React from "react";
 import { Menubar } from "~/components/tredici";
-import { TopbarEditMenu } from "./edit";
-import { TopbarFileMenu } from "./file";
-import { TopbarGoMenu } from "./go";
-import { TopbarViewMenu } from "./view";
+import { EditMenu } from "./edit";
+import { FileMenu } from "./file";
+import { GoMenu } from "./go";
+import { ViewMenu } from "./view";
 
-const TopbarMenu = () => {
+const TopbarMenu: React.FC = () => {
   return (
     <Menubar>
-      <TopbarFileMenu />
-      <TopbarEditMenu />
-      <TopbarViewMenu />
-      <TopbarGoMenu />
+      <FileMenu />
+      <EditMenu />
+      <ViewMenu />
+      <GoMenu />
     </Menubar>
   );
 };

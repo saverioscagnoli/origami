@@ -1,23 +1,16 @@
 import { ReloadIcon } from "@radix-ui/react-icons";
+import React from "react";
 import { Menubar } from "~/components/tredici";
-import { useCurrentDir } from "~/zustand/dir";
+import { useDir } from "~/stores/dir";
 
-const ReloadMenuItem = () => {
-  const [cd, dir] = useCurrentDir(s => [s.cd, s.dir]);
-
-  const onSelect = () => {
-    cd(dir);
-  };
+const ReloadItem: React.FC = () => {
+  const reload = useDir(s => s.reload);
 
   return (
-    <Menubar.Item
-      leftIcon={<ReloadIcon />}
-      shortcut="Ctrl + R"
-      onSelect={onSelect}
-    >
+    <Menubar.Item leftIcon={<ReloadIcon />} onSelect={reload}>
       Reload
     </Menubar.Item>
   );
 };
 
-export { ReloadMenuItem };
+export { ReloadItem };

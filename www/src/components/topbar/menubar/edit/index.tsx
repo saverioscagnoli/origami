@@ -1,27 +1,28 @@
+import React from "react";
 import { Menubar } from "~/components/tredici";
-import { CopyMenuItem } from "./copy";
-import { CutMenuItem } from "./cut";
-import { DeleteMenuItem } from "./delete";
-import { PasteMenuItem } from "./paste";
-import { RenameMenuItem } from "./rename";
-import { SelectAllMenuItem } from "./select-all";
+import { CopyItem } from "./copy";
+import { CutItem } from "./cut";
+import { DeleteItem } from "./delete";
+import { PasteItem } from "./paste";
+import { RenameItem } from "./rename";
+import { SelectAllItem } from "./select-all";
 
-const TopbarEditMenu = () => {
+const EditMenu: React.FC = () => {
   return (
     <Menubar.Menu>
       <Menubar.Trigger>Edit</Menubar.Trigger>
       <Menubar.Content onCloseAutoFocus={e => e.preventDefault()}>
-        <CutMenuItem />
-        <CopyMenuItem />
-        <PasteMenuItem />
+        <CutItem />
+        <CopyItem />
+        <PasteItem />
         <Menubar.Separator />
-        <RenameMenuItem />
-        <DeleteMenuItem />
+        <RenameItem />
+        <DeleteItem />
         <Menubar.Separator />
-        <SelectAllMenuItem />
+        <SelectAllItem />
       </Menubar.Content>
     </Menubar.Menu>
   );
 };
 
-export { TopbarEditMenu };
+export { EditMenu };

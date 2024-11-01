@@ -1,13 +1,13 @@
-import { BackpackIcon } from "@radix-ui/react-icons";
-import { fs } from "@wails/methods/models";
+import { BackpackIcon, ImageIcon } from "@radix-ui/react-icons";
+import { fs } from "@wails/go/models";
 import React from "react";
 import { Progress } from "~/components/tredici";
 import { cn } from "~/lib/utils";
-import { useCurrentDir } from "~/zustand/dir";
+import { useDir } from "~/stores/dir";
 
-const Disk: React.FC<fs.Disk> = ({ Mountpoint, Total, Free, UsedPercent }) => {
-  const cd = useCurrentDir(s => s.cd);
-  const onClick = () => cd(Mountpoint);
+const Disk: React.FC<fs.Disk> = disk => {
+  const cd = useDir(s => s.cd);
+  const onClick = () => cd(disk.mountpoint);
 
   return (
     <div
@@ -22,25 +22,23 @@ const Disk: React.FC<fs.Disk> = ({ Mountpoint, Total, Free, UsedPercent }) => {
     >
       <div className={cn("flex items-center justify-between")}>
         <span className={cn("flex items-center gap-2")}>
-          <span>
-            <BackpackIcon />
-          </span>
-          <p className={cn("w-1/2", "truncate")}>{Mountpoint}</p>
+          <span>{disk.removable ? <ImageIcon /> : <BackpackIcon />}</span>
+          <p className={cn("w-1/2", "truncate")}>{disk.mountpoint}</p>
         </span>
         <div className={cn("flex gap-1")}>
           <p className={cn("lg:block hidden text-sm")}>
-            ({UsedPercent.toFixed(0)}%)
+            ({disk.usedPercent.toFixed(0)}%)
           </p>
           <p className={cn("text-sm")}>
-            {(Total / 1024 / 1024 / 1024).toFixed(0)} GB
+            {(disk.total / 1024 / 1024 / 1024).toFixed(0)} GB
           </p>
         </div>
       </div>
       <Progress
         className={cn("w-full xl:h-[7px]", "sm:rounded-sm")}
         indicatorClassName={cn("sm:rounded-sm")}
-        max={Total}
-        value={Total - Free}
+        max={disk.total}
+        value={disk.total - disk.free}
       />
     </div>
   );

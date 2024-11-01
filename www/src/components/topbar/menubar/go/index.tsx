@@ -1,26 +1,27 @@
+import React from "react";
 import { Menubar } from "~/components/tredici";
-import { BackMenuItem } from "./back";
-import { ConfigDirectoryMenuItem } from "./config-dir";
-import { ForwardMenuItem } from "./forward";
-import { KnownFoldersMenuItems } from "./known-folders";
-import { ParentDirectoryMenuItem } from "./parent";
+import { BackItem } from "./back";
+import { ConfigDirItem } from "./config-dir";
+import { ForwardItem } from "./forward";
+import { KnownFoldersItems } from "./known-folders";
+import { ParentDirItem } from "./parent-dir";
 
-const TopbarGoMenu = () => {
+const GoMenu: React.FC = () => {
   return (
     <Menubar.Menu>
       <Menubar.Trigger>Go</Menubar.Trigger>
       <Menubar.Content onCloseAutoFocus={e => e.preventDefault()}>
-        <ParentDirectoryMenuItem />
+        <ParentDirItem />
         <Menubar.Separator />
-        <BackMenuItem />
-        <ForwardMenuItem />
+        <BackItem />
+        <ForwardItem />
         <Menubar.Separator />
-        <KnownFoldersMenuItems />
+        <KnownFoldersItems />
         <Menubar.Separator />
-        <ConfigDirectoryMenuItem />
+        <ConfigDirItem />
       </Menubar.Content>
     </Menubar.Menu>
   );
 };
 
-export { TopbarGoMenu };
+export { GoMenu };

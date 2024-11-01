@@ -1,22 +1,22 @@
 import React from "react";
 import { Menubar } from "~/components/tredici";
-import { useSettings } from "~/zustand/settings";
+import { useConfig } from "~/stores/config";
 
-const ShowCheckboxesMenuItem: React.FC = () => {
-  const [showCheckboxes, setShowCheckboxes] = useSettings(state => [
-    state.showCheckboxes,
-    state.setShowCheckboxes
-  ]);
+const ShowCheckboxesItem: React.FC = () => {
+  const [showCheckboxes, setConfig] = useConfig(s => [s.showCheckboxes, s.set]);
+
+  const onCheckedChange = (value: boolean) => {
+    setConfig({ showCheckboxes: value });
+  };
 
   return (
     <Menubar.CheckboxItem
-      shortcut="Ctrl + J"
       checked={showCheckboxes}
-      onCheckedChange={setShowCheckboxes}
+      onCheckedChange={onCheckedChange}
     >
       Show Checkboxes
     </Menubar.CheckboxItem>
   );
 };
 
-export { ShowCheckboxesMenuItem };
+export { ShowCheckboxesItem };

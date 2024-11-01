@@ -15,12 +15,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "paths": {
-      "~/*": ["./*"],
-      "@wails/methods/*": ["../wailsjs/go/*"],
-      "@wails/models": ["../wailsjs/go/models"],
-      "@wails/runtime": ["../wailsjs/runtime/runtime"]
+      "~/*": ["src/*"],
+      "@wails/*": ["wailsjs/*"],
+      "@wails/runtime": ["wailsjs/runtime/Runtime"]
     }
   },
   "include": ["src"],

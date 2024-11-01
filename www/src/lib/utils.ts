@@ -1,4 +1,3 @@
-import { fs } from "@wails/methods/models";
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -67,30 +66,4 @@ function formatBytes(
   return `${n.toLocaleString()} ${size}`;
 }
 
-/**
- * Filter entries, based on a search query using a worker.
- *
- * @param entries The entries to filter
- * @param query The search query
- * @param worker The filter worker
- * @returns A promise that resolves to the filtered entries
- */
-async function filterWithWorker(
-  entries: fs.DirEntry[],
-  query: string,
-  worker: Worker
-): Promise<fs.DirEntry[]> {
-  return new Promise((res, rej) => {
-    worker.postMessage([entries, query]);
-
-    worker.onmessage = e => {
-      res(e.data);
-    };
-
-    worker.onerror = e => {
-      rej(e);
-    };
-  });
-}
-
-export { cn, filterWithWorker, formatBytes };
+export { cn, formatBytes };
