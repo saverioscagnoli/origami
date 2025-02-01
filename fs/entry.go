@@ -3,7 +3,7 @@ package fs
 import (
 	"bufio"
 	"fmt"
-	"origami/embeds"
+	_ "origami/embeds"
 	"os"
 	"os/exec"
 	"path/filepath"
